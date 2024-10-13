@@ -1,6 +1,5 @@
 use actix_web::{web::{self, ServiceConfig}, HttpResponse};
-use crate::card_stack::CardStack;
-use shared::models::{Card, CreateCard};
+use crate::card_stack::{Card, CreateCard, CardStack};
 use uuid::Uuid;
 
 pub fn service<S: CardStack>(cfg: &mut ServiceConfig) {

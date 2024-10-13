@@ -2,6 +2,5 @@
 members = [
     "backend/lib",
     "backend/actix-api",
-    "shared"
 ]
 resolver = "2"

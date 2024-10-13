@@ -302,9 +302,9 @@ version = "0.1.0"
 dependencies = [
  "actix-web",
  "async-trait",
+ "chrono",
  "serde",
  "serde_json",
- "shared",
  "sqlx",
  "tracing",
  "uuid",
@@ -1669,16 +1669,6 @@ dependencies = [
  "cfg-if",
  "cpufeatures",
  "digest",
-]
-
-[[package]]
-name = "shared"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "serde",
- "sqlx",
- "uuid",
 ]
 
 [[package]]

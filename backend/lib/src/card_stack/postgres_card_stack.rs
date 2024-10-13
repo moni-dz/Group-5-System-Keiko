@@ -1,7 +1,5 @@
 use uuid::Uuid;
-use shared::models::{Card, CreateCard};
-use super::{CardStack, CardResult};
-
+use super::{Card, CreateCard, CardStack, CardResult};
 
 pub struct PostgresCardStack {
     pool: sqlx::PgPool
