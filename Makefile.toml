@@ -1,0 +1,25 @@
+[tasks.api-run]
+workspace = false
+env = { RUST_LOG="info" }
+install_crate = "cargo-shuttle"
+command = "cargo"
+args = ["shuttle", "run"]
+
+[tasks.front-serve]
+workspace = false
+cwd = "./frontend"
+command = "pnpm"
+args = ["run", "dev"]
+
+[tasks.clippy]
+workspace = false
+install_crate = "cargo-clippy"
+command = "cargo"
+args = ["clippy"]
+
+[tasks.format]
+clear = true
+workspace = false
+install_crate = "rustfmt"
+command = "cargo"
+args = ["fmt", "--all", "--", "--check"]
