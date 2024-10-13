@@ -1,7 +1,10 @@
-import { useEffect, useState } from 'react';
-import Flashcard, { FlashcardProps } from "@/components/Flashcard.tsx";
+"use client";
 
-export default function App() {
+import { useEffect, useState } from "react";
+import Flashcard, {FlashcardProps} from "@/components/flashcard";
+
+
+export default function ReviewPage() {
     const [cards, setCards] = useState([]);
 
     useEffect(() => {
@@ -17,6 +20,5 @@ export default function App() {
         <div className="flex flex-row gap-5 items-center justify-center min-h-screen">
             {cards.map((card: FlashcardProps) => <Flashcard key={card.id} {...card} />)}
         </div>
-
     </>
 }

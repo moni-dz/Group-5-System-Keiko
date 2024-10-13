@@ -14,6 +14,7 @@ pub fn service<S: CardStack>(cfg: &mut ServiceConfig) {
     );
 }
 
+/// Retrieves all cards as a JSON array
 async fn get_all<S: CardStack>(stack: web::Data<S>) -> HttpResponse {
     match stack.get_cards().await {
         Ok(cards) => HttpResponse::Ok().json(cards),
@@ -21,6 +22,7 @@ async fn get_all<S: CardStack>(stack: web::Data<S>) -> HttpResponse {
     }
 }
 
+/// Retrieves a single card based on UUID
 async fn get<S: CardStack>(card_id: web::Path<Uuid>, stack: web::Data<S>) -> HttpResponse {
     match stack.get_card(&card_id).await {
         Ok(card) => HttpResponse::Ok().json(card),
@@ -28,6 +30,7 @@ async fn get<S: CardStack>(card_id: web::Path<Uuid>, stack: web::Data<S>) -> Htt
     }
 }
 
+/// Adds a new card to the list of cards
 async fn post<S: CardStack>(create_card: web::Json<CreateCard>, stack: web::Data<S>) -> HttpResponse {
     match stack.create_card(&create_card).await {
         Ok(card) => HttpResponse::Ok().json(card),
@@ -35,6 +38,7 @@ async fn post<S: CardStack>(create_card: web::Json<CreateCard>, stack: web::Data
     }
 }
 
+/// Updates an existing card
 async fn put<S: CardStack>(card: web::Json<Card>, stack: web::Data<S>) -> HttpResponse {
     match stack.update_card(&card).await {
         Ok(card) => HttpResponse::Ok().json(card),
@@ -42,6 +46,7 @@ async fn put<S: CardStack>(card: web::Json<Card>, stack: web::Data<S>) -> HttpRe
     }
 }
 
+/// Deletes a card from the database
 async fn delete<S: CardStack>(card_id: web::Path<Uuid>, stack: web::Data<S>) -> HttpResponse {
     match stack.delete_card(&card_id).await {
         Ok(card) => HttpResponse::Ok().json(card),

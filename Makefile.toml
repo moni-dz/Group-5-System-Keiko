@@ -1,3 +1,15 @@
+[tasks.backend-dev]
+workspace = false
+env = { RUST_LOG="info" }
+command = "cargo"
+args = ["watch", "-x", "'run'"]
+
+[tasks.frontend-dev]
+workspace = false
+cwd = "./frontend"
+command = "pnpm"
+args = ["run", "dev"]
+
 [tasks.backend]
 workspace = false
 env = { RUST_LOG="info" }
@@ -8,7 +20,7 @@ args = ["run"]
 workspace = false
 cwd = "./frontend"
 command = "pnpm"
-args = ["run", "dev"]
+args = ["run"]
 
 [tasks.clippy]
 workspace = false

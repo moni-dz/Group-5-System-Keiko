@@ -1,6 +1,5 @@
 use actix_cors::Cors;
 use actix_web::{web, App, HttpServer};
-use actix_web::http::header;
 use actix_web::middleware::Logger;
 use actix_web::web::ServiceConfig;
 use sqlx::Executor;

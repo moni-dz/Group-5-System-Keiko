@@ -1,58 +1,35 @@
-import { useState, useEffect } from 'react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, Trash2 } from "lucide-react"
-import { FlashcardProps } from "@/components/Flashcard.tsx";
+"use client";
 
-type FlashcardItem = FlashcardProps;
+import { useState, useEffect } from 'react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2, Trash2 } from "lucide-react";
+import { addCard, deleteCard, Flashcard, getAllCards, updateCard } from "@/lib/flashcard-api";
 
-// Dummy API functions
-const api = {
-    getItems: (): Promise<FlashcardItem[]> =>
-        new Promise(resolve => setTimeout(() => resolve([
-            { id: "1", question: "What is React?", answer: "A JavaScript library for building user interfaces", difficulty: "Easy", tag: "React" },
-            { id: "2", question: "What is JSX?", answer: "A syntax extension for JavaScript", difficulty: "Medium", tag: "React" }
-        ]), 500)),
-
-    addItem: (item: Omit<FlashcardItem, 'id'>): Promise<FlashcardItem> =>
-        new Promise(resolve => setTimeout(() => resolve({ ...item, id: Date.now() }), 500)),
-
-    updateItem: (item: FlashcardItem): Promise<FlashcardItem> =>
-        new Promise(resolve => setTimeout(() => resolve(item), 500)),
-
-    deleteItem: (id: number): Promise<void> =>
-        new Promise(resolve => setTimeout(resolve, 500))
-}
-
-export default function Component() {
-    const [items, setItems] = useState<FlashcardItem[]>([])
+export default function CardManagement() {
+    const [cards, setCards] = useState<Flashcard[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
-    const [editingId, setEditingId] = useState<number | null>(null)
+    const [editingId, setEditingId] = useState<string | null>(null)
     const [formData, setFormData] = useState({
         question: '',
         answer: '',
         difficulty: '',
-        tag: ''
+        tags: ''
     })
 
     useEffect(() => {
-        fetchItems()
-    }, [])
-
-    const fetchItems = async () => {
-        try {
-            setLoading(true)
-            const data = await api.getItems()
-            setItems(data)
-        } catch (err) {
-            setError('Failed to fetch items')
-        } finally {
-            setLoading(false)
+        setLoading(true);
+        const fetchData = async () => {
+            const data = await getAllCards();
+            setCards(data);
         }
-    }
+
+        fetchData().catch(console.error);
+        setLoading(false);
+    }, [])
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target
@@ -64,31 +41,51 @@ export default function Component() {
         try {
             setLoading(true)
             if (editingId) {
-                const updatedItem = await api.updateItem({ id: editingId, ...formData })
-                setItems(items.map(item => item.id === editingId ? updatedItem : item))
-                setEditingId(null)
+                // @ts-ignore
+                const updatedCard = await updateCard({
+                    "id": editingId,
+                    "question": formData.question,
+                    "answer": formData.answer,
+                    "difficulty": formData.difficulty,
+                    "tags": formData.tags
+                });
+
+                setCards(cards.map(card => card.id === editingId ? updatedCard : card));
+                setEditingId(null);
             } else {
-                const newItem = await api.addItem(formData)
-                setItems([...items, newItem])
+                // @ts-ignore
+                let newCard: Flashcard = {
+                    "question": formData.question,
+                    "answer": formData.answer,
+                    "difficulty": formData.difficulty,
+                    "tags": formData.tags
+                };
+
+                console.log(newCard);
+
+                const newItem = await addCard(newCard);
+                setCards([...cards, newItem]);
             }
-            setFormData({ question: '', answer: '', difficulty: '', tag: '' })
+
+            setFormData({ question: '', answer: '', difficulty: '', tags: '' });
         } catch (err) {
-            setError('Failed to save item')
+            setError('Failed to save item.');
+            console.error(err);
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
     }
 
-    const handleEdit = (item: FlashcardItem) => {
-        setEditingId(item.id)
-        setFormData(item)
+    const handleEdit = (item: Flashcard) => {
+        setEditingId(item.id);
+        setFormData(item);
     }
 
-    const handleDelete = async (id: number) => {
+    const handleDelete = async (id: string) => {
         try {
-            setLoading(true)
-            await api.deleteItem(id)
-            setItems(items.filter(item => item.id !== id))
+            setLoading(true);
+            await deleteCard(id);
+            setCards(cards.filter(card => card.id !== id))
         } catch (err) {
             setError('Failed to delete item')
         } finally {
@@ -102,7 +99,7 @@ export default function Component() {
 
     return (
         <div className="container mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Quiz CRUD</h1>
+            <h1 className="text-2xl font-bold mb-4">Manage Cards</h1>
             <form onSubmit={handleSubmit} className="mb-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -136,11 +133,11 @@ export default function Component() {
                         />
                     </div>
                     <div>
-                        <Label htmlFor="tag">Tag</Label>
+                        <Label htmlFor="tags">Tags</Label>
                         <Input
-                            id="tag"
-                            name="tag"
-                            value={formData.tag}
+                            id="tags"
+                            name="tags"
+                            value={formData.tags}
                             onChange={handleInputChange}
                             required
                         />
@@ -152,26 +149,26 @@ export default function Component() {
                 </Button>
             </form>
 
-            {loading && !items.length ? (
+            {loading && !cards.length ? (
                 <div className="text-center">
                     <Loader2 className="h-8 w-8 animate-spin mx-auto" />
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {items.map(item => (
-                        <Card key={item.id}>
+                    {cards.map(card => (
+                        <Card key={card.id}>
                             <CardHeader>
-                                <CardTitle>{item.question}</CardTitle>
+                                <CardTitle>{card.question}</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <p><strong>Answer:</strong> {item.answer}</p>
-                                <p><strong>Difficulty:</strong> {item.difficulty}</p>
-                                <p><strong>Tag:</strong> {item.tag}</p>
+                                <p><strong>Answer:</strong> {card.answer}</p>
+                                <p><strong>Difficulty:</strong> {card.difficulty}</p>
+                                <p><strong>Tags:</strong> {card.tags}</p>
                                 <div className="flex justify-end mt-4">
-                                    <Button variant="outline" className="mr-2" onClick={() => handleEdit(item)}>
+                                    <Button variant="outline" className="mr-2" onClick={() => handleEdit(card)}>
                                         Edit
                                     </Button>
-                                    <Button variant="destructive" onClick={() => handleDelete(item.id)}>
+                                    <Button variant="destructive" onClick={() => handleDelete(card.id)}>
                                         <Trash2 className="h-4 w-4" />
                                     </Button>
                                 </div>
