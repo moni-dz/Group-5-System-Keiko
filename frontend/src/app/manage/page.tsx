@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 import { Loader2, Trash2 } from "lucide-react";
 import { addCard, deleteCard, CardData, getAllCards, updateCard } from "@/lib/flashcard-api";
 
 export default function CardManagement() {
+  const { toast } = useToast();
   const [cards, setCards] = useState<CardData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +29,7 @@ export default function CardManagement() {
       setCards(data);
     };
 
-    fetchData().catch(console.error);
+    fetchData().catch(() => setError("Failed to fetch data."));
     setLoading(false);
   }, []);
 
@@ -49,22 +51,31 @@ export default function CardManagement() {
           tags: formData.tags.split(","),
         } as CardData);
 
-        setCards(cards.map((card) => (card.id === editingId ? updatedCard : card)));
+        setCards(cards.map((card: CardData): CardData => (card.id === editingId ? updatedCard : card)));
         setEditingId(null);
+
+        if (!error) {
+          toast({ description: "Card successfully edited." });
+        }
       } else {
-        const newItem = await addCard({
+        const card: CardData = await addCard({
           question: formData.question,
           answer: formData.answer,
           difficulty: formData.difficulty,
           tags: formData.tags.split(","),
         } as CardData);
 
-        setCards([...cards, newItem]);
+        setCards([...cards, card]);
+
+        if (!error) {
+          toast({ description: "Card added." });
+        }
       }
 
       setFormData({ question: "", answer: "", difficulty: "", tags: "" });
     } catch (err) {
       setError("Failed to save item.");
+
       console.error(err);
     } finally {
       setLoading(false);
@@ -85,16 +96,20 @@ export default function CardManagement() {
     try {
       setLoading(true);
       await deleteCard(id);
-      setCards(cards.filter((card) => card.id !== id));
+      setCards(cards.filter((card: CardData): boolean => card.id !== id));
     } catch {
       setError("Failed to delete item.");
     } finally {
       setLoading(false);
+
+      if (!error) {
+        toast({ description: "Card deleted." });
+      }
     }
   };
 
   if (error) {
-    return <div className="text-red-500 text-center">{error}</div>;
+    toast({ description: error });
   }
 
   return (
