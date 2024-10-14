@@ -1,9 +1,9 @@
 use actix_cors::Cors;
-use actix_web::{web, App, HttpServer};
 use actix_web::middleware::Logger;
 use actix_web::web::ServiceConfig;
-use sqlx::Executor;
+use actix_web::{web, App, HttpServer};
 use sqlx::postgres::PgPoolOptions;
+use sqlx::Executor;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -11,11 +11,15 @@ async fn main() -> std::io::Result<()> {
         .max_connections(5)
         .connect(r#"postgres://postgres@localhost:5432/cs121_flashcards_app"#)
         .await
-        .expect("Failed to open database connection");
+        .unwrap_or_else(|e| {
+            panic!("Failed to initialize database: {:?}", e);
+        });
 
     pool.execute(include_str!("../../db/schema.sql"))
         .await
-        .expect("Failed to initialize schema");
+        .unwrap_or_else(|e| {
+            panic!("Failed to initialize schema: {:?}", e);
+        });
 
     let card_stack = api_lib::card_stack::PostgresCardStack::new(pool);
     let card_stack = web::Data::new(card_stack);
@@ -25,7 +29,7 @@ async fn main() -> std::io::Result<()> {
             web::scope("/api")
                 .app_data(card_stack)
                 .configure(api_lib::health::service)
-                .configure(api_lib::flashcards::service::<api_lib::card_stack::PostgresCardStack>)
+                .configure(api_lib::flashcards::service::<api_lib::card_stack::PostgresCardStack>),
         );
     };
 
@@ -37,7 +41,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
             .configure(config.clone())
     })
-        .bind(("127.0.0.1", 8080))?
-        .run()
-        .await
+    .bind(("127.0.0.1", 8080))?
+    .run()
+    .await
 }

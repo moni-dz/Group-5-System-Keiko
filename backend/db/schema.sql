@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS flashcards
     question text NOT NULL,
     answer text NOT NULL,
     difficulty text NOT NULL,
-    tags text NOT NULL,
+    tags text[] NOT NULL,
     created_at timestamp with time zone default CURRENT_TIMESTAMP,
     updated_at timestamp with time zone
 );

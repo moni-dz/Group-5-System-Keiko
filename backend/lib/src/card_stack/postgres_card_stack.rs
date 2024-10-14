@@ -1,8 +1,8 @@
+use super::{Card, CardResult, CardStack, CreateCard};
 use uuid::Uuid;
-use super::{Card, CreateCard, CardStack, CardResult};
 
 pub struct PostgresCardStack {
-    pool: sqlx::PgPool
+    pool: sqlx::PgPool,
 }
 
 impl PostgresCardStack {
@@ -20,9 +20,9 @@ impl CardStack for PostgresCardStack {
       FROM flashcards
       "#,
         )
-            .fetch_all(&self.pool)
-            .await
-            .map_err(|e| e.to_string())
+        .fetch_all(&self.pool)
+        .await
+        .map_err(|e| e.to_string())
     }
 
     async fn get_card(&self, card_id: &Uuid) -> CardResult<Card> {
@@ -33,10 +33,10 @@ impl CardStack for PostgresCardStack {
       WHERE id = $1
       "#,
         )
-            .bind(card_id)
-            .fetch_one(&self.pool)
-            .await
-            .map_err(|e| e.to_string())
+        .bind(card_id)
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|e| e.to_string())
     }
 
     async fn create_card(&self, create_card: &CreateCard) -> CardResult<Card> {
@@ -47,32 +47,32 @@ impl CardStack for PostgresCardStack {
       RETURNING id, question, answer, difficulty, tags, created_at, updated_at
       "#,
         )
-            .bind(&create_card.question)
-            .bind(&create_card.answer)
-            .bind(&create_card.difficulty)
-            .bind(&create_card.tags)
-            .fetch_one(&self.pool)
-            .await
-            .map_err(|e| e.to_string())
+        .bind(&create_card.question)
+        .bind(&create_card.answer)
+        .bind(&create_card.difficulty)
+        .bind(&create_card.tags)
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|e| e.to_string())
     }
 
     async fn update_card(&self, card: &Card) -> CardResult<Card> {
         sqlx::query_as::<_, Card>(
             r#"
       UPDATE flashcards
-      SET question = $2, answer = $3, difficulty = $4, tags = $5
+      SET question = $2, answer = $3, difficulty = $4, tags = $5, updated_at = now()
       WHERE id = $1
       RETURNING id, question, answer, difficulty, tags, created_at, updated_at
       "#,
         )
-            .bind(card.id)
-            .bind(&card.question)
-            .bind(&card.answer)
-            .bind(&card.difficulty)
-            .bind(&card.tags)
-            .fetch_one(&self.pool)
-            .await
-            .map_err(|e| e.to_string())
+        .bind(card.id)
+        .bind(&card.question)
+        .bind(&card.answer)
+        .bind(&card.difficulty)
+        .bind(&card.tags)
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|e| e.to_string())
     }
 
     async fn delete_card(&self, card_id: &Uuid) -> CardResult<Uuid> {
@@ -83,9 +83,9 @@ impl CardStack for PostgresCardStack {
       RETURNING id
       "#,
         )
-            .bind(card_id)
-            .fetch_one(&self.pool)
-            .await
-            .map_err(|e| e.to_string())
+        .bind(card_id)
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|e| e.to_string())
     }
 }
