@@ -7,6 +7,8 @@ use sqlx::Executor;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
+
     let pool = PgPoolOptions::new()
         .max_connections(5)
         .connect(r#"postgres://postgres@localhost:5432/cs121_flashcards_app"#)

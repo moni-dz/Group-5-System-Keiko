@@ -6,6 +6,16 @@ use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use uuid::Uuid;
 
+pub type CardError = String;
+pub type CardResult<T> = Result<T, CardError>;
+
+#[derive(
+    Serialize, Deserialize, FromRow, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Default,
+)]
+pub struct Tags {
+    pub tags: Vec<String>,
+}
+
 #[derive(
     Serialize, Deserialize, FromRow, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Default,
 )]
@@ -29,9 +39,6 @@ pub struct CreateCard {
     pub tags: Vec<String>,
 }
 
-pub type CardError = String;
-pub type CardResult<T> = Result<T, CardError>;
-
 #[async_trait::async_trait]
 pub trait CardStack: Send + Sync + 'static {
     async fn get_cards(&self) -> CardResult<Vec<Card>>;
@@ -39,4 +46,5 @@ pub trait CardStack: Send + Sync + 'static {
     async fn create_card(&self, create_card: &CreateCard) -> CardResult<Card>;
     async fn update_card(&self, card: &Card) -> CardResult<Card>;
     async fn delete_card(&self, card_id: &Uuid) -> CardResult<Uuid>;
+    async fn get_available_tags(&self) -> CardResult<Tags>;
 }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 export interface FlashcardProps {
   id: string;
   question: string;
@@ -22,20 +22,22 @@ export default function Flashcard(props: FlashcardProps) {
       >
         {/* Front of the card */}
         <Card className="absolute w-full h-full [backface-visibility:hidden]">
-          <div className="flex flex-col items-center justify-center h-full p-4 text-center">
-            <h2 className="text-2xl font-bold mb-4">{question}</h2>
-          </div>
+          <CardHeader className="flex flex-col items-center justify-center h-full p-4">
+            <CardTitle className="text-2xl mb-4">{question}</CardTitle>
+          </CardHeader>
         </Card>
 
         {/* Back of the card */}
         <Card className="absolute w-full h-full [backface-visibility:hidden]" style={{ transform: "rotateY(180deg)" }}>
-          <div className="flex flex-col items-center justify-center h-full p-4 text-center">
-            <p className="text-2xl">{answer}</p>
-            <p className="absolute top-3 left-3 text-sm font-medium">Answer</p>
-            <p className="absolute top-3 right-3 text-sm font-medium">
-              {difficulty} - {tags[0]}
-            </p>
-          </div>
+          <CardHeader>
+            <CardTitle className="flex justify-between items-center">
+              <p>Answer</p>
+              <p>
+                {difficulty} - {tags[0]}
+              </p>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex items-center justify-center h-[200px] text-2xl">{answer}</CardContent>
         </Card>
       </div>
     </div>

@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Trash2 } from "lucide-react";
 import { addCard, deleteCard, CardData, getAllCards, updateCard } from "@/lib/flashcard-api";
 
-export default function CardManagement() {
+export default function ManagePage() {
   const { toast } = useToast();
   const [cards, setCards] = useState<CardData[]>([]);
   const [loading, setLoading] = useState(true);

@@ -1,4 +1,6 @@
-use super::{Card, CardResult, CardStack, CreateCard};
+use std::collections::HashSet;
+
+use super::{Card, CardResult, CardStack, CreateCard, Tags};
 use uuid::Uuid;
 
 pub struct PostgresCardStack {
@@ -14,29 +16,18 @@ impl PostgresCardStack {
 #[async_trait::async_trait]
 impl CardStack for PostgresCardStack {
     async fn get_cards(&self) -> CardResult<Vec<Card>> {
-        sqlx::query_as::<_, Card>(
-            r#"
-      SELECT id, question, answer, difficulty, tags, created_at, updated_at
-      FROM flashcards
-      "#,
-        )
-        .fetch_all(&self.pool)
-        .await
-        .map_err(|e| e.to_string())
+        sqlx::query_as::<_, Card>("SELECT * FROM flashcards")
+            .fetch_all(&self.pool)
+            .await
+            .map_err(|e| e.to_string())
     }
 
     async fn get_card(&self, card_id: &Uuid) -> CardResult<Card> {
-        sqlx::query_as::<_, Card>(
-            r#"
-      SELECT id, question, answer, difficulty, tags, created_at, updated_at
-      FROM flashcards
-      WHERE id = $1
-      "#,
-        )
-        .bind(card_id)
-        .fetch_one(&self.pool)
-        .await
-        .map_err(|e| e.to_string())
+        sqlx::query_as::<_, Card>("SELECT * FROM flashcards WHERE id = $1")
+            .bind(card_id)
+            .fetch_one(&self.pool)
+            .await
+            .map_err(|e| e.to_string())
     }
 
     async fn create_card(&self, create_card: &CreateCard) -> CardResult<Card> {
@@ -87,5 +78,24 @@ impl CardStack for PostgresCardStack {
         .fetch_one(&self.pool)
         .await
         .map_err(|e| e.to_string())
+    }
+
+    async fn get_available_tags(&self) -> CardResult<Tags> {
+        let cards = self.get_cards().await?;
+
+        let mut tags: HashSet<String> = HashSet::new();
+        let mut vecs: Vec<Vec<String>> = Vec::with_capacity(20000);
+
+        cards.into_iter().for_each(|card| {
+            vecs.push(card.tags);
+        });
+
+        vecs.concat().into_iter().for_each(|tag| {
+            tags.insert(tag);
+        });
+
+        Ok(Tags {
+            tags: tags.into_iter().collect(),
+        })
     }
 }

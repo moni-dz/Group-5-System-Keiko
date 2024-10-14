@@ -8,12 +8,13 @@ use uuid::Uuid;
 pub fn service<S: CardStack>(cfg: &mut ServiceConfig) {
     cfg.service(
         web::scope("/v1/cards")
-            .route("", web::get().to(get_all_cards::<S>))
+            .route("", web::get().to(get_cards::<S>))
             .route("/{card_id}", web::get().to(get_card::<S>))
             .route("", web::post().to(add_card::<S>))
             .route("", web::put().to(update_card::<S>))
             .route("/{card_id}", web::delete().to(delete_card::<S>)),
-    );
+    )
+    .service(web::scope("/v1/tags").route("", web::get().to(get_available_tags::<S>)));
 }
 
 /// Retrieves all cards as a JSON array
@@ -30,7 +31,7 @@ pub fn service<S: CardStack>(cfg: &mut ServiceConfig) {
 ///         "updated_at": "<card updated at>",
 ///     },
 /// ]
-async fn get_all_cards<S: CardStack>(stack: web::Data<S>) -> HttpResponse {
+async fn get_cards<S: CardStack>(stack: web::Data<S>) -> HttpResponse {
     match stack.get_cards().await {
         Ok(cards) => HttpResponse::Ok().json(cards),
         Err(e) => HttpResponse::NotFound().body(format!("Internal server error: {:?}", e)),
@@ -99,6 +100,19 @@ async fn update_card<S: CardStack>(card: web::Json<Card>, stack: web::Data<S>) -
 async fn delete_card<S: CardStack>(card_id: web::Path<Uuid>, stack: web::Data<S>) -> HttpResponse {
     match stack.delete_card(&card_id).await {
         Ok(card) => HttpResponse::Ok().json(card),
+        Err(e) => {
+            HttpResponse::InternalServerError().body(format!("Internal server error: {:?}", e))
+        }
+    }
+}
+
+/// Gets all available card tags
+/// GET /v1/cards/available_tags
+/// Returns: JSON array of tags
+/// { tags: ["science", "math", "history"] }
+async fn get_available_tags<S: CardStack>(stack: web::Data<S>) -> HttpResponse {
+    match stack.get_available_tags().await {
+        Ok(tags) => HttpResponse::Ok().json(tags),
         Err(e) => {
             HttpResponse::InternalServerError().body(format!("Internal server error: {:?}", e))
         }

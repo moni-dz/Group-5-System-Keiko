@@ -8,6 +8,12 @@ export interface CardData {
   updated_at: string | "";
 }
 
+export async function getAvailableTags(): Promise<string[]> {
+  return fetch("http://localhost:8080/api/v1/tags")
+    .then((r: Response): Promise<string[]> => r.json())
+    .then((data: string[]): string[] => data);
+}
+
 export async function getAllCards(): Promise<CardData[]> {
   return fetch("http://localhost:8080/api/v1/cards")
     .then((r: Response): Promise<CardData[]> => r.json())
