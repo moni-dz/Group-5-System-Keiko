@@ -8,6 +8,14 @@ export interface FlashcardProps {
   tags: string[];
 }
 
+const cardGap = 16;
+const cardWidth = 500;
+
+export function cardMaxWidth(length: number): string {
+  const cardsPerRow = Math.min(length, 4);
+  return `${cardsPerRow * cardWidth + (cardsPerRow - 1) * cardGap}px`;
+}
+
 export default function Flashcard(props: FlashcardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const { question, answer, difficulty, tags } = props;
@@ -21,7 +29,12 @@ export default function Flashcard(props: FlashcardProps) {
         style={{ transform: isFlipped ? "rotateY(180deg)" : "" }}
       >
         {/* Front of the card */}
-        <Card className="absolute w-full h-full [backface-visibility:hidden]">
+        <Card
+          className="absolute w-full h-full [backface-visibility:hidden]"
+          style={{
+            flexBasis: `${cardWidth}px`,
+          }}
+        >
           <CardHeader className="flex flex-col items-center justify-center h-full p-4">
             <CardTitle className="text-2xl mb-4">{question}</CardTitle>
           </CardHeader>
