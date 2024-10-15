@@ -12,9 +12,9 @@
       imports = [ inputs.devenv.flakeModule ];
       systems = nixpkgs.lib.systems.flakeExposed;
 
-      perSystem = { config, self', inputs', pkgs, system, ... }: {
+      perSystem = { config, lib, self', inputs', pkgs, system, ... }: {
         devenv.shells.default = {
-          packages = lib.optionals pkgs.stdenv.isDarwin pkgs.darwin.apple_sdk_12_3.frameworks.SystemConfiguration;
+          packages = lib.optionals pkgs.stdenv.isDarwin [ pkgs.darwin.apple_sdk_12_3.frameworks.SystemConfiguration ];
 
           languages.rust = {
             enable = true;
