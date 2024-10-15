@@ -1,5 +1,9 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+const cardGap = 16;
+const cardWidth = 500;
+
 export interface FlashcardProps {
   id: string;
   question: string;
@@ -7,9 +11,6 @@ export interface FlashcardProps {
   difficulty: string;
   tags: string[];
 }
-
-const cardGap = 16;
-const cardWidth = 500;
 
 export function cardMaxWidth(length: number): string {
   const cardsPerRow = Math.min(length, 4);
@@ -23,7 +24,7 @@ export default function Flashcard(props: FlashcardProps) {
   const handleFlip = () => setIsFlipped(!isFlipped);
 
   return (
-    <div className="w-96 h-64 cursor-pointer [perspective:1000px]" onClick={handleFlip}>
+    <div className="min-w-fit w-96 max-w-full h-64 cursor-pointer [perspective:1000px]" onClick={handleFlip}>
       <div
         className={`relative w-full h-full transition-transform duration-700 [transform-style:preserve-3d]`}
         style={{ transform: isFlipped ? "rotateY(180deg)" : "" }}

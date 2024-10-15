@@ -10,12 +10,19 @@ import { Loader2, Trash2 } from "lucide-react";
 import { addCard, deleteCard, CardData, getAllCards, updateCard } from "@/lib/flashcard-api";
 
 export default function ManagePage() {
+  interface FormData {
+    question: string;
+    answer: string;
+    difficulty: string;
+    tags: string;
+  }
+
   const { toast } = useToast();
   const [cards, setCards] = useState<CardData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     question: "",
     answer: "",
     difficulty: "",
@@ -35,13 +42,14 @@ export default function ManagePage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev: FormData): FormData => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       setLoading(true);
+
       if (editingId) {
         const updatedCard = await updateCard({
           id: editingId,

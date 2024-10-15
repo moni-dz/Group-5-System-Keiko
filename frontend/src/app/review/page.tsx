@@ -25,18 +25,18 @@ export default function ReviewPage() {
   return (
     <>
       <div className="bg-gray-50 min-h-screen">
-        <div className="flex flex-col items-center justify-center -mb-40">
+        <div className="flex flex-col items-center justify-center mb-5">
           <h1 className="text-3xl font-bold mb-8 mt-10">Flashcards</h1>
           <div className="space-y-4">
-            <div className="flex gap-5">
-              <Button className="w-64" asChild>
+            <div className="grid grid-rows-2 gap-5">
+              <Button asChild>
                 <a href="/">Go Back</a>
               </Button>
               <TagsCombobox selectedTag={selectedTag} setSelectedTag={setSelectedTag} />
             </div>
           </div>
         </div>
-        <div className="p-4 flex items-center justify-center min-h-screen">
+        <div className="flex items-center justify-center">
           <div
             className="flex flex-wrap justify-center gap-4"
             style={{
@@ -66,8 +66,8 @@ function TagsCombobox(props: TagsComboboxProps) {
   const { selectedTag, setSelectedTag } = props;
 
   useEffect(() => {
-    getAvailableTags().then((data) => {
-      setTags(data.map((tag) => ({ value: tag, label: tag })));
+    getAvailableTags().then((data: string[]) => {
+      setTags(data.map((tag: string): Tag => ({ value: tag, label: tag })));
     });
   }, []);
 

@@ -12,26 +12,28 @@ export interface TagData {
   tags: string[];
 }
 
+const address = `http://${process.env.API_HOST || "localhost"}:${process.env.API_PORT || "7777"}`;
+
 export async function getAvailableTags(): Promise<string[]> {
-  return fetch("http://localhost:8080/api/v1/tags")
+  return fetch(`${address}/api/v1/tags`)
     .then((r: Response): Promise<TagData> => r.json())
     .then((data: TagData): string[] => data.tags);
 }
 
 export async function getAllCards(): Promise<CardData[]> {
-  return fetch("http://localhost:8080/api/v1/cards")
+  return fetch(`${address}/api/v1/cards`)
     .then((r: Response): Promise<CardData[]> => r.json())
     .then((data: CardData[]): CardData[] => data);
 }
 
 export async function getCard(id: string): Promise<CardData> {
-  return fetch(`http://localhost:8080/api/v1/cards/${id}`)
+  return fetch(`${address}/api/v1/cards/${id}`)
     .then((r: Response): Promise<CardData> => r.json())
     .then((data: CardData): CardData => data);
 }
 
 export async function addCard(card: CardData): Promise<CardData> {
-  return fetch(`http://localhost:8080/api/v1/cards`, {
+  return fetch(`${address}/api/v1/cards`, {
     method: "POST",
     body: JSON.stringify({
       question: card.question,
@@ -46,7 +48,7 @@ export async function addCard(card: CardData): Promise<CardData> {
 }
 
 export async function updateCard(card: CardData): Promise<CardData> {
-  return fetch(`http://localhost:8080/api/v1/cards`, {
+  return fetch(`${address}/api/v1/cards`, {
     method: "PUT",
     body: JSON.stringify({
       id: card.id,
@@ -62,7 +64,7 @@ export async function updateCard(card: CardData): Promise<CardData> {
 }
 
 export async function deleteCard(id: string): Promise<CardData> {
-  return fetch(`http://localhost:8080/api/v1/cards/${id}`, { method: "DELETE" })
+  return fetch(`${address}/api/v1/cards/${id}`, { method: "DELETE" })
     .then((r: Response): Promise<CardData> => r.json())
     .then((data: CardData): CardData => data);
 }
