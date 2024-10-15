@@ -1,3 +1,7 @@
 /target
 Secrets*.toml
 !static/
+.devenv/
+.direnv/
+.idea/
+.DS_Store

@@ -2,16 +2,30 @@ use actix_cors::Cors;
 use actix_web::middleware::Logger;
 use actix_web::web::ServiceConfig;
 use actix_web::{web, App, HttpServer};
+use clap::Parser;
 use sqlx::postgres::PgPoolOptions;
 use sqlx::Executor;
 
+#[derive(Parser)]
+struct Config {
+    db_pass: String,
+    addr: String,
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    let args = Config::parse();
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
     let pool = PgPoolOptions::new()
         .max_connections(5)
-        .connect(r#"postgres://postgres@localhost:5432/cs121_flashcards_app"#)
+        .connect(
+            format!(
+                "postgres://postgres:{}@{}:5432/cs121_flashcards_app",
+                args.db_pass, args.addr
+            )
+            .as_str(),
+        )
         .await
         .unwrap_or_else(|e| {
             panic!("Failed to initialize database: {:?}", e);
