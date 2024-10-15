@@ -5,3 +5,4 @@ Secrets*.toml
 .direnv/
 .idea/
 .DS_Store
+node_modules/

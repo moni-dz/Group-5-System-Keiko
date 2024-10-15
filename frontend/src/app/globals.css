@@ -2,8 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'gaupopmagic';
+  src: url('/path-to-font/GAU_pop_magic.woff2') format('woff2'),
+       url('/path-to-font/GAU_pop_magic.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 body {
-  font-family: "SF Pro Display", Arial, Helvetica, sans-serif;
+  font-family: 'gaupopmagic', 'SF Pro Display', Arial, Helvetica, sans-serif;
 }
 
 @layer utilities {
@@ -40,6 +48,7 @@ body {
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
   }
+  
   .dark {
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
@@ -72,6 +81,7 @@ body {
   * {
     @apply border-border;
   }
+  
   body {
     @apply bg-background text-foreground;
   }
