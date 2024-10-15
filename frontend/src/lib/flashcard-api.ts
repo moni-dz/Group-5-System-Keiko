@@ -1,3 +1,5 @@
+import { LoremIpsum } from "lorem-ipsum";
+
 export interface CardData {
   id: string | "";
   question: string;
@@ -11,6 +13,18 @@ export interface CardData {
 export interface TagData {
   tags: string[];
 }
+
+// For development only
+export const lorem = new LoremIpsum({
+  sentencesPerParagraph: {
+    max: 8,
+    min: 4,
+  },
+  wordsPerSentence: {
+    max: 16,
+    min: 4,
+  },
+});
 
 const address = `http://${process.env.API_HOST || "localhost"}:${process.env.API_PORT || "7777"}`;
 
