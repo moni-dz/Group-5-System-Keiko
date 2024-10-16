@@ -1,4 +1,4 @@
-"use client";
+"use client"; 
 
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -28,42 +28,42 @@ export default function MainPage() {
   return (
     <div className={`flex h-screen bg-gray-100 text-extrabold`}>
       {/* Sidebar */}
-      <aside
-        className={`transition-all duration-300 ${isSidebarCollapsed ? "w-16 bg-white text-zinc-500" : "w-64 bg-white shadow-md"}`}
-      >
+      <aside className={`transition-all duration-300 ${isSidebarCollapsed ? "w-16 bg-white text-zinc-500" : "w-64 bg-white shadow-md"}`}>
         <div className="p-4">
           <div className="flex justify-between items-center mb-6">
-            {!isSidebarCollapsed && <h1 className="text-3xl font-bold text-center text-red-500">Keiko!</h1>}
+            {!isSidebarCollapsed && <h1 className={`text-3xl font-bold text-center ${gauPopMagic.className} text-red-500`}>Keiko!</h1>}
             <Button variant="ghost" size="icon" onClick={toggleSidebar}>
-              {isSidebarCollapsed ? <Menu className="text-zinc-500" /> : <ChevronsLeft />}
+              {isSidebarCollapsed ? (
+                <Menu className="text-zinc-500" />
+              ) : (
+                <ChevronsLeft />
+              )}
             </Button>
           </div>
 
           <nav>
             <Button
               variant="ghost"
-              className={`w-full justify-start mb-2 text-1.5xl text-zinc-500 ${isSidebarCollapsed ? "px-2" : ""} hover:bg-red-500 active:bg-red-500 hover:text-white active:text-white`}
+              className={`w-full justify-start mb-2 text-1.5xl text-zinc-500 ${isSidebarCollapsed ? `px-2 ${gauPopMagic.className}` : ""} hover:bg-red-500 active:bg-red-500 hover:text-white active:text-white`}
               onClick={() => setActiveView("courses")}
             >
               {isSidebarCollapsed ? "C" : "Courses"}
             </Button>
 
-            <div
-              className={`text-xl font-semibold mb-2 text-center text-red-500 ${isSidebarCollapsed ? "hidden" : ""} mt-4`}
-            >
+            <div className={`text-xl font-semibold mb-2 text-center text-red-500 ${gauPopMagic.className} ${isSidebarCollapsed ? "hidden" : ""} mt-4`}>
               {isSidebarCollapsed ? "" : "Library"}
             </div>
 
             <Button
               variant="ghost"
-              className={`w-full justify-start mb-2 text-1.5xl text-zinc-500 ${isSidebarCollapsed ? "px-2" : ""} hover:bg-red-500 active:bg-red-500 hover:text-white active:text-white`}
+              className={`w-full justify-start mb-2 text-1.5xl text-zinc-500 ${isSidebarCollapsed ? `px-2 ${gauPopMagic.className}` : ""} hover:bg-red-500 active:bg-red-500 hover:text-white active:text-white`}
               onClick={() => setActiveView("ongoing")}
             >
               {isSidebarCollapsed ? "O" : "On-Going"}
             </Button>
             <Button
               variant="ghost"
-              className={`w-full justify-start mb-2 text-1.5xl text-zinc-500 ${isSidebarCollapsed ? "px-2" : ""} hover:bg-red-500 active:bg-red-500 hover:text-white active:text-white`}
+              className={`w-full justify-start mb-2 text-1.5xl text-zinc-500 ${isSidebarCollapsed ? `px-2 ${gauPopMagic.className}` : ""} hover:bg-red-500 active:bg-red-500 hover:text-white active:text-white`}
               onClick={() => setActiveView("completed")}
             >
               {isSidebarCollapsed ? "C" : "Completed"}
@@ -115,13 +115,13 @@ export default function MainPage() {
               </div>
             </div>
             <div className="mt-4 flex justify-between">
-              <Button>
-                <Plus className="mr-2 h-4 w-4" /> Add
-              </Button>
-              <Button variant="outline">
-                <Edit className="mr-2 h-4 w-4" /> Edit
-              </Button>
-            </div>
+            <Button className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white">
+              <Plus className="mr-2 h-4 w-4 hover:text-white" /> Add
+            </Button>
+            <Button className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white">
+            <Edit className="mr-2 h-4 w-4" /> Edit
+            </Button>
+          </div>
           </div>
         ) : activeView === "ongoing" ? (
           <div className="bg-white shadow-md rounded-lg p-8">
@@ -133,8 +133,8 @@ export default function MainPage() {
           </div>
         ) : (
           <div className="bg-white shadow-md rounded-lg p-8">
-            <h2 className="text-3xl font-bold text-zinc-300">Get Started</h2>
-          </div>
+<h2 className={`text-3xl font-bold text-zinc-300 ${gauPopMagic.className}`}>Get Started</h2>
+</div>
         )}
       </main>
     </div>
