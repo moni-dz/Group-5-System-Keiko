@@ -6,7 +6,7 @@ import localFont from "next/font/local";
 import { NextFontWithVariable } from "next/dist/compiled/@next/font";
 
 const gauPopMagic: NextFontWithVariable = localFont({
-  src: "./assets/GAU_pop_magic.woff2",
+  src: "./public/GAU_pop_magic.woff2",
   display: "swap",
   variable: "--font-gau-pop-magic",
 });
@@ -22,7 +22,7 @@ interface RootProps {
 
 export default function RootLayout({ children }: Readonly<RootProps>) {
   return (
-    <html lang="en" className={`${gauPopMagic.variable}`}>
+    <html lang="en" className={gauPopMagic.variable}>
       <body className="antialiased">
         <main>{children}</main>
         <Toaster />
