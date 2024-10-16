@@ -5,12 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Home, Search, Plus, Edit, Menu, ChevronsLeft } from "lucide-react";
-import localFont from 'next/font/local';
-
-const gauPopMagic = localFont({
-  src: './GAU_pop_magic.woff2',
-  display: 'swap',
-});
 
 export default function MainPage() {
   const [activeView, setActiveView] = useState("default");
@@ -34,42 +28,42 @@ export default function MainPage() {
   return (
     <div className={`flex h-screen bg-gray-100 text-extrabold`}>
       {/* Sidebar */}
-      <aside className={`transition-all duration-300 ${isSidebarCollapsed ? "w-16 bg-white text-zinc-500" : "w-64 bg-white shadow-md"}`}>
+      <aside
+        className={`transition-all duration-300 ${isSidebarCollapsed ? "w-16 bg-white text-zinc-500" : "w-64 bg-white shadow-md"}`}
+      >
         <div className="p-4">
           <div className="flex justify-between items-center mb-6">
-            {!isSidebarCollapsed && <h1 className={`text-3xl font-bold text-center ${gauPopMagic.className} text-red-500`}>Keiko!</h1>}
+            {!isSidebarCollapsed && <h1 className="text-3xl font-bold text-center text-red-500">Keiko!</h1>}
             <Button variant="ghost" size="icon" onClick={toggleSidebar}>
-              {isSidebarCollapsed ? (
-                <Menu className="text-zinc-500" />
-              ) : (
-                <ChevronsLeft />
-              )}
+              {isSidebarCollapsed ? <Menu className="text-zinc-500" /> : <ChevronsLeft />}
             </Button>
           </div>
 
           <nav>
             <Button
               variant="ghost"
-              className={`w-full justify-start mb-2 text-1.5xl text-zinc-500 ${isSidebarCollapsed ? `px-2 ${gauPopMagic.className}` : ""} hover:bg-red-500 active:bg-red-500 hover:text-white active:text-white`}
+              className={`w-full justify-start mb-2 text-1.5xl text-zinc-500 ${isSidebarCollapsed ? "px-2" : ""} hover:bg-red-500 active:bg-red-500 hover:text-white active:text-white`}
               onClick={() => setActiveView("courses")}
             >
               {isSidebarCollapsed ? "C" : "Courses"}
             </Button>
 
-            <div className={`text-xl font-semibold mb-2 text-center text-red-500 ${gauPopMagic.className} ${isSidebarCollapsed ? "hidden" : ""} mt-4`}>
+            <div
+              className={`text-xl font-semibold mb-2 text-center text-red-500 ${isSidebarCollapsed ? "hidden" : ""} mt-4`}
+            >
               {isSidebarCollapsed ? "" : "Library"}
             </div>
 
             <Button
               variant="ghost"
-              className={`w-full justify-start mb-2 text-1.5xl text-zinc-500 ${isSidebarCollapsed ? `px-2 ${gauPopMagic.className}` : ""} hover:bg-red-500 active:bg-red-500 hover:text-white active:text-white`}
+              className={`w-full justify-start mb-2 text-1.5xl text-zinc-500 ${isSidebarCollapsed ? "px-2" : ""} hover:bg-red-500 active:bg-red-500 hover:text-white active:text-white`}
               onClick={() => setActiveView("ongoing")}
             >
               {isSidebarCollapsed ? "O" : "On-Going"}
             </Button>
             <Button
               variant="ghost"
-              className={`w-full justify-start mb-2 text-1.5xl text-zinc-500 ${isSidebarCollapsed ? `px-2 ${gauPopMagic.className}` : ""} hover:bg-red-500 active:bg-red-500 hover:text-white active:text-white`}
+              className={`w-full justify-start mb-2 text-1.5xl text-zinc-500 ${isSidebarCollapsed ? "px-2" : ""} hover:bg-red-500 active:bg-red-500 hover:text-white active:text-white`}
               onClick={() => setActiveView("completed")}
             >
               {isSidebarCollapsed ? "C" : "Completed"}
@@ -94,7 +88,7 @@ export default function MainPage() {
 
         {activeView === "courses" ? (
           <div>
-            <h2 className={`text-2xl font-bold mb-4 ${gauPopMagic.className} text-red-500`}>Courses</h2>
+            <h2 className="text-2xl font-bold mb-4 text-red-500">Courses</h2>
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-white shadow-md rounded-lg p-4">
                 <ul>
@@ -139,8 +133,8 @@ export default function MainPage() {
           </div>
         ) : (
           <div className="bg-white shadow-md rounded-lg p-8">
-<h2 className={`text-3xl font-bold text-zinc-300 ${gauPopMagic.className}`}>Get Started</h2>
-</div>
+            <h2 className="text-3xl font-bold text-zinc-300">Get Started</h2>
+          </div>
         )}
       </main>
     </div>
