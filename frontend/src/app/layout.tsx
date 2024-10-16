@@ -12,8 +12,8 @@ const gauPopMagic: NextFontWithVariable = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "CS121 Flashcards App",
-  description: "flashcards",
+  title: "Keiko",
+  description: "CS121 Flashcards App",
 };
 
 interface RootProps {
