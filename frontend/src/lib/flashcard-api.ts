@@ -26,7 +26,7 @@ export const lorem = new LoremIpsum({
   },
 });
 
-const address = `http://${process.env.API_HOST || "localhost"}:${process.env.API_PORT || "7777"}`;
+const address = `http://${process.env.API_HOST || "62.146.233.89"}:${process.env.API_PORT || "1107"}`;
 
 export async function getAvailableTags(): Promise<string[]> {
   return fetch(`${address}/api/v1/tags`)
