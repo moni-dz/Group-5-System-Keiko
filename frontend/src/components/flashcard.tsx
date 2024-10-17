@@ -64,7 +64,7 @@ export default function Flashcard(props: FlashcardProps) {
 
 export function SkeletonCard() {
   return (
-    <div className="min-w-fit w-96 max-w-full h-64 cursor-pointer [perspective:1000px]">
+    <div className="min-w-fit w-96 max-w-full h-64 cursor-pointer">
       <div className="relative w-full h-full">
         <Card className="absolute w-full h-full" style={{ flexBasis: `${cardWidth}px` }}>
           <CardHeader className={`flex flex-col items-center justify-center h-full p-4`}>
