@@ -4,7 +4,24 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Home, Search, Plus, Edit, Menu, ChevronsLeft } from "lucide-react";
+import {
+  // search in https://lucide.dev/icons, add import here and use as component
+  // e.g. circle-x is <CircleX /> imported as below when uncommented:
+  // CircleX,
+  Home,
+  Search,
+  Plus,
+  Edit,
+  Menu,
+  ChevronsLeft,
+  ClipboardList,
+  Clock,
+  BookCheck,
+  Pen,
+  CircleX,
+  FolderClock,
+  FileChartLine,
+} from "lucide-react";
 
 export default function MainPage() {
   const [activeView, setActiveView] = useState("default");
@@ -19,14 +36,15 @@ export default function MainPage() {
     completionDate?: string;
   }
 
+  // TODO: lythe: add course, progress and completionDate as columns in database
   const courses: Course[] = [
     { id: 1, name: "DSA", description: "Data Structures and Algorithms", progress: 60 },
     { id: 2, name: "ENGLISH", description: "English Language and Literature", completionDate: "2024-09-15" },
     { id: 3, name: "MATH", description: "Advanced Mathematics", progress: 30 },
   ];
 
-  const ongoingCourses = courses.filter(course => course.name === "DSA" || course.name === "MATH");
-  const completedCourses = courses.filter(course => course.name === "ENGLISH");
+  const ongoingCourses = courses.filter((course) => course.name === "DSA" || course.name === "MATH");
+  const completedCourses = courses.filter((course) => course.name === "ENGLISH");
 
   const toggleSidebar = () => setIsSidebarCollapsed(!isSidebarCollapsed);
 
@@ -58,15 +76,12 @@ export default function MainPage() {
           </div>
         </div>
       )}
-      {course.completionDate && (
-        <p className="text-zinc-500 italic mt-2">Completed on: {course.completionDate}</p>
-      )}
+      {course.completionDate && <p className="text-zinc-500 italic mt-2">Completed on: {course.completionDate}</p>}
     </div>
   );
 
   return (
     <div className={`flex h-screen bg-gray-100 text-extrabold`}>
-
       {/* Sidebar */}
       <aside
         className={`transition-all duration-300 ${isSidebarCollapsed ? "w-16 bg-white text-zinc-500" : "w-64 bg-white shadow-md"}`}
@@ -86,46 +101,10 @@ export default function MainPage() {
                 onClick={() => setActiveView("courses")}
               >
                 {isSidebarCollapsed ? (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="lucide lucide-clipboard-list"
-                  >
-                    <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
-                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-                    <path d="M12 11h4" />
-                    <path d="M12 16h4" />
-                    <path d="M8 11h.01" />
-                    <path d="M8 16h.01" />
-                  </svg>
+                  <ClipboardList />
                 ) : (
                   <>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="lucide lucide-clipboard-list inline-block mr-2"
-                    >
-                      <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
-                      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-                      <path d="M12 11h4" />
-                      <path d="M12 16h4" />
-                      <path d="M8 11h.01" />
-                      <path d="M8 16h.01" />
-                    </svg>
+                    <ClipboardList className="mr-2" />
                     Courses
                   </>
                 )}
@@ -137,38 +116,10 @@ export default function MainPage() {
                 onClick={() => setActiveView("ongoing")}
               >
                 {isSidebarCollapsed ? (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="lucide lucide-clock"
-                  >
-                    <circle cx="12" cy="12" r="10" />
-                    <polyline points="12 6 12 12 16 14" />
-                  </svg>
+                  <Clock />
                 ) : (
                   <>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="lucide lucide-clock inline-block mr-2"
-                    >
-                      <circle cx="12" cy="12" r="10" />
-                      <polyline points="12 6 12 12 16 14" />
-                    </svg>
+                    <Clock className="mr-2" />
                     On-Going
                   </>
                 )}
@@ -180,38 +131,10 @@ export default function MainPage() {
                 onClick={() => setActiveView("completed")}
               >
                 {isSidebarCollapsed ? (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="lucide lucide-book-check"
-                  >
-                    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20" />
-                    <path d="m9 9.5 2 2 4-4" />
-                  </svg>
+                  <BookCheck />
                 ) : (
                   <>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="lucide lucide-book-check inline-block mr-2"
-                    >
-                      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20" />
-                      <path d="m9 9.5 2 2 4-4" />
-                    </svg>
+                    <BookCheck className="mr-2" />
                     Completed
                   </>
                 )}
@@ -234,7 +157,7 @@ export default function MainPage() {
       </aside>
 
       {/* Main content */}
-       <main className="flex-1 p-8">
+      <main className="flex-1 p-8">
         <div className="flex justify-between items-center mb-8">
           <div className="relative w-1/2">
             <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-red-400 text-semibold font-sans" />
@@ -251,9 +174,7 @@ export default function MainPage() {
           <div>
             <h2 className={`text-2xl font-bold mb-4 font-gau-pop-magic text-red-500`}>COURSES</h2>
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white shadow-md rounded-lg p-4">
-                {renderCourseList(courses)}
-              </div>
+              <div className="bg-white shadow-md rounded-lg p-4">{renderCourseList(courses)}</div>
               <div className="bg-white shadow-md rounded-lg p-4">
                 {selectedCourse ? (
                   renderCourseDetails(selectedCourse)
@@ -265,30 +186,17 @@ export default function MainPage() {
             <div className="mt-4 flex justify-between">
               <div className="space-x-2">
                 <Button className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white">
-                  <Plus className="mr-2 h-4 w-4 hover:text-white" /> Add
+                  <Plus className="mr-2 h-4 w-4 hover:text-white" />
+                  Add
                 </Button>
                 <Button className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="lucide lucide-circle-x mr-2 h-4 w-4 hover:text-white"
-                  >
-                    <circle cx="12" cy="12" r="10"/>
-                    <path d="m15 9-6 6"/>
-                    <path d="m9 9 6 6"/>
-                  </svg>
+                  <CircleX className="mr-2 h-4 w-4" />
                   Delete
                 </Button>
               </div>
               <Button className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white">
-                <Edit className="mr-2 h-4 w-4" /> Edit
+                <Edit className="mr-2 h-4 w-4" />
+                Edit
               </Button>
             </div>
           </div>
@@ -297,9 +205,7 @@ export default function MainPage() {
             <div>
               <h2 className="text-xl font-bold font-gau-pop-magic text-red-500 mb-4">ON-GOING COURSES</h2>
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white shadow-md rounded-lg p-4">
-                  {renderCourseList(ongoingCourses)}
-                </div>
+                <div className="bg-white shadow-md rounded-lg p-4">{renderCourseList(ongoingCourses)}</div>
                 <div className="bg-white shadow-md rounded-lg p-4">
                   {selectedCourse ? (
                     renderCourseDetails(selectedCourse)
@@ -312,20 +218,7 @@ export default function MainPage() {
             <div className="mt-4">
               <Link href="/quiz">
                 <Button className="bg-red-500 text-white hover:bg-zinc-500 flex items-center space-x-2">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="lucide lucide-pen"
-                  >
-                    <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>
-                  </svg>
+                  <Pen width="20" height="20" />
                   <span>Start Quiz</span>
                 </Button>
               </Link>
@@ -336,9 +229,7 @@ export default function MainPage() {
             <div>
               <h2 className="text-xl font-bold font-gau-pop-magic text-red-500 mb-4">COMPLETED COURSES</h2>
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white shadow-md rounded-lg p-4">
-                  {renderCourseList(completedCourses)}
-                </div>
+                <div className="bg-white shadow-md rounded-lg p-4">{renderCourseList(completedCourses)}</div>
                 <div className="bg-white shadow-md rounded-lg p-4">
                   {selectedCourse ? (
                     renderCourseDetails(selectedCourse)
@@ -350,41 +241,11 @@ export default function MainPage() {
             </div>
             <div className="mt-4 flex space-x-4">
               <Button className="bg-red-500 text-white hover:bg-zinc-500 flex items-center space-x-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="lucide lucide-folder-clock"
-                >
-                  <circle cx="16" cy="16" r="6"/>
-                  <path d="M7 20H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H20a2 2 0 0 1 2 2"/>
-                  <path d="M16 14v2l1 1"/>
-                </svg>
+                <FolderClock width="20" height="20" />
                 <span>Mark as Ongoing</span>
               </Button>
               <Button className="bg-white text-red-500 border border-red-500 hover:border-zinc-500 hover:bg-zinc-500 hover:text-white flex items-center space-x-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="lucide lucide-file-chart-line"
-                >
-                  <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
-                  <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
-                  <path d="m16 13-3.5 3.5-2-2L8 17"/>
-                </svg>
+                <FileChartLine width="24" height="24" />
                 <span>Course Analytics</span>
               </Button>
             </div>
