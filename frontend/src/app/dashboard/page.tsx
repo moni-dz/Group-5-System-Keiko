@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import Link from "next/link";
 import {
   // search in https://lucide.dev/icons, add import here and use as component
@@ -27,6 +28,7 @@ export default function MainPage() {
   const [activeView, setActiveView] = useState("default");
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   interface Course {
     id: number;
@@ -56,7 +58,10 @@ export default function MainPage() {
           className={`mb-2 p-2 rounded cursor-pointer ${
             selectedCourse?.id === course.id ? "bg-red-100" : "hover:bg-red-100"
           } font-semibold text-zinc-500`}
-          onClick={() => setSelectedCourse(course)}
+          onClick={() => {
+            setSelectedCourse(course);
+            setProgress(course.progress || 0);
+          }}
         >
           {course.name}
         </li>
@@ -72,7 +77,7 @@ export default function MainPage() {
         <div className="mt-2">
           <p className="text-zinc-500">Progress: {course.progress}%</p>
           <div className="w-full bg-gray-200 rounded-full h-2.5">
-            <div className="bg-red-500 h-2.5 rounded-full" style={{ width: `${course.progress}%` }}></div>
+            <Progress value={progress} indicatorColor="bg-red-500" className="bg-gray-200 h-2.5" />
           </div>
         </div>
       )}

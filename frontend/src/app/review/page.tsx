@@ -1,13 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Flashcard, { FlashcardProps, cardMaxWidth } from "@/components/flashcard";
+import { SkeletonCard, FlashcardProps, cardMaxWidth } from "@/components/flashcard";
 import { CardData, getAllCards, getAvailableTags } from "@/lib/flashcard-api";
 import { Button } from "@/components/ui/button";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import dynamic from "next/dynamic";
+
+const Flashcard = dynamic(() => import("@/components/flashcard"), {
+  loading: () => <SkeletonCard />,
+});
 
 interface Tag {
   value: string;

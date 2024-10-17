@@ -4,10 +4,15 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Trash2 } from "lucide-react";
+import { SkeletonCard } from "@/components/flashcard";
 import { addCard, deleteCard, CardData, getAllCards, updateCard } from "@/lib/flashcard-api";
+import dynamic from "next/dynamic";
+
+const EditableCard = dynamic(() => import("@/components/flashcard").then((mod) => mod.EditableCard), {
+  loading: () => <SkeletonCard />,
+});
 
 export default function ManagePage() {
   interface FormData {
@@ -183,36 +188,15 @@ export default function ManagePage() {
         </form>
 
         {loading && !cards.length ? (
-          <div className="text-center">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto" />
-          </div>
+          <>
+            {[...Array(3).keys()].map(() => (
+              <SkeletonCard />
+            ))}
+          </>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {cards.map((card: CardData) => (
-              <Card key={card.id}>
-                <CardHeader>
-                  <CardTitle>{card.question}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p>
-                    <strong>Answer:</strong> {card.answer}
-                  </p>
-                  <p>
-                    <strong>Difficulty:</strong> {card.difficulty}
-                  </p>
-                  <p>
-                    <strong>Tags:</strong> {card.tags.join(", ")}
-                  </p>
-                  <div className="flex justify-end mt-4">
-                    <Button variant="outline" className="mr-2" onClick={() => handleEdit(card)}>
-                      Edit
-                    </Button>
-                    <Button variant="destructive" onClick={() => handleDelete(card.id)}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <EditableCard card={card} handleEdit={handleEdit} handleDelete={handleDelete} />
             ))}
           </div>
         )}
