@@ -12,9 +12,10 @@
       imports = [ inputs.devenv.flakeModule ];
       systems = nixpkgs.lib.systems.flakeExposed;
 
-      perSystem = { config, lib, self', inputs', pkgs, system, ... }: {
+      perSystem = { lib, pkgs, ... }: {
         devenv.shells.default = {
-          packages = lib.optionals pkgs.stdenv.isDarwin [ pkgs.darwin.apple_sdk_12_3.frameworks.SystemConfiguration ];
+          packages = lib.optionals pkgs.stdenv.isDarwin [ pkgs.darwin.apple_sdk_12_3.frameworks.SystemConfiguration ]
+            ++ lib.optionals pkgs.stdenv.isLinux [ pkgs.openssl ];
 
           languages.rust = {
             enable = true;

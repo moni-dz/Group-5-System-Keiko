@@ -58,6 +58,7 @@ async fn main() -> std::io::Result<()> {
             .configure(config.clone())
     })
     .bind(("127.0.0.1", 7777))?
+    .bind(("0.0.0.0", 1107))?
     .run()
     .await
 }
