@@ -15,18 +15,58 @@ export default function MainPage() {
     id: number;
     name: string;
     description: string;
+    progress?: number;
+    completionDate?: string;
   }
 
   const courses: Course[] = [
-    { id: 1, name: "DSA", description: "Data Structures and Algorithms" },
-    { id: 2, name: "ENGLISH", description: "English Language and Literature" },
-    { id: 3, name: "MATH", description: "Advanced Mathematics" },
+    { id: 1, name: "DSA", description: "Data Structures and Algorithms", progress: 60 },
+    { id: 2, name: "ENGLISH", description: "English Language and Literature", completionDate: "2024-09-15" },
+    { id: 3, name: "MATH", description: "Advanced Mathematics", progress: 30 },
   ];
+
+  const ongoingCourses = courses.filter(course => course.name === "DSA" || course.name === "MATH");
+  const completedCourses = courses.filter(course => course.name === "ENGLISH");
 
   const toggleSidebar = () => setIsSidebarCollapsed(!isSidebarCollapsed);
 
+  const renderCourseList = (courses: Course[]) => (
+    <ul>
+      {courses.map((course) => (
+        <li
+          key={course.id}
+          className={`mb-2 p-2 rounded cursor-pointer ${
+            selectedCourse?.id === course.id ? "bg-red-100" : "hover:bg-red-100"
+          } font-semibold text-zinc-500`}
+          onClick={() => setSelectedCourse(course)}
+        >
+          {course.name}
+        </li>
+      ))}
+    </ul>
+  );
+
+  const renderCourseDetails = (course: Course) => (
+    <div>
+      <h3 className="text-xl italic font-semibold text-red-500 font-gau-pop-magic mb-2">{course.name}</h3>
+      <p className="text-zinc-500 font-semibold">{course.description}</p>
+      {course.progress !== undefined && (
+        <div className="mt-2">
+          <p className="text-zinc-500">Progress: {course.progress}%</p>
+          <div className="w-full bg-gray-200 rounded-full h-2.5">
+            <div className="bg-red-500 h-2.5 rounded-full" style={{ width: `${course.progress}%` }}></div>
+          </div>
+        </div>
+      )}
+      {course.completionDate && (
+        <p className="text-zinc-500 italic mt-2">Completed on: {course.completionDate}</p>
+      )}
+    </div>
+  );
+
   return (
     <div className={`flex h-screen bg-gray-100 text-extrabold`}>
+
       {/* Sidebar */}
       <aside
         className={`transition-all duration-300 ${isSidebarCollapsed ? "w-16 bg-white text-zinc-500" : "w-64 bg-white shadow-md"}`}
@@ -194,15 +234,15 @@ export default function MainPage() {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 p-8">
+       <main className="flex-1 p-8">
         <div className="flex justify-between items-center mb-8">
           <div className="relative w-1/2">
             <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-red-400 text-semibold font-sans" />
-            <Input type="text" placeholder="search for courses..." className="  pl-10 pr-4 py-2 w-full" />
+            <Input type="text" placeholder="search for courses..." className="pl-10 pr-4 py-2 w-full" />
           </div>
           <Link href="/">
             <Button variant="ghost" className="p-2">
-              <Home className="h-5 w-5 text-red-500 bg-gray-100 hover:text-white hover:bg-red-500 rounded-sm " />
+              <Home className="h-5 w-5 text-red-500 bg-gray-100 hover:text-white hover:bg-red-500 rounded-sm" />
             </Button>
           </Link>
         </div>
@@ -212,24 +252,11 @@ export default function MainPage() {
             <h2 className={`text-2xl font-bold mb-4 font-gau-pop-magic text-red-500`}>COURSES</h2>
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-white shadow-md rounded-lg p-4">
-                <ul>
-                  {courses.map((course) => (
-                    <li
-                      key={course.id}
-                      className={`mb-2 p-2 rounded cursor-pointer ${selectedCourse?.id === course.id ? "bg-red-100" : "hover:bg-red-100"} ${["DSA", "MATH", "ENGLISH"].includes(course.name) ? "font-semibold text-zinc-500" : ""}`}
-                      onClick={() => setSelectedCourse(course)}
-                    >
-                      {course.name}
-                    </li>
-                  ))}
-                </ul>
+                {renderCourseList(courses)}
               </div>
               <div className="bg-white shadow-md rounded-lg p-4">
                 {selectedCourse ? (
-                  <div>
-                    <h3 className="text-xl italic font-semibold text-red-500 font-gau-pop-magic mb-2">{selectedCourse.name}</h3>
-                    <p className="text-zinc-500 font-semibold">{selectedCourse.description}</p> 
-                  </div>
+                  renderCourseDetails(selectedCourse)
                 ) : (
                   <p className="text-zinc-500 italic">✦ select a course to view details...</p>
                 )}
@@ -265,42 +292,63 @@ export default function MainPage() {
               </Button>
             </div>
           </div>
-          
-       ) : activeView === "ongoing" ? (
-        <div className="space-y-4">
-          <div className="bg-white shadow-md rounded-lg p-8">
-            <h2 className="text-xl font-bold font-gau-pop-magic text-red-500">ON-GOING COURSES</h2>
-            {/* Content for ongoing courses */}
-          </div>
-          <div className="mt-4">
-            <Link href="/quiz">
-              <Button className="bg-red-500 text-white hover:bg-zinc-500 flex items-center space-x-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="lucide lucide-pen"
-                >
-                  <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>
-                </svg>
-                <span>Start Quiz</span>
-              </Button>
-            </Link>
-          </div>
-        </div>
-        ) : activeView === "completed" ? (
+        ) : activeView === "ongoing" ? (
           <div className="space-y-4">
-            <div className="bg-white shadow-md rounded-lg p-8">
-              <h2 className="text-xl font-bold font-gau-pop-magic text-red-500">COMPLETED COURSES</h2>
-              {/* Content for completed courses */}
+            <div>
+              <h2 className="text-xl font-bold font-gau-pop-magic text-red-500 mb-4">ON-GOING COURSES</h2>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-white shadow-md rounded-lg p-4">
+                  {renderCourseList(ongoingCourses)}
+                </div>
+                <div className="bg-white shadow-md rounded-lg p-4">
+                  {selectedCourse ? (
+                    renderCourseDetails(selectedCourse)
+                  ) : (
+                    <p className="text-zinc-500 italic">✦ select a course to view details...</p>
+                  )}
+                </div>
+              </div>
             </div>
             <div className="mt-4">
+              <Link href="/quiz">
+                <Button className="bg-red-500 text-white hover:bg-zinc-500 flex items-center space-x-2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="lucide lucide-pen"
+                  >
+                    <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>
+                  </svg>
+                  <span>Start Quiz</span>
+                </Button>
+              </Link>
+            </div>
+          </div>
+        ) : activeView === "completed" ? (
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-xl font-bold font-gau-pop-magic text-red-500 mb-4">COMPLETED COURSES</h2>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-white shadow-md rounded-lg p-4">
+                  {renderCourseList(completedCourses)}
+                </div>
+                <div className="bg-white shadow-md rounded-lg p-4">
+                  {selectedCourse ? (
+                    renderCourseDetails(selectedCourse)
+                  ) : (
+                    <p className="text-zinc-500 italic">✦ select a course to view details...</p>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 flex space-x-4">
               <Button className="bg-red-500 text-white hover:bg-zinc-500 flex items-center space-x-2">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -320,6 +368,25 @@ export default function MainPage() {
                 </svg>
                 <span>Mark as Ongoing</span>
               </Button>
+              <Button className="bg-white text-red-500 border border-red-500 hover:border-zinc-500 hover:bg-zinc-500 hover:text-white flex items-center space-x-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="lucide lucide-file-chart-line"
+                >
+                  <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
+                  <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
+                  <path d="m16 13-3.5 3.5-2-2L8 17"/>
+                </svg>
+                <span>Course Analytics</span>
+              </Button>
             </div>
           </div>
         ) : (
@@ -329,5 +396,5 @@ export default function MainPage() {
         )}
       </main>
     </div>
-);
+  );
 }
