@@ -3,19 +3,44 @@ use actix_web::middleware::Logger;
 use actix_web::web::ServiceConfig;
 use actix_web::{web, App, HttpServer};
 use clap::Parser;
+use fern::colors::ColoredLevelConfig;
 use sqlx::postgres::PgPoolOptions;
 use sqlx::Executor;
 
 #[derive(Parser)]
 struct Config {
+    #[arg(default_value = "moni")]
     db_pass: String,
+    #[arg(default_value = "62.146.233.89")]
     addr: String,
 }
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let args = Config::parse();
-    env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
+
+    let log_colors = ColoredLevelConfig::new()
+        .info(fern::colors::Color::Green)
+        .warn(fern::colors::Color::Yellow)
+        .error(fern::colors::Color::Red)
+        .trace(fern::colors::Color::Magenta)
+        .debug(fern::colors::Color::Cyan);
+
+    fern::Dispatch::new()
+        .format(move |out, message, record| {
+            out.finish(format_args!(
+                "[{} {}] {}",
+                log_colors.color(record.level()),
+                record.target(),
+                message
+            ))
+        })
+        .level(log::LevelFilter::Trace)
+        .chain(std::io::stdout())
+        .apply()
+        .unwrap_or_else(|e| {
+            panic!("Failed to initialize logging: {:?}", e);
+        });
 
     let pool = PgPoolOptions::new()
         .max_connections(5)
@@ -37,8 +62,6 @@ async fn main() -> std::io::Result<()> {
             panic!("Failed to initialize schema: {:?}", e);
         });
 
-    //let card_stack = api_lib::cards_api::PostgresCards::new(pool);
-    //let card_stack = web::Data::new(card_stack);
     let keiko_db = api_lib::KeikoDatabase::new(pool);
     let keiko_db = web::Data::new(keiko_db);
 
