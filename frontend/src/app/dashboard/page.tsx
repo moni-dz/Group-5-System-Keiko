@@ -1,5 +1,6 @@
 "use client";
-
+import Image from "next/image";
+import logo from "../public/logo.png";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -94,7 +95,13 @@ export default function MainPage() {
         <div className="p-4 flex flex-col h-full">
           <div className="flex-1">
             <div className="flex justify-center items-center mb-6">
-              {!isSidebarCollapsed && (
+              {isSidebarCollapsed ? (
+
+                <Image
+                  src={logo}
+                  alt="logo"
+                  />
+              ) : (
                 <h1 className={`text-3xl font-bold font-gau-pop-magic text-red-500 text-center`}>Keiko!</h1>
               )}
             </div>
@@ -190,10 +197,12 @@ export default function MainPage() {
             </div>
             <div className="mt-4 flex justify-between">
               <div className="space-x-2">
-                <Button className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white">
-                  <Plus className="mr-2 h-4 w-4 hover:text-white" />
-                  Add
-                </Button>
+                <Link href="/courses">
+                 <Button className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white">
+                   <Plus className="mr-2 h-4 w-4 hover:text-white" />
+                   Add
+                 </Button>
+                </Link>
                 <Button className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white">
                   <CircleX className="mr-2 h-4 w-4" />
                   Delete
