@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -62,7 +63,7 @@ export default function ManagePage() {
           answer: formData.answer,
           difficulty: formData.difficulty,
           tags: formData.tags.split(","),
-        } as CardData);
+        });
 
         setCards(cards.map((card: CardData): CardData => (card.id === editingId ? updatedCard : card)));
         setEditingId(null);
@@ -76,7 +77,7 @@ export default function ManagePage() {
           answer: formData.answer,
           difficulty: formData.difficulty,
           tags: formData.tags.split(","),
-        } as CardData);
+        });
 
         setCards([...cards, card]);
 
@@ -181,16 +182,16 @@ export default function ManagePage() {
               {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               {editingId ? "Update" : "Add"} Item
             </Button>
-            <Button asChild>
-              <a href="/">Go Back</a>
-            </Button>
+            <Link href="/">
+              <Button>Go Back</Button>
+            </Link>
           </div>
         </form>
 
         {loading && !cards.length ? (
           <>
-            {[...Array(3).keys()].map(() => (
-              <SkeletonCard />
+            {[...Array(3).keys()].map((i: number) => (
+              <SkeletonCard key={`skeleton-${i}`} />
             ))}
           </>
         ) : (

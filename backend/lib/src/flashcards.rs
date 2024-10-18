@@ -111,10 +111,7 @@ async fn delete_card<S: CardsAPI>(card_id: web::Path<Uuid>, stack: web::Data<S>)
 /// GET /v1/cards/available_tags
 /// Returns: JSON array of tags
 /// { tags: ["science", "math", "history"] }
-async fn get_available_tags<S: CardsAPI>(
-    course: web::Path<String>,
-    stack: web::Data<S>,
-) -> HttpResponse {
+async fn get_available_tags<S: CardsAPI>(stack: web::Data<S>) -> HttpResponse {
     match stack.get_available_tags().await {
         Ok(tags) => HttpResponse::Ok().json(tags),
         Err(e) => {

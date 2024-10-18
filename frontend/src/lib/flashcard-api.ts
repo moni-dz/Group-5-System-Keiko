@@ -41,11 +41,11 @@ export async function getCard(id: string): Promise<CardData> {
   return axios.get<CardData>(`${address}/api/v1/cards/${id}`).then((r): CardData => r.data);
 }
 
-export async function addCard(card: CardData): Promise<CardData> {
+export async function addCard(card: Omit<CardData, "id" | "created_at" | "updated_at">): Promise<CardData> {
   return axios.post<CardData>(`${address}/api/v1/cards`, { ...card }).then((r): CardData => r.data);
 }
 
-export async function updateCard(card: CardData): Promise<CardData> {
+export async function updateCard(card: Omit<CardData, "created_at" | "updated_at">): Promise<CardData> {
   return axios.put<CardData>(`${address}/api/v1/cards`, { ...card }).then((r): CardData => r.data);
 }
 
