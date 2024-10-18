@@ -6,7 +6,7 @@ import localFont from "next/font/local";
 import { NextFontWithVariable } from "next/dist/compiled/@next/font";
 
 const gauPopMagic: NextFontWithVariable = localFont({
-  src: "./public/GAU_pop_magic.woff2",
+  src: "../public/GAU_pop_magic.woff2",
   display: "swap",
   variable: "--font-gau-pop-magic",
 });

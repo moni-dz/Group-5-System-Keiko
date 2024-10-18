@@ -8,14 +8,14 @@ const Flashcard = dynamic(() => import("@/components/flashcard"), {
 });
 
 interface ReviewPageProps {
-  params: {
+  params: Promise<{
     course_code: string;
-  };
+  }>;
 }
 
 export default async function ReviewPage(props: ReviewPageProps) {
-  const { params } = props;
-  const cards = await getCardsByCourseCode(params.course_code);
+  const { course_code } = await props.params;
+  const cards = await getCardsByCourseCode(course_code);
 
   return (
     <>
@@ -25,7 +25,7 @@ export default async function ReviewPage(props: ReviewPageProps) {
           <div className="space-y-4">
             <div className="grid grid-rows-2 gap-5">
               <Button asChild>
-                <a href="/">Go Back</a>
+                <a href="/dashboard">Go Back</a>
               </Button>
             </div>
           </div>
