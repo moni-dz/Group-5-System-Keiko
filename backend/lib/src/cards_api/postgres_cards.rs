@@ -1,20 +1,12 @@
 use std::collections::HashSet;
 
-use super::{Card, CardResult, CardStack, CreateCard, Tags};
+use super::{Card, CardResult, CardsAPI, CreateCard, Tags};
+use crate::KeikoDatabase;
 use uuid::Uuid;
 
-pub struct PostgresCardStack {
-    pool: sqlx::PgPool,
-}
-
-impl PostgresCardStack {
-    pub fn new(pool: sqlx::PgPool) -> Self {
-        Self { pool }
-    }
-}
-
 #[async_trait::async_trait]
-impl CardStack for PostgresCardStack {
+impl CardsAPI for KeikoDatabase {
+    // GET /v1/cards
     async fn get_cards(&self) -> CardResult<Vec<Card>> {
         sqlx::query_as::<_, Card>("SELECT * FROM flashcards")
             .fetch_all(&self.pool)
@@ -22,6 +14,7 @@ impl CardStack for PostgresCardStack {
             .map_err(|e| e.to_string())
     }
 
+    // GET /v1/cards/{card_id}
     async fn get_card(&self, card_id: &Uuid) -> CardResult<Card> {
         sqlx::query_as::<_, Card>("SELECT * FROM flashcards WHERE id = $1")
             .bind(card_id)
@@ -30,6 +23,7 @@ impl CardStack for PostgresCardStack {
             .map_err(|e| e.to_string())
     }
 
+    // POST /v1/cards
     async fn create_card(&self, create_card: &CreateCard) -> CardResult<Card> {
         sqlx::query_as::<_, Card>(
             r#"
@@ -47,6 +41,7 @@ impl CardStack for PostgresCardStack {
         .map_err(|e| e.to_string())
     }
 
+    // PUT /v1/cards
     async fn update_card(&self, card: &Card) -> CardResult<Card> {
         sqlx::query_as::<_, Card>(
             r#"
@@ -66,6 +61,7 @@ impl CardStack for PostgresCardStack {
         .map_err(|e| e.to_string())
     }
 
+    // DELETE /v1/cards/{card_id}
     async fn delete_card(&self, card_id: &Uuid) -> CardResult<Uuid> {
         sqlx::query_scalar::<_, Uuid>(
             r#"
@@ -80,6 +76,7 @@ impl CardStack for PostgresCardStack {
         .map_err(|e| e.to_string())
     }
 
+    // GET /v1/tags
     async fn get_available_tags(&self) -> CardResult<Tags> {
         let cards = self.get_cards().await?;
 
@@ -97,5 +94,11 @@ impl CardStack for PostgresCardStack {
         Ok(Tags {
             tags: tags.into_iter().collect(),
         })
+    }
+
+    // GET /v1/cards/course/{course}
+    async fn get_cards_by_course(&self, course_id: &Uuid) -> CardResult<Vec<Card>> {
+        // use sqlx::query_as
+        todo!()
     }
 }

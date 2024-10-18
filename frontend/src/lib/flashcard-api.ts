@@ -1,3 +1,4 @@
+import axios from "axios";
 import { LoremIpsum } from "lorem-ipsum";
 
 export interface CardData {
@@ -29,56 +30,30 @@ export const lorem = new LoremIpsum({
 const address = `http://${process.env.API_HOST || "62.146.233.89"}:${process.env.API_PORT || "1107"}`;
 
 export async function getAvailableTags(): Promise<string[]> {
-  return fetch(`${address}/api/v1/tags`)
-    .then((r: Response): Promise<TagData> => r.json())
-    .then((data: TagData): string[] => data.tags);
+  return axios.get<TagData>(`${address}/api/v1/tags`).then((r): string[] => r.data.tags);
 }
 
 export async function getAllCards(): Promise<CardData[]> {
-  return fetch(`${address}/api/v1/cards`)
-    .then((r: Response): Promise<CardData[]> => r.json())
-    .then((data: CardData[]): CardData[] => data);
+  return axios.get<CardData[]>(`${address}/api/v1/cards`).then((r): CardData[] => r.data);
 }
 
 export async function getCard(id: string): Promise<CardData> {
-  return fetch(`${address}/api/v1/cards/${id}`)
-    .then((r: Response): Promise<CardData> => r.json())
-    .then((data: CardData): CardData => data);
+  return axios.get<CardData>(`${address}/api/v1/cards/${id}`).then((r): CardData => r.data);
 }
 
 export async function addCard(card: CardData): Promise<CardData> {
-  return fetch(`${address}/api/v1/cards`, {
-    method: "POST",
-    body: JSON.stringify({
-      question: card.question,
-      answer: card.answer,
-      difficulty: card.difficulty,
-      tags: card.tags,
-    }),
-    headers: { "Content-Type": "application/json; charset=UTF-8" },
-  })
-    .then((r: Response): Promise<CardData> => r.json())
-    .then((data: CardData): CardData => data);
+  return axios.post<CardData>(`${address}/api/v1/cards`, { ...card }).then((r): CardData => r.data);
 }
 
 export async function updateCard(card: CardData): Promise<CardData> {
-  return fetch(`${address}/api/v1/cards`, {
-    method: "PUT",
-    body: JSON.stringify({
-      id: card.id,
-      question: card.question,
-      answer: card.answer,
-      difficulty: card.difficulty,
-      tags: card.tags,
-    }),
-    headers: { "Content-Type": "application/json; charset=UTF-8" },
-  })
-    .then((r: Response): Promise<CardData> => r.json())
-    .then((data: CardData): CardData => data);
+  return axios.put<CardData>(`${address}/api/v1/cards`, { ...card }).then((r): CardData => r.data);
 }
 
 export async function deleteCard(id: string): Promise<CardData> {
-  return fetch(`${address}/api/v1/cards/${id}`, { method: "DELETE" })
-    .then((r: Response): Promise<CardData> => r.json())
-    .then((data: CardData): CardData => data);
+  return axios.delete<CardData>(`${address}/api/v1/cards/${id}`).then((r): CardData => r.data);
+}
+
+// todo
+export async function getCardsByCourse(course: string): Promise<CardData[]> {
+  return axios.get<CardData[]>(`${address}/api/v1/cards/course/${course}`).then((r): CardData[] => r.data);
 }

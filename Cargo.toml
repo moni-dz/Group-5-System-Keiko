@@ -1,6 +1,3 @@
 [workspace]
-members = [
-    "backend/lib",
-    "backend/actix-api",
-]
+members = ["backend/lib", "backend/actix-main"]
 resolver = "2"

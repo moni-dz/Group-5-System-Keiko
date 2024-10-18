@@ -1,6 +1,4 @@
-mod postgres_card_stack;
-
-pub use postgres_card_stack::PostgresCardStack;
+mod postgres_cards;
 
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
@@ -40,11 +38,12 @@ pub struct CreateCard {
 }
 
 #[async_trait::async_trait]
-pub trait CardStack: Send + Sync + 'static {
+pub trait CardsAPI: Send + Sync + 'static {
     async fn get_cards(&self) -> CardResult<Vec<Card>>;
     async fn get_card(&self, card_id: &Uuid) -> CardResult<Card>;
     async fn create_card(&self, create_card: &CreateCard) -> CardResult<Card>;
     async fn update_card(&self, card: &Card) -> CardResult<Card>;
     async fn delete_card(&self, card_id: &Uuid) -> CardResult<Uuid>;
     async fn get_available_tags(&self) -> CardResult<Tags>;
+    async fn get_cards_by_course(&self, course_id: &Uuid) -> CardResult<Vec<Card>>;
 }

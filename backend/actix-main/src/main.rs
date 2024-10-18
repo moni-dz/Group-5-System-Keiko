@@ -37,15 +37,18 @@ async fn main() -> std::io::Result<()> {
             panic!("Failed to initialize schema: {:?}", e);
         });
 
-    let card_stack = api_lib::card_stack::PostgresCardStack::new(pool);
-    let card_stack = web::Data::new(card_stack);
+    //let card_stack = api_lib::cards_api::PostgresCards::new(pool);
+    //let card_stack = web::Data::new(card_stack);
+    let keiko_db = api_lib::KeikoDatabase::new(pool);
+    let keiko_db = web::Data::new(keiko_db);
 
     let config = move |cfg: &mut ServiceConfig| {
         cfg.service(
             web::scope("/api")
-                .app_data(card_stack)
+                .app_data(keiko_db)
                 .configure(api_lib::health::service)
-                .configure(api_lib::flashcards::service::<api_lib::card_stack::PostgresCardStack>),
+                .configure(api_lib::flashcards::service::<api_lib::KeikoDatabase>)
+                .configure(api_lib::courses::service::<api_lib::KeikoDatabase>),
         );
     };
 
