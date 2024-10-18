@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -14,20 +13,18 @@ export function cardMaxWidth(length: number): string {
 }
 
 export default function Flashcard(props: Omit<CardData, "id" | "created_at" | "updated_at">) {
-  const [isFlipped, setIsFlipped] = useState(false);
-  const { question, answer, difficulty, course } = props;
-
-  const handleFlip = () => setIsFlipped(!isFlipped);
+  const { question, answer, difficulty, course_code } = props;
 
   return (
-    <div className="min-w-fit w-96 max-w-full h-64 cursor-pointer [perspective:1000px]" onClick={handleFlip}>
-      <div
-        className={`relative w-full h-full transition-transform duration-700 [transform-style:preserve-3d]`}
-        style={{ transform: isFlipped ? "rotateY(180deg)" : "" }}
+    <div className="flashcard min-w-fit w-96 max-w-full h-64 cursor-pointer [perspective:1000px]">
+      <input type="checkbox" id={`card-${question}`} className="hidden" />
+      <label
+        htmlFor={`card-${question}`}
+        className="flashcard-inner relative w-full h-full transition-transform duration-700 [transform-style:preserve-3d] block"
       >
         {/* Front of the card */}
         <Card
-          className="absolute w-full h-full [backface-visibility:hidden]"
+          className="flashcard-front absolute w-full h-full [backface-visibility:hidden]"
           style={{
             flexBasis: `${cardWidth}px`,
           }}
@@ -38,18 +35,18 @@ export default function Flashcard(props: Omit<CardData, "id" | "created_at" | "u
         </Card>
 
         {/* Back of the card */}
-        <Card className="absolute w-full h-full [backface-visibility:hidden]" style={{ transform: "rotateY(180deg)" }}>
+        <Card className="flashcard-back absolute w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)]">
           <CardHeader>
             <CardTitle className="flex justify-between items-center">
               <p>Answer</p>
               <p>
-                {difficulty} - {course}
+                {difficulty} - {course_code}
               </p>
             </CardTitle>
           </CardHeader>
           <CardContent className="flex items-center justify-center h-[200px] text-2xl">{answer}</CardContent>
         </Card>
-      </div>
+      </label>
     </div>
   );
 }
@@ -94,7 +91,7 @@ export function EditableCard(props: EditableCardProps) {
           <strong>Difficulty:</strong> {card.difficulty}
         </p>
         <p>
-          <strong>Tags:</strong> {card.tags.join(", ")}
+          <strong>Course Code:</strong> {card.course_code}
         </p>
         <div className="flex justify-end mt-4">
           <Button variant="outline" className="mr-2" onClick={() => handleEdit(card)}>

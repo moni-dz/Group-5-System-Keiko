@@ -2,6 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
+.flashcard input[type="checkbox"] {
+    display: none;
+}
+
+.flashcard-front,
+.flashcard-back {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+
+.flashcard-back {
+    transform: rotateY(180deg);
+}
+
+.flashcard input[type="checkbox"]:checked + .flashcard-inner {
+    transform: rotateY(180deg);
+}
+
 @layer utilities {
     .text-balance {
         text-wrap: balance;

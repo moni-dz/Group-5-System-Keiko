@@ -1,11 +1,13 @@
 "use client";
+
 import Image from "next/image";
-import logo from "../public/logo.png";
+import logo from "../../public/logo.png";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import {
   // search in https://lucide.dev/icons, add import here and use as component
   // e.g. circle-x is <CircleX /> imported as below when uncommented:
@@ -41,13 +43,13 @@ export default function MainPage() {
 
   // TODO: lythe: add course, progress and completionDate as columns in database
   const courses: Course[] = [
-    { id: 1, name: "DSA", description: "Data Structures and Algorithms", progress: 60 },
-    { id: 2, name: "ENGLISH", description: "English Language and Literature", completionDate: "2024-09-15" },
-    { id: 3, name: "MATH", description: "Advanced Mathematics", progress: 30 },
+    { id: 1, name: "CS106", description: "Data Structures and Algorithms", progress: 60 },
+    { id: 2, name: "ENG024", description: "Writing for Academic Studies", completionDate: "2024-09-15" },
+    { id: 3, name: "MATH022", description: "Linear Algebra", progress: 30 },
   ];
 
-  const ongoingCourses = courses.filter((course) => course.name === "DSA" || course.name === "MATH");
-  const completedCourses = courses.filter((course) => course.name === "ENGLISH");
+  const ongoingCourses = courses.filter((course) => course.name === "CS106" || course.name === "MATH022");
+  const completedCourses = courses.filter((course) => course.name === "ENG024");
 
   const toggleSidebar = () => setIsSidebarCollapsed(!isSidebarCollapsed);
 
@@ -96,11 +98,7 @@ export default function MainPage() {
           <div className="flex-1">
             <div className="flex justify-center items-center mb-6">
               {isSidebarCollapsed ? (
-
-                <Image
-                  src={logo}
-                  alt="logo"
-                  />
+                <Image src={logo} alt="logo" />
               ) : (
                 <h1 className={`text-3xl font-bold font-gau-pop-magic text-red-500 text-center`}>Keiko!</h1>
               )}
@@ -198,10 +196,10 @@ export default function MainPage() {
             <div className="mt-4 flex justify-between">
               <div className="space-x-2">
                 <Link href="/courses">
-                 <Button className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white">
-                   <Plus className="mr-2 h-4 w-4 hover:text-white" />
-                   Add
-                 </Button>
+                  <Button className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white">
+                    <Plus className="mr-2 h-4 w-4 hover:text-white" />
+                    Add
+                  </Button>
                 </Link>
                 <Button className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white">
                   <CircleX className="mr-2 h-4 w-4" />
@@ -230,12 +228,13 @@ export default function MainPage() {
               </div>
             </div>
             <div className="mt-4">
-              <Link href="/quiz">
-                <Button className="bg-red-500 text-white hover:bg-zinc-500 flex items-center space-x-2">
-                  <Pen width="20" height="20" />
-                  <span>Start Quiz</span>
-                </Button>
-              </Link>
+              <Button
+                className="bg-red-500 text-white hover:bg-zinc-500 flex items-center space-x-2"
+                onClick={() => redirect(`/review/${selectedCourse?.name}`)}
+              >
+                <Pen width="20" height="20" />
+                <span>Start Quiz</span>
+              </Button>
             </div>
           </div>
         ) : activeView === "completed" ? (
