@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,6 +18,7 @@ const EditableCard = dynamic(() => import("@/components/flashcard").then((mod) =
 export default function ManagePage() {
   type FormData = Omit<CardData, "id" | "created_at" | "updated_at">;
 
+  const router = useRouter();
   const { toast } = useToast();
   const [cards, setCards] = useState<CardData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -92,7 +93,7 @@ export default function ManagePage() {
       question: card.question,
       answer: card.answer,
       difficulty: card.difficulty,
-      course_code: formData.course_code,
+      course_code: card.course_code,
     });
   };
 
@@ -172,9 +173,7 @@ export default function ManagePage() {
               {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               {editingId ? "Update" : "Add"} Item
             </Button>
-            <Link href="/">
-              <Button>Go Back</Button>
-            </Link>
+            <Button onClick={() => router.push("/")}>Go Back</Button>
           </div>
         </form>
 
