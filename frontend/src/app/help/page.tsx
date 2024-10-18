@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { lorem } from "@/lib/flashcard-api";
+import { lorem } from "@/lib/api";
 
 export default function HelpPage() {
   return (

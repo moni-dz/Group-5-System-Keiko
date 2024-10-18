@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { SkeletonCard } from "@/components/flashcard";
+import { useRouter } from "next/navigation";
 
 interface CourseData {
   id: string;
@@ -16,6 +17,7 @@ interface CourseData {
 }
 
 export default function CoursesPage() {
+  const router = useRouter();
   const { toast } = useToast();
   const [courses, setCourses] = useState<CourseData[]>([]);
   const [loading, setLoading] = useState(false);
@@ -45,7 +47,7 @@ export default function CoursesPage() {
               name: formData.name,
               description: formData.description,
             }
-          : course
+          : course,
       );
       setCourses(updatedCourses);
       setEditingId(null);
@@ -125,8 +127,8 @@ export default function CoursesPage() {
               {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               {editingId ? "Update Course" : "Add Course"}
             </Button>
-            <Button className="bg-red-600 text-white" asChild>
-              <a href="/">Go Back</a>
+            <Button className="bg-red-600 text-white" onClick={() => router.push("/dashboard")}>
+              Go Back
             </Button>
           </div>
         </form>
@@ -141,7 +143,9 @@ export default function CoursesPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {courses.map((course) => (
               <div key={course.id} className="bg-white shadow-md rounded-lg p-4">
-                <h3 className="text-lg font-bold">{course.courseCode} - {course.name}</h3>
+                <h3 className="text-lg font-bold">
+                  {course.courseCode} - {course.name}
+                </h3>
                 <p>{course.description}</p>
                 <div className="flex gap-2 mt-4">
                   <Button onClick={() => handleEdit(course)}>Edit</Button>

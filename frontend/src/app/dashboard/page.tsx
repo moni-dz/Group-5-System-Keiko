@@ -6,8 +6,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import Link from "next/link";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import {
   // search in https://lucide.dev/icons, add import here and use as component
   // e.g. circle-x is <CircleX /> imported as below when uncommented:
@@ -28,6 +27,7 @@ import {
 } from "lucide-react";
 
 export default function MainPage() {
+  const router = useRouter();
   const [activeView, setActiveView] = useState("default");
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -173,11 +173,10 @@ export default function MainPage() {
             <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-red-400 text-semibold font-sans" />
             <Input type="text" placeholder="search for courses..." className="pl-10 pr-4 py-2 w-full" />
           </div>
-          <Link href="/">
-            <Button variant="ghost" className="p-2">
-              <Home className="h-5 w-5 text-red-500 bg-gray-100 hover:text-white hover:bg-red-500 rounded-sm" />
-            </Button>
-          </Link>
+
+          <Button variant="ghost" className="p-2" onClick={() => router.push("/")}>
+            <Home className="h-5 w-5 text-red-500 bg-gray-100 hover:text-white hover:bg-red-500 rounded-sm" />
+          </Button>
         </div>
 
         {activeView === "courses" ? (
@@ -195,12 +194,13 @@ export default function MainPage() {
             </div>
             <div className="mt-4 flex justify-between">
               <div className="space-x-2">
-                <Link href="/courses">
-                  <Button className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white">
-                    <Plus className="mr-2 h-4 w-4 hover:text-white" />
-                    Add
-                  </Button>
-                </Link>
+                <Button
+                  className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white"
+                  onClick={() => router.push("/courses")}
+                >
+                  <Plus className="mr-2 h-4 w-4 hover:text-white" />
+                  Add
+                </Button>
                 <Button className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white">
                   <CircleX className="mr-2 h-4 w-4" />
                   Delete
