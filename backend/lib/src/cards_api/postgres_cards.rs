@@ -97,7 +97,7 @@ impl CardsAPI for KeikoDatabase {
     }
 
     // GET /v1/cards/course/{course}
-    async fn get_cards_by_course(&self, course_id: &Uuid) -> CardResult<Vec<Card>> {
+    async fn get_cards_by_course(&self, course_name: &String) -> CardResult<Vec<Card>> {
         // use sqlx::query_as
         todo!()
     }
