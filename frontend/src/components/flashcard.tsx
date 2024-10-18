@@ -2,28 +2,20 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { CardData } from "@/lib/flashcard-api";
+import { CardData } from "@/lib/api";
 import { Trash2 } from "lucide-react";
 
 const cardGap = 16;
 const cardWidth = 500;
-
-export interface FlashcardProps {
-  id: string;
-  question: string;
-  answer: string;
-  difficulty: string;
-  tags: string[];
-}
 
 export function cardMaxWidth(length: number): string {
   const cardsPerRow = Math.min(length, 4);
   return `${cardsPerRow * cardWidth + (cardsPerRow - 1) * cardGap}px`;
 }
 
-export default function Flashcard(props: FlashcardProps) {
+export default function Flashcard(props: Omit<CardData, "id" | "created_at" | "updated_at">) {
   const [isFlipped, setIsFlipped] = useState(false);
-  const { question, answer, difficulty, tags } = props;
+  const { question, answer, difficulty, course } = props;
 
   const handleFlip = () => setIsFlipped(!isFlipped);
 
@@ -51,7 +43,7 @@ export default function Flashcard(props: FlashcardProps) {
             <CardTitle className="flex justify-between items-center">
               <p>Answer</p>
               <p>
-                {difficulty} - {tags[0]}
+                {difficulty} - {course}
               </p>
             </CardTitle>
           </CardHeader>

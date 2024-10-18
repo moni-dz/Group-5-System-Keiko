@@ -9,13 +9,15 @@ pub fn service<S: CardsAPI>(cfg: &mut ServiceConfig) {
     cfg.service(
         web::scope("/v1/cards")
             .route("", web::get().to(get_cards::<S>))
-            .route("/{card_id}", web::get().to(get_card::<S>))
+            .route("/id/{card_id}", web::get().to(get_card::<S>))
             .route("", web::post().to(add_card::<S>))
             .route("", web::put().to(update_card::<S>))
-            .route("/{card_id}", web::delete().to(delete_card::<S>))
-            .route("/course/{course}", web::get().to(get_cards_by_course::<S>)),
-    )
-    .service(web::scope("/v1/tags").route("", web::get().to(get_available_tags::<S>)));
+            .route("/id/{card_id}", web::delete().to(delete_card::<S>))
+            .route(
+                "/course/{course_code}",
+                web::get().to(get_cards_by_course_code::<S>),
+            ),
+    );
 }
 
 /// Retrieves all cards as a JSON array
@@ -40,7 +42,7 @@ async fn get_cards<S: CardsAPI>(stack: web::Data<S>) -> HttpResponse {
 }
 
 /// Retrieves a single card based on UUID
-/// GET /v1/cards/{card_id}
+/// GET /v1/cards/id/{card_id}
 /// Returns: JSON object with the following fields:
 /// {
 ///     "id": "<card id>",
@@ -97,7 +99,7 @@ async fn update_card<S: CardsAPI>(card: web::Json<Card>, stack: web::Data<S>) ->
 }
 
 /// Deletes a card from the database
-/// DELETE /v1/cards/{card_id}
+/// DELETE /v1/cards/id/{card_id}
 async fn delete_card<S: CardsAPI>(card_id: web::Path<Uuid>, stack: web::Data<S>) -> HttpResponse {
     match stack.delete_card(&card_id).await {
         Ok(card) => HttpResponse::Ok().json(card),
@@ -107,25 +109,13 @@ async fn delete_card<S: CardsAPI>(card_id: web::Path<Uuid>, stack: web::Data<S>)
     }
 }
 
-/// Gets all available card tags
-/// GET /v1/cards/available_tags
-/// Returns: JSON array of tags
-/// { tags: ["science", "math", "history"] }
-async fn get_available_tags<S: CardsAPI>(stack: web::Data<S>) -> HttpResponse {
-    match stack.get_available_tags().await {
-        Ok(tags) => HttpResponse::Ok().json(tags),
-        Err(e) => {
-            HttpResponse::InternalServerError().body(format!("Internal server error: {:?}", e))
-        }
-    }
-}
-
 /// Retrieves all cards for a specific course
-async fn get_cards_by_course<S: CardsAPI>(
-    course_name: web::Path<String>,
+/// GET /v1/cards/course/{course_code}
+async fn get_cards_by_course_code<S: CardsAPI>(
+    course_code: web::Path<String>,
     stack: web::Data<S>,
 ) -> HttpResponse {
-    match stack.get_cards_by_course(&course_name).await {
+    match stack.get_cards_by_course_code(&course_code).await {
         Ok(cards) => HttpResponse::Ok().json(cards),
         Err(e) => {
             HttpResponse::InternalServerError().body(format!("Internal server error: {:?}", e))

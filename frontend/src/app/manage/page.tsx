@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { SkeletonCard } from "@/components/flashcard";
-import { addCard, deleteCard, CardData, getAllCards, updateCard } from "@/lib/flashcard-api";
+import { addCard, deleteCard, CardData, getAllCards, updateCard } from "@/lib/api";
 import dynamic from "next/dynamic";
 
 const EditableCard = dynamic(() => import("@/components/flashcard").then((mod) => mod.EditableCard), {
@@ -16,12 +16,7 @@ const EditableCard = dynamic(() => import("@/components/flashcard").then((mod) =
 });
 
 export default function ManagePage() {
-  interface FormData {
-    question: string;
-    answer: string;
-    difficulty: string;
-    tags: string;
-  }
+  type FormData = Omit<CardData, "id" | "created_at" | "updated_at">;
 
   const { toast } = useToast();
   const [cards, setCards] = useState<CardData[]>([]);
@@ -32,7 +27,7 @@ export default function ManagePage() {
     question: "",
     answer: "",
     difficulty: "",
-    tags: "",
+    course_code: "",
   });
 
   useEffect(() => {
@@ -62,7 +57,7 @@ export default function ManagePage() {
           question: formData.question,
           answer: formData.answer,
           difficulty: formData.difficulty,
-          tags: formData.tags.split(","),
+          course_code: formData.course_code,
         });
 
         setCards(cards.map((card: CardData): CardData => (card.id === editingId ? updatedCard : card)));
@@ -72,12 +67,7 @@ export default function ManagePage() {
           toast({ description: "Card successfully edited." });
         }
       } else {
-        const card: CardData = await addCard({
-          question: formData.question,
-          answer: formData.answer,
-          difficulty: formData.difficulty,
-          tags: formData.tags.split(","),
-        });
+        const card: CardData = await addCard({ ...formData });
 
         setCards([...cards, card]);
 
@@ -86,7 +76,7 @@ export default function ManagePage() {
         }
       }
 
-      setFormData({ question: "", answer: "", difficulty: "", tags: "" });
+      setFormData({ question: "", answer: "", difficulty: "", course_code: "" });
     } catch (err) {
       setError("Failed to save item.");
 
@@ -102,7 +92,7 @@ export default function ManagePage() {
       question: card.question,
       answer: card.answer,
       difficulty: card.difficulty,
-      tags: card.tags.join(","),
+      course_code: formData.course_code,
     });
   };
 
@@ -166,12 +156,12 @@ export default function ManagePage() {
               />
             </div>
             <div>
-              <Label htmlFor="tags">Tags</Label>
+              <Label htmlFor="course_code">Course Code</Label>
               <Input
                 className="bg-white"
-                id="tags"
-                name="tags"
-                value={formData.tags}
+                id="course_code"
+                name="course_code"
+                value={formData.course_code}
                 onChange={handleInputChange}
                 required
               />
