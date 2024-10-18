@@ -45,5 +45,5 @@ pub trait CardsAPI: Send + Sync + 'static {
     async fn update_card(&self, card: &Card) -> CardResult<Card>;
     async fn delete_card(&self, card_id: &Uuid) -> CardResult<Uuid>;
     async fn get_available_tags(&self) -> CardResult<Tags>;
-    async fn get_cards_by_course(&self, course_id: &Uuid) -> CardResult<Vec<Card>>;
+    async fn get_cards_by_course(&self, course_name: &String) -> CardResult<Vec<Card>>;
 }

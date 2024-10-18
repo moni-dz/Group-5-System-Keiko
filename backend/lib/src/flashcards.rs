@@ -122,10 +122,10 @@ async fn get_available_tags<S: CardsAPI>(stack: web::Data<S>) -> HttpResponse {
 
 /// Retrieves all cards for a specific course
 async fn get_cards_by_course<S: CardsAPI>(
-    course: web::Path<Uuid>,
+    course_name: web::Path<String>,
     stack: web::Data<S>,
 ) -> HttpResponse {
-    match stack.get_cards_by_course(&course).await {
+    match stack.get_cards_by_course(&course_name).await {
         Ok(cards) => HttpResponse::Ok().json(cards),
         Err(e) => {
             HttpResponse::InternalServerError().body(format!("Internal server error: {:?}", e))
