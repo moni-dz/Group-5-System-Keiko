@@ -27,12 +27,13 @@ import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { redirect, useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import { CourseData, getAllCourses } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import { useTransitionRouter } from "next-view-transitions";
 
 export default function MainPage() {
-  const router = useRouter();
+  const router = useTransitionRouter();
   const { toast } = useToast();
   const [activeView, setActiveView] = useState("default");
   const [selectedCourse, setSelectedCourse] = useState<CourseData | null>(null);
@@ -246,7 +247,7 @@ export default function MainPage() {
             <div className="mt-4">
               <Button
                 className="bg-red-500 text-white hover:bg-zinc-500 flex items-center space-x-2"
-                onClick={() => redirect(`/review/${selectedCourse?.name}`)}
+                onClick={() => redirect(`/review/${selectedCourse?.course_code}`)}
               >
                 <Pen width="20" height="20" />
                 <span>Start Quiz</span>
