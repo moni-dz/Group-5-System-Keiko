@@ -1,8 +1,9 @@
 "use client";
 
+import dayjs from "dayjs";
 import Image from "next/image";
 import logo from "../../public/logo.png";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -25,35 +26,31 @@ import {
   FolderClock,
   FileChartLine,
 } from "lucide-react";
+import { CourseData, getAllCourses } from "@/lib/api";
 
 export default function MainPage() {
   const router = useRouter();
+  const [courses, setCourses] = useState<CourseData[]>([]);
   const [activeView, setActiveView] = useState("default");
-  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [selectedCourse, setSelectedCourse] = useState<CourseData | null>(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  interface Course {
-    id: number;
-    name: string;
-    description: string;
-    progress?: number;
-    completionDate?: string;
-  }
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getAllCourses();
+      setCourses(data);
+    };
 
-  // TODO: lythe: add course, progress and completionDate as columns in database
-  const courses: Course[] = [
-    { id: 1, name: "CS106", description: "Data Structures and Algorithms", progress: 60 },
-    { id: 2, name: "ENG024", description: "Writing for Academic Studies", completionDate: "2024-09-15" },
-    { id: 3, name: "MATH022", description: "Linear Algebra", progress: 30 },
-  ];
+    fetchData().catch((e) => console.error(e));
+  }, []);
 
-  const ongoingCourses = courses.filter((course) => course.name === "CS106" || course.name === "MATH022");
-  const completedCourses = courses.filter((course) => course.name === "ENG024");
+  const ongoingCourses = courses.filter((course: CourseData) => !course.is_completed);
+  const completedCourses = courses.filter((course: CourseData) => course.is_completed);
 
   const toggleSidebar = () => setIsSidebarCollapsed(!isSidebarCollapsed);
 
-  const renderCourseList = (courses: Course[]) => (
+  const renderCourseList = (courses: CourseData[]) => (
     <ul>
       {courses.map((course) => (
         <li
@@ -66,13 +63,13 @@ export default function MainPage() {
             setProgress(course.progress || 0);
           }}
         >
-          {course.name}
+          {course.course_code}
         </li>
       ))}
     </ul>
   );
 
-  const renderCourseDetails = (course: Course) => (
+  const renderCourseDetails = (course: CourseData) => (
     <div>
       <h3 className="text-xl italic font-semibold text-red-500 font-gau-pop-magic mb-2">{course.name}</h3>
       <p className="text-zinc-500 font-semibold">{course.description}</p>
@@ -84,7 +81,9 @@ export default function MainPage() {
           </div>
         </div>
       )}
-      {course.completionDate && <p className="text-zinc-500 italic mt-2">Completed on: {course.completionDate}</p>}
+      {course.is_completed && (
+        <p className="text-zinc-500 italic mt-2">Completed on: {dayjs(course.completion_date).format("MM-DD-YYYY")}</p>
+      )}
     </div>
   );
 
