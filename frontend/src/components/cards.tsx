@@ -79,29 +79,32 @@ export function EditableCard(props: EditableCardProps) {
   const { card, handleEdit, handleDelete } = props;
 
   return (
-    <Card key={card.id}>
-      <CardHeader>
-        <CardTitle>{card.question}</CardTitle>
+    <Card key={card.id} className="flex flex-col h-[300px] overflow-hidden">
+      <CardHeader className="flex-shrink-0">
+        <CardTitle className="text-lg font-semibold line-clamp-2">{card.question}</CardTitle>
       </CardHeader>
-      <CardContent>
-        <p>
-          <strong>Answer:</strong> {card.answer}
-        </p>
-        <p>
-          <strong>Difficulty:</strong> {card.difficulty}
-        </p>
-        <p>
-          <strong>Course Code:</strong> {card.course_code}
-        </p>
-        <div className="flex justify-end mt-4">
-          <Button variant="outline" className="mr-2" onClick={() => handleEdit(card)}>
-            Edit
-          </Button>
-          <Button variant="destructive" onClick={() => handleDelete(card.id)}>
-            <Trash2 className="h-4 w-4" />
-          </Button>
+      <CardContent className="flex-grow overflow-hidden flex flex-col">
+        <div className="mb-2">
+          <strong className="text-sm text-gray-600">Answer:</strong>
+          <p className="text-sm line-clamp-2">{card.answer}</p>
+        </div>
+        <div className="flex justify-between text-sm text-gray-600 mt-auto">
+          <p>
+            <strong>Difficulty:</strong> {card.difficulty}
+          </p>
+          <p>
+            <strong>Course:</strong> {card.course_code}
+          </p>
         </div>
       </CardContent>
+      <div className="flex justify-end p-4 bg-gray-100 mt-auto">
+        <Button variant="outline" className="mr-2" onClick={() => handleEdit(card)}>
+          Edit
+        </Button>
+        <Button variant="destructive" onClick={() => handleDelete(card.id)}>
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
     </Card>
   );
 }
@@ -116,44 +119,68 @@ export function EditableCourse(props: EditableCourseProps) {
   const { course, handleEdit, handleDelete } = props;
 
   return (
-    <Card key={course.id}>
-      <CardHeader>
-        <CardTitle>{course.name}</CardTitle>
+    <Card key={course.id} className="flex flex-col h-[250px] overflow-hidden">
+      <CardHeader className="flex-shrink-0">
+        <CardTitle className="text-lg font-semibold truncate">{course.name}</CardTitle>
+        <p className="text-sm font-medium text-gray-500 truncate">{course.course_code}</p>
       </CardHeader>
-      <CardContent>
-        <p>
-          <strong>Course Code:</strong> {course.course_code}
-        </p>
-        <p>
-          <strong>Description:</strong> {course.description}
-        </p>
-        <div className="flex justify-end mt-4">
-          <Button variant="outline" className="mr-2" onClick={() => handleEdit(course)}>
-            Edit
-          </Button>
-          <Button variant="destructive" onClick={() => handleDelete(course.id)}>
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
+      <CardContent className="flex-grow overflow-hidden">
+        <p className="text-sm text-gray-600 line-clamp-3">{course.description}</p>
       </CardContent>
+      <div className="flex justify-end p-4 bg-gray-100 mt-auto">
+        <Button variant="outline" className="mr-2" onClick={() => handleEdit(course)}>
+          Edit
+        </Button>
+        <Button variant="destructive" onClick={() => handleDelete(course.id)}>
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
     </Card>
   );
 }
 
 export function SkeletonEditableCard() {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>
-          <Skeleton className="h-4 w-[250px] mb-5" />
-        </CardTitle>
+    <Card className="flex flex-col h-[300px] overflow-hidden">
+      <CardHeader className="flex-shrink-0">
+        <Skeleton className="h-6 w-[80%] mb-2" />
+        <Skeleton className="h-6 w-[60%]" />
       </CardHeader>
-      <CardContent>
-        <Skeleton className="h-4 w-[200px] mb-2" />
-        <Skeleton className="h-4 w-[200px] mb-2" />
-        <Skeleton className="h-4 w-[200px] mb-2" />
-        <Skeleton className="h-2 w-[200px]" />
+      <CardContent className="flex-grow overflow-hidden flex flex-col">
+        <div className="mb-2">
+          <Skeleton className="h-4 w-[40%] mb-1" />
+          <Skeleton className="h-4 w-[90%]" />
+          <Skeleton className="h-4 w-[80%]" />
+        </div>
+        <div className="flex justify-between mt-auto">
+          <Skeleton className="h-4 w-[30%]" />
+          <Skeleton className="h-4 w-[30%]" />
+        </div>
       </CardContent>
+      <div className="flex justify-end p-4 bg-gray-100 mt-auto">
+        <Skeleton className="h-9 w-16 mr-2" />
+        <Skeleton className="h-9 w-16" />
+      </div>
+    </Card>
+  );
+}
+
+export function SkeletonEditableCourse() {
+  return (
+    <Card className="flex flex-col h-[250px] overflow-hidden">
+      <CardHeader className="flex-shrink-0">
+        <Skeleton className="h-6 w-[80%] mb-2" />
+        <Skeleton className="h-4 w-[60%]" />
+      </CardHeader>
+      <CardContent className="flex-grow overflow-hidden">
+        <Skeleton className="h-4 w-[90%] mb-1" />
+        <Skeleton className="h-4 w-[85%] mb-1" />
+        <Skeleton className="h-4 w-[80%]" />
+      </CardContent>
+      <div className="flex justify-end p-4 bg-gray-100 mt-auto">
+        <Skeleton className="h-9 w-16 mr-2" />
+        <Skeleton className="h-9 w-16" />
+      </div>
     </Card>
   );
 }
