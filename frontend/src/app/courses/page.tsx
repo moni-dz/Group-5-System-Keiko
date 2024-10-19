@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -79,14 +79,10 @@ export default function CoursesPage() {
     setFormData({ name: "", course_code: "", description: "" });
   };
 
-  const handleEdit = (course: CourseData) => {
+  const handleEdit = useCallback((course: Pick<CourseData, "id" | "name" | "course_code" | "description">) => {
     setEditingId(course.id);
-    setFormData({
-      name: course.name,
-      course_code: course.course_code,
-      description: course.description,
-    });
-  };
+    setFormData({ ...course });
+  }, []);
 
   if (isError) {
     toast({ description: error.message });
