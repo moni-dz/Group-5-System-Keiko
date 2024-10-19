@@ -47,19 +47,19 @@ export default function CoursesPage() {
     mutationFn: (course: Pick<CourseData, "name" | "course_code" | "description">) => addCourse(course),
     onSuccess: onSuccess,
     onError: onError,
-  });
+  }).mutate;
 
   const useUpdateCourse = useMutation({
     mutationFn: (course: Pick<CourseData, "id" | "name" | "course_code" | "description">) => updateCourse(course),
     onSuccess: onSuccess,
     onError: onError,
-  });
+  }).mutate;
 
   const useDeleteCourse = useMutation({
     mutationFn: (id: string) => deleteCourse(id),
     onSuccess: onSuccess,
     onError: onError,
-  });
+  }).mutate;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -70,10 +70,10 @@ export default function CoursesPage() {
     e.preventDefault();
 
     if (editingId) {
-      useUpdateCourse.mutate({ id: editingId, ...formData });
+      useUpdateCourse({ id: editingId, ...formData });
       setEditingId(null);
     } else {
-      useAddCourse.mutate(formData);
+      useAddCourse(formData);
     }
 
     setFormData({ name: "", course_code: "", description: "" });
@@ -152,12 +152,7 @@ export default function CoursesPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {data.map((course: CourseData) => (
-              <EditableCourse
-                key={course.id}
-                course={course}
-                handleEdit={handleEdit}
-                handleDelete={(id) => useDeleteCourse.mutate(id)}
-              />
+              <EditableCourse key={course.id} course={course} handleEdit={handleEdit} handleDelete={useDeleteCourse} />
             ))}
           </div>
         )}
