@@ -37,6 +37,7 @@ export default function MainPage() {
   const { toast } = useToast();
   const [activeView, setActiveView] = useState("default");
   const [selectedCourse, setSelectedCourse] = useState<CourseData | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [progress, setProgress] = useState(0);
 
@@ -65,6 +66,18 @@ export default function MainPage() {
   const courses = data;
   const ongoingCourses = courses.filter((course: CourseData) => !course.is_completed);
   const completedCourses = courses.filter((course: CourseData) => course.is_completed);
+
+  const filterCourses = (courses: CourseData[], query: string) => {
+    return courses.filter(
+      (course) =>
+        course.course_code.toLowerCase().includes(query.toLowerCase()) ||
+        course.name.toLowerCase().includes(query.toLowerCase()),
+    );
+  };
+
+  const filteredCourses = filterCourses(courses, searchQuery);
+  const filteredOngoingCourses = filterCourses(ongoingCourses, searchQuery);
+  const filteredCompletedCourses = filterCourses(completedCourses, searchQuery);
 
   const toggleSidebar = () => setIsSidebarCollapsed(!isSidebarCollapsed);
 
@@ -188,7 +201,13 @@ export default function MainPage() {
         <div className="flex justify-between items-center mb-8">
           <div className="relative w-1/2">
             <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-red-400 text-semibold font-sans" />
-            <Input type="text" placeholder="search for courses..." className="pl-10 pr-4 py-2 w-full" />
+            <Input
+              type="text"
+              placeholder="search for courses..."
+              className="pl-10 pr-4 py-2 w-full"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
 
           <Button variant="ghost" className="p-2" onClick={() => router.push("/")}>
@@ -200,7 +219,7 @@ export default function MainPage() {
           <div>
             <h2 className={`text-2xl font-bold mb-4 font-gau-pop-magic text-red-500`}>COURSES</h2>
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white shadow-md rounded-lg p-4">{renderCourseList(courses)}</div>
+              <div className="bg-white shadow-md rounded-lg p-4">{renderCourseList(filteredCourses)}</div>
               <div className="bg-white shadow-md rounded-lg p-4">
                 {selectedCourse ? (
                   renderCourseDetails(selectedCourse)
@@ -234,7 +253,7 @@ export default function MainPage() {
             <div>
               <h2 className="text-xl font-bold font-gau-pop-magic text-red-500 mb-4">ON-GOING COURSES</h2>
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white shadow-md rounded-lg p-4">{renderCourseList(ongoingCourses)}</div>
+                <div className="bg-white shadow-md rounded-lg p-4">{renderCourseList(filteredOngoingCourses)}</div>
                 <div className="bg-white shadow-md rounded-lg p-4">
                   {selectedCourse ? (
                     renderCourseDetails(selectedCourse)
@@ -259,7 +278,7 @@ export default function MainPage() {
             <div>
               <h2 className="text-xl font-bold font-gau-pop-magic text-red-500 mb-4">COMPLETED COURSES</h2>
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white shadow-md rounded-lg p-4">{renderCourseList(completedCourses)}</div>
+                <div className="bg-white shadow-md rounded-lg p-4">{renderCourseList(filteredCompletedCourses)}</div>
                 <div className="bg-white shadow-md rounded-lg p-4">
                   {selectedCourse ? (
                     renderCourseDetails(selectedCourse)
