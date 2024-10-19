@@ -37,12 +37,12 @@ export default function MainPage() {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    const fetchData = async () => {
+    async function fetchData() {
       const data = await getAllCourses();
       setCourses(data);
-    };
+    }
 
-    fetchData().catch((e) => console.error(e));
+    fetchData();
   }, []);
 
   const ongoingCourses = courses.filter((course: CourseData) => !course.is_completed);
