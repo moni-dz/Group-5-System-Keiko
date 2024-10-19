@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { SkeletonEditableCard } from "@/components/cards";
 import { addCard, deleteCard, CardData, getAllCards, updateCard } from "@/lib/api";
 import dynamic from "next/dynamic";
+import { useTransitionRouter } from "next-view-transitions";
 
 const EditableCard = dynamic(() => import("@/components/cards").then((mod) => mod.EditableCard), {
   loading: () => <SkeletonEditableCard />,
@@ -18,7 +18,7 @@ const EditableCard = dynamic(() => import("@/components/cards").then((mod) => mo
 export default function ManagePage() {
   type FormData = Omit<CardData, "id" | "created_at" | "updated_at">;
 
-  const router = useRouter();
+  const router = useTransitionRouter();
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [editingId, setEditingId] = useState<string | null>(null);

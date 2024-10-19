@@ -7,9 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { SkeletonEditableCard } from "@/components/cards";
-import { useRouter } from "next/navigation";
 import { addCourse, CourseData, deleteCourse, getAllCourses, updateCourse } from "@/lib/api";
 import dynamic from "next/dynamic";
+import { useTransitionRouter } from "next-view-transitions";
 
 const EditableCourse = dynamic(() => import("@/components/cards").then((mod) => mod.EditableCourse), {
   loading: () => <SkeletonEditableCard />,
@@ -18,7 +18,7 @@ const EditableCourse = dynamic(() => import("@/components/cards").then((mod) => 
 export default function CoursesPage() {
   type FormData = Pick<CourseData, "name" | "course_code" | "description">;
 
-  const router = useRouter();
+  const router = useTransitionRouter();
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [editingId, setEditingId] = useState<string | null>(null);
