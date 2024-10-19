@@ -2,26 +2,25 @@ import axios from "axios";
 import { LoremIpsum } from "lorem-ipsum";
 
 export interface CardData {
-  id: string | "";
+  id: string;
   question: string;
   answer: string;
   difficulty: string;
   course_code: string;
-  created_at: string | "";
-  updated_at: string | "";
+  created_at: string;
+  updated_at: string;
 }
 
 export interface CourseData {
-  id: string | "";
+  id: string;
   name: string;
   course_code: string;
   description: string;
-  created_at: string | "";
-  updated_at: string | "";
-}
-
-export interface TagData {
-  tags: string[];
+  progress: number;
+  is_completed: boolean;
+  completion_date: string;
+  created_at: string;
+  updated_at: string;
 }
 
 // For development only
@@ -70,11 +69,13 @@ export async function getCourse(id: string): Promise<CourseData> {
   return axios.get<CourseData>(`${address}/api/v1/courses/${id}`).then((r): CourseData => r.data);
 }
 
-export async function addCourse(course: Omit<CourseData, "id" | "created_at" | "updated_at">): Promise<CourseData> {
+export async function addCourse(course: Pick<CourseData, "name" | "course_code" | "description">): Promise<CourseData> {
   return axios.post<CourseData>(`${address}/api/v1/courses`, { ...course }).then((r): CourseData => r.data);
 }
 
-export async function updateCourse(course: Omit<CourseData, "created_at" | "updated_at">): Promise<CourseData> {
+export async function updateCourse(
+  course: Pick<CourseData, "id" | "name" | "course_code" | "description">,
+): Promise<CourseData> {
   return axios.put<CourseData>(`${address}/api/v1/courses`, { ...course }).then((r): CourseData => r.data);
 }
 

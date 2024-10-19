@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { CardData } from "@/lib/api";
+import { CardData, CourseData } from "@/lib/api";
 import { Trash2 } from "lucide-react";
 
 const cardGap = 16;
@@ -12,7 +12,7 @@ export function cardMaxWidth(length: number): string {
   return `${cardsPerRow * cardWidth + (cardsPerRow - 1) * cardGap}px`;
 }
 
-export default function Flashcard(props: Omit<CardData, "id" | "created_at" | "updated_at">) {
+export function Flashcard(props: Omit<CardData, "id" | "created_at" | "updated_at">) {
   const { question, answer, difficulty, course_code } = props;
 
   return (
@@ -98,6 +98,40 @@ export function EditableCard(props: EditableCardProps) {
             Edit
           </Button>
           <Button variant="destructive" onClick={() => handleDelete(card.id)}>
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+interface EditableCourseProps {
+  course: CourseData;
+  handleEdit: (course: CourseData) => void;
+  handleDelete: (id: string) => Promise<void>;
+}
+
+export function EditableCourse(props: EditableCourseProps) {
+  const { course, handleEdit, handleDelete } = props;
+
+  return (
+    <Card key={course.id}>
+      <CardHeader>
+        <CardTitle>{course.name}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p>
+          <strong>Course Code:</strong> {course.course_code}
+        </p>
+        <p>
+          <strong>Description:</strong> {course.description}
+        </p>
+        <div className="flex justify-end mt-4">
+          <Button variant="outline" className="mr-2" onClick={() => handleEdit(course)}>
+            Edit
+          </Button>
+          <Button variant="destructive" onClick={() => handleDelete(course.id)}>
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>

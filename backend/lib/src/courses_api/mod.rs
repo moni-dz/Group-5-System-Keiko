@@ -13,10 +13,13 @@ pub type CourseResult<T> = Result<T, CourseError>;
 pub struct Course {
     pub id: Uuid,
     pub name: String,
-    pub long_name: String,
-    pub progress: u32,
+    pub course_code: String,
+    pub description: String,
+    pub progress: i32,
     pub is_completed: bool,
     pub completion_date: Option<chrono::DateTime<chrono::Utc>>,
+    pub created_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
 }
 
 #[derive(
@@ -24,7 +27,8 @@ pub struct Course {
 )]
 pub struct CreateCourse {
     pub name: String,
-    pub long_name: String,
+    pub course_code: String,
+    pub description: String,
 }
 
 #[async_trait::async_trait]

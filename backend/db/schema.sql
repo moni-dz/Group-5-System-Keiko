@@ -19,5 +19,7 @@ CREATE TABLE IF NOT EXISTS courses
     description text NOT NULL,
     progress integer DEFAULT 0 NOT NULL,
     is_completed boolean DEFAULT false NOT NULL,
-    completion_date timestamp with time zone
+    completion_date timestamp with time zone,
+    created_at timestamp with time zone default CURRENT_TIMESTAMP,
+    updated_at timestamp with time zone
 );
