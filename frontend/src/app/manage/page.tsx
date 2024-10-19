@@ -48,19 +48,19 @@ export default function ManagePage() {
     mutationFn: (card: Omit<CardData, "id" | "created_at" | "updated_at">) => addCard(card),
     onSuccess: onSuccess,
     onError: onError,
-  });
+  }).mutate;
 
   const useUpdateCard = useMutation({
     mutationFn: (card: Omit<CardData, "created_at" | "updated_at">) => updateCard(card),
     onSuccess: onSuccess,
     onError: onError,
-  });
+  }).mutate;
 
   const useDeleteCard = useMutation({
     mutationFn: (id: string) => deleteCard(id),
     onSuccess: onSuccess,
     onError: onError,
-  });
+  }).mutate;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -71,10 +71,10 @@ export default function ManagePage() {
     e.preventDefault();
 
     if (editingId) {
-      useUpdateCard.mutate({ id: editingId, ...formData });
+      useUpdateCard({ id: editingId, ...formData });
       setEditingId(null);
     } else {
-      useAddCard.mutate(formData);
+      useAddCard(formData);
     }
 
     setFormData({ question: "", answer: "", difficulty: "", course_code: "" });
@@ -160,12 +160,7 @@ export default function ManagePage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {data.map((card: CardData) => (
-              <EditableCard
-                key={card.id}
-                card={card}
-                handleEdit={handleEdit}
-                handleDelete={(id) => useDeleteCard.mutate(id)}
-              />
+              <EditableCard key={card.id} card={card} handleEdit={handleEdit} handleDelete={useDeleteCard} />
             ))}
           </div>
         )}
