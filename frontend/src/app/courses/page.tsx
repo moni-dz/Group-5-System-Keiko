@@ -6,13 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { SkeletonEditableCard } from "@/components/cards";
+import { SkeletonEditableCourse } from "@/components/cards";
 import { addCourse, CourseData, deleteCourse, getAllCourses, updateCourse } from "@/lib/api";
 import dynamic from "next/dynamic";
 import { useTransitionRouter } from "next-view-transitions";
 
 const EditableCourse = dynamic(() => import("@/components/cards").then((mod) => mod.EditableCourse), {
-  loading: () => <SkeletonEditableCard />,
+  loading: () => <SkeletonEditableCourse />,
 });
 
 export default function CoursesPage() {
@@ -146,7 +146,7 @@ export default function CoursesPage() {
         {isPending ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(6).keys()].map((i: number) => (
-              <SkeletonEditableCard key={`skeleton-${i}`} />
+              <SkeletonEditableCourse key={`skeleton-${i}`} />
             ))}
           </div>
         ) : (
