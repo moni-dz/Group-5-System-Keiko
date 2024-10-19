@@ -4,6 +4,7 @@ import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import localFont from "next/font/local";
 import { NextFontWithVariable } from "next/dist/compiled/@next/font";
+import Providers from "./providers";
 
 const gauPopMagic: NextFontWithVariable = localFont({
   src: "../public/GAU_pop_magic.woff2",
@@ -24,7 +25,9 @@ export default function RootLayout({ children }: Readonly<RootProps>) {
   return (
     <html lang="en" className={gauPopMagic.variable}>
       <body className="antialiased">
-        <main>{children}</main>
+        <main>
+          <Providers>{children}</Providers>
+        </main>
         <Toaster />
       </body>
     </html>

@@ -1,13 +1,5 @@
 "use client";
 
-import dayjs from "dayjs";
-import Image from "next/image";
-import logo from "../../public/logo.png";
-import { useEffect, useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { redirect, useRouter } from "next/navigation";
 import {
   // search in https://lucide.dev/icons, add import here and use as component
   // e.g. circle-x is <CircleX /> imported as below when uncommented:
@@ -25,26 +17,51 @@ import {
   CircleX,
   FolderClock,
   FileChartLine,
+  Loader2,
 } from "lucide-react";
+import dayjs from "dayjs";
+import Image from "next/image";
+import logo from "../../public/logo.png";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { redirect, useRouter } from "next/navigation";
 import { CourseData, getAllCourses } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 
 export default function MainPage() {
   const router = useRouter();
-  const [courses, setCourses] = useState<CourseData[]>([]);
+  const { toast } = useToast();
   const [activeView, setActiveView] = useState("default");
   const [selectedCourse, setSelectedCourse] = useState<CourseData | null>(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  useEffect(() => {
-    async function fetchData() {
-      const data = await getAllCourses();
-      setCourses(data);
-    }
+  const { data, error, isPending, isError } = useQuery({
+    queryKey: ["courses"],
+    queryFn: getAllCourses,
+  });
 
-    fetchData();
-  }, []);
+  if (isPending) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
+  if (isError) {
+    toast({ description: error.message });
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+        {error.message}
+      </div>
+    );
+  }
+
+  const courses = data;
   const ongoingCourses = courses.filter((course: CourseData) => !course.is_completed);
   const completedCourses = courses.filter((course: CourseData) => course.is_completed);
 

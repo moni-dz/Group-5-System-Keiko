@@ -1,28 +1,26 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
-import { SkeletonCard } from "@/components/cards";
+import { SkeletonEditableCard } from "@/components/cards";
 import { addCard, deleteCard, CardData, getAllCards, updateCard } from "@/lib/api";
 import dynamic from "next/dynamic";
 
 const EditableCard = dynamic(() => import("@/components/cards").then((mod) => mod.EditableCard), {
-  loading: () => <SkeletonCard />,
+  loading: () => <SkeletonEditableCard />,
 });
 
 export default function ManagePage() {
   type FormData = Omit<CardData, "id" | "created_at" | "updated_at">;
 
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { toast } = useToast();
-  const [cards, setCards] = useState<CardData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<FormData>({
     question: "",
@@ -31,16 +29,38 @@ export default function ManagePage() {
     course_code: "",
   });
 
-  useEffect(() => {
-    setLoading(true);
-    const fetchData = async () => {
-      const data = await getAllCards();
-      setCards(data);
-    };
+  const { data, isPending, isError, error } = useQuery({
+    queryKey: ["cards"],
+    queryFn: getAllCards,
+  });
 
-    fetchData().catch(() => setError("Failed to fetch data."));
-    setLoading(false);
-  }, []);
+  const onError = (e: Error) => {
+    toast({ description: e.message });
+  };
+
+  const onSuccess = () => {
+    queryClient.invalidateQueries({
+      queryKey: ["cards"],
+    });
+  };
+
+  const useAddCard = useMutation({
+    mutationFn: (card: Omit<CardData, "id" | "created_at" | "updated_at">) => addCard(card),
+    onSuccess: onSuccess,
+    onError: onError,
+  });
+
+  const useUpdateCard = useMutation({
+    mutationFn: (card: Omit<CardData, "created_at" | "updated_at">) => updateCard(card),
+    onSuccess: onSuccess,
+    onError: onError,
+  });
+
+  const useDeleteCard = useMutation({
+    mutationFn: (id: string) => deleteCard(id),
+    onSuccess: onSuccess,
+    onError: onError,
+  });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -49,44 +69,15 @@ export default function ManagePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      setLoading(true);
 
-      if (editingId) {
-        const updatedCard = await updateCard({
-          id: editingId,
-          question: formData.question,
-          answer: formData.answer,
-          difficulty: formData.difficulty,
-          course_code: formData.course_code,
-        });
-
-        setCards(cards.map((card: CardData): CardData => (card.id === editingId ? updatedCard : card)));
-        setEditingId(null);
-
-        if (!error) {
-          toast({ description: "Card successfully edited." });
-        }
-      } else {
-        const card: CardData = await addCard({ ...formData });
-
-        setCards([...cards, card]);
-
-        if (!error) {
-          toast({ description: "Card added." });
-        }
-      }
-
-      setFormData({ question: "", answer: "", difficulty: "", course_code: "" });
-    } catch (err) {
-      setError("Failed to save item.");
-    } finally {
-      setLoading(false);
-
-      if (error) {
-        toast({ description: error });
-      }
+    if (editingId) {
+      useUpdateCard.mutate({ id: editingId, ...formData });
+      setEditingId(null);
+    } else {
+      useAddCard.mutate(formData);
     }
+
+    setFormData({ question: "", answer: "", difficulty: "", course_code: "" });
   };
 
   const handleEdit = (card: CardData) => {
@@ -99,24 +90,13 @@ export default function ManagePage() {
     });
   };
 
-  const handleDelete = async (id: string) => {
-    try {
-      setLoading(true);
-      await deleteCard(id);
-      setCards(cards.filter((card: CardData): boolean => card.id !== id));
-    } catch {
-      setError("Failed to delete item.");
-    } finally {
-      setLoading(false);
-
-      if (!error) {
-        toast({ description: "Card deleted." });
-      }
-    }
-  };
-
-  if (error) {
-    toast({ description: error });
+  if (isError) {
+    toast({ description: error.message });
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+        {error.message}
+      </div>
+    );
   }
 
   return (
@@ -171,24 +151,26 @@ export default function ManagePage() {
             </div>
           </div>
           <div className="flex gap-2 mt-4">
-            <Button type="submit" disabled={loading}>
-              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-              {editingId ? "Update" : "Add"} Item
-            </Button>
+            <Button type="submit">{editingId ? "Update" : "Add"} Item</Button>
             <Button onClick={() => router.push("/")}>Go Back</Button>
           </div>
         </form>
 
-        {loading && !cards.length ? (
-          <>
+        {isPending ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(3).keys()].map((i: number) => (
-              <SkeletonCard key={`skeleton-${i}`} />
+              <SkeletonEditableCard key={`skeleton-${i}`} />
             ))}
-          </>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {cards.map((card: CardData) => (
-              <EditableCard card={card} handleEdit={handleEdit} handleDelete={handleDelete} />
+            {data.map((card: CardData) => (
+              <EditableCard
+                key={card.id}
+                card={card}
+                handleEdit={handleEdit}
+                handleDelete={(id) => useDeleteCard.mutate(id)}
+              />
             ))}
           </div>
         )}

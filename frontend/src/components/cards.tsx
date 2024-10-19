@@ -72,7 +72,7 @@ export function SkeletonCard() {
 interface EditableCardProps {
   card: CardData;
   handleEdit: (card: CardData) => void;
-  handleDelete: (id: string) => Promise<void>;
+  handleDelete: (id: string) => void;
 }
 
 export function EditableCard(props: EditableCardProps) {
@@ -109,7 +109,7 @@ export function EditableCard(props: EditableCardProps) {
 interface EditableCourseProps {
   course: CourseData;
   handleEdit: (course: CourseData) => void;
-  handleDelete: (id: string) => Promise<void>;
+  handleDelete: (id: string) => void;
 }
 
 export function EditableCourse(props: EditableCourseProps) {
@@ -135,6 +135,24 @@ export function EditableCourse(props: EditableCourseProps) {
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+export function SkeletonEditableCard() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>
+          <Skeleton className="h-4 w-[250px] mb-5" />
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Skeleton className="h-4 w-[200px] mb-2" />
+        <Skeleton className="h-4 w-[200px] mb-2" />
+        <Skeleton className="h-4 w-[200px] mb-2" />
+        <Skeleton className="h-2 w-[200px]" />
       </CardContent>
     </Card>
   );
