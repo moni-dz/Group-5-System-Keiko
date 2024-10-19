@@ -1,85 +1,114 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
-import { SkeletonCard } from "@/components/flashcard";
+import { EditableCourse, SkeletonCard } from "@/components/cards";
 import { useRouter } from "next/navigation";
-
-interface CourseData {
-  id: string;
-  courseCode: string;
-  name: string;
-  description: string;
-}
+import { addCourse, CourseData, deleteCourse, getAllCourses, updateCourse } from "@/lib/api";
 
 export default function CoursesPage() {
+  type FormData = Pick<CourseData, "name" | "course_code" | "description">;
+
   const router = useRouter();
   const { toast } = useToast();
   const [courses, setCourses] = useState<CourseData[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
-    courseCode: "",
+  const [formData, setFormData] = useState<FormData>({
     name: "",
+    course_code: "",
     description: "",
   });
 
+  useEffect(() => {
+    setLoading(true);
+    const fetchData = async () => {
+      const data = await getAllCourses();
+      setCourses(data);
+    };
+
+    fetchData().catch(() => setError("Failed to fetch data."));
+    setLoading(false);
+  }, []);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev: FormData): FormData => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    if (editingId) {
-      // update
-      const updatedCourses = courses.map((course) =>
-        course.id === editingId
-          ? {
-              ...course,
-              courseCode: formData.courseCode,
-              name: formData.name,
-              description: formData.description,
-            }
-          : course,
-      );
-      setCourses(updatedCourses);
-      setEditingId(null);
-      toast({ description: "Course successfully edited." });
-    } else {
-      // add
-      const newCourse: CourseData = {
-        id: Date.now().toString(),
-        courseCode: formData.courseCode,
-        name: formData.name,
-        description: formData.description,
-      };
-      setCourses([...courses, newCourse]);
-      toast({ description: "Course added." });
+      if (editingId) {
+        const updatedCourse: CourseData = await updateCourse({
+          id: editingId,
+          name: formData.name,
+          course_code: formData.course_code,
+          description: formData.description,
+        });
+
+        setCourses(courses.map((course: CourseData): CourseData => (course.id === editingId ? updatedCourse : course)));
+        setEditingId(null);
+
+        if (!error) {
+          toast({ description: "Course successfully edited." });
+        }
+      } else {
+        const course: CourseData = await addCourse({ ...formData });
+
+        setCourses([...courses, course]);
+
+        if (!error) {
+          toast({ description: "Course added." });
+        }
+      }
+
+      setFormData({ name: "", course_code: "", description: "" });
+    } catch (err) {
+      setError("Failed to save item.");
+
+      console.error(err);
+    } finally {
+      setLoading(false);
+
+      if (error) {
+        toast({ description: error });
+      }
     }
-
-    setFormData({ courseCode: "", name: "", description: "" });
-    setLoading(false);
   };
 
   const handleEdit = (course: CourseData) => {
     setEditingId(course.id);
     setFormData({
-      courseCode: course.courseCode,
+      course_code: course.course_code,
       name: course.name,
       description: course.description,
     });
   };
 
-  const handleDelete = (id: string) => {
-    setCourses(courses.filter((course) => course.id !== id));
-    toast({ description: "Course deleted." });
+  const handleDelete = async (id: string) => {
+    try {
+      setLoading(true);
+      await deleteCourse(id);
+      setCourses(courses.filter((course: CourseData): boolean => course.id !== id));
+    } catch {
+      setError("Failed to delete course.");
+    } finally {
+      setLoading(false);
+
+      if (!error) {
+        toast({ description: "Course deleted." });
+      } else {
+        toast({ description: error });
+      }
+    }
   };
 
   return (
@@ -89,12 +118,12 @@ export default function CoursesPage() {
         <form onSubmit={handleSubmit} className="mb-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="courseCode">Course Code</Label>
+              <Label htmlFor="course_code">Course Code</Label>
               <Input
                 className="bg-white"
-                id="courseCode"
-                name="courseCode"
-                value={formData.courseCode}
+                id="course_code"
+                name="course_code"
+                value={formData.course_code}
                 onChange={handleInputChange}
                 required
               />
@@ -141,17 +170,8 @@ export default function CoursesPage() {
           </>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {courses.map((course) => (
-              <div key={course.id} className="bg-white shadow-md rounded-lg p-4">
-                <h3 className="text-lg font-bold">
-                  {course.courseCode} - {course.name}
-                </h3>
-                <p>{course.description}</p>
-                <div className="flex gap-2 mt-4">
-                  <Button onClick={() => handleEdit(course)}>Edit</Button>
-                  <Button onClick={() => handleDelete(course.id)}>Delete</Button>
-                </div>
-              </div>
+            {courses.map((course: CourseData) => (
+              <EditableCourse course={course} handleEdit={handleEdit} handleDelete={handleDelete} />
             ))}
           </div>
         )}

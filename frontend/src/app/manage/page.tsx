@@ -7,11 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
-import { SkeletonCard } from "@/components/flashcard";
+import { SkeletonCard } from "@/components/cards";
 import { addCard, deleteCard, CardData, getAllCards, updateCard } from "@/lib/api";
 import dynamic from "next/dynamic";
 
-const EditableCard = dynamic(() => import("@/components/flashcard").then((mod) => mod.EditableCard), {
+const EditableCard = dynamic(() => import("@/components/cards").then((mod) => mod.EditableCard), {
   loading: () => <SkeletonCard />,
 });
 
@@ -80,10 +80,12 @@ export default function ManagePage() {
       setFormData({ question: "", answer: "", difficulty: "", course_code: "" });
     } catch (err) {
       setError("Failed to save item.");
-
-      console.error(err);
     } finally {
       setLoading(false);
+
+      if (error) {
+        toast({ description: error });
+      }
     }
   };
 
