@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -80,15 +80,10 @@ export default function ManagePage() {
     setFormData({ question: "", answer: "", difficulty: "", course_code: "" });
   };
 
-  const handleEdit = (card: CardData) => {
+  const handleEdit = useCallback((card: Omit<CardData, "created_at" | "updated_at">) => {
     setEditingId(card.id);
-    setFormData({
-      question: card.question,
-      answer: card.answer,
-      difficulty: card.difficulty,
-      course_code: card.course_code,
-    });
-  };
+    setFormData({ ...card });
+  }, []);
 
   if (isError) {
     toast({ description: error.message });
