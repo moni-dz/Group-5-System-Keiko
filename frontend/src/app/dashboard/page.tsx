@@ -102,8 +102,20 @@ export default function MainPage() {
 
   const renderCourseDetails = (course: CourseData) => (
     <div>
-      <h3 className="text-xl italic font-semibold text-red-500 font-gau-pop-magic mb-2">{course.name}</h3>
-      <p className="text-zinc-500 font-semibold">{course.description}</p>
+      <h3 className="text-xl italic font-semibold text-red-500 font-gau-pop-magic mb-2">{course.description || "Course Name"}</h3>
+      
+      <p className="text-zinc-500 font-semibold">
+        <span className="font-bold">Course Code:</span> {course.name || "N/A"}
+      </p>
+      
+      <p className="text-zinc-500 font-semibold">
+        <span className="font-bold">Description:</span> {"No description available"}
+      </p>
+  
+      <p className="text-zinc-500 font-semibold">
+        <span className="font-bold">Number of Questions:</span> {course.progress ? `${course.progress} questions` : "N/A"}
+      </p>
+  
       {course.progress !== undefined && (
         <div className="mt-2">
           <p className="text-zinc-500">Progress: {course.progress}%</p>
@@ -112,9 +124,7 @@ export default function MainPage() {
           </div>
         </div>
       )}
-      {course.is_completed && (
-        <p className="text-zinc-500 italic mt-2">Completed on: {dayjs(course.completion_date).format("MM-DD-YYYY")}</p>
-      )}
+      {course.completionDate && <p className="text-zinc-500 italic mt-2">Completed on: {course.completionDate}</p>}
     </div>
   );
 
