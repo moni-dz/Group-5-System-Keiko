@@ -79,6 +79,13 @@ export default function CoursesPage() {
     setFormData({ name: "", course_code: "", description: "" });
   };
 
+  const handleManageCourses = useCallback(
+    (course_code: string) => {
+      router.push(`/manage/${course_code}`);
+    },
+    [router],
+  );
+
   const handleEdit = useCallback((course: Pick<CourseData, "id" | "name" | "course_code" | "description">) => {
     setEditingId(course.id);
     setFormData({ ...course });
@@ -152,7 +159,13 @@ export default function CoursesPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {data.map((course: CourseData) => (
-              <EditableCourse key={course.id} course={course} handleEdit={handleEdit} handleDelete={useDeleteCourse} />
+              <EditableCourse
+                key={course.id}
+                course={course}
+                handleEdit={handleEdit}
+                handleDelete={useDeleteCourse}
+                handleManageCourses={handleManageCourses}
+              />
             ))}
           </div>
         )}

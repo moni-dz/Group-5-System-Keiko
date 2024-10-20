@@ -266,7 +266,7 @@ export default function MainPage() {
             <div className="mt-4">
               <Button
                 className="bg-red-500 text-white hover:bg-zinc-500 flex items-center space-x-2"
-                onClick={() => redirect(`/review/${selectedCourse?.course_code}`)}
+                onClick={() => redirect(`/quiz/${selectedCourse?.course_code}`)}
               >
                 <Pen width="20" height="20" />
                 <span>Start Quiz</span>
