@@ -28,7 +28,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { redirect } from "next/navigation";
-import { CourseData, getAllCourses } from "@/lib/api";
+import { CourseData, getAllCourses, getCardsByCourseCode } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useTransitionRouter } from "next-view-transitions";
 
@@ -100,33 +100,43 @@ export default function MainPage() {
     </ul>
   );
 
-  const renderCourseDetails = (course: CourseData) => (
-    <div>
-      <h3 className="text-xl italic font-semibold text-red-500 font-gau-pop-magic mb-2">{course.description || "Course Name"}</h3>
-      
-      <p className="text-zinc-500 font-semibold">
-        <span className="font-bold">Course Code:</span> {course.name || "N/A"}
-      </p>
-      
-      <p className="text-zinc-500 font-semibold">
-        <span className="font-bold">Description:</span> {"No description available"}
-      </p>
-  
-      <p className="text-zinc-500 font-semibold">
-        <span className="font-bold">Number of Questions:</span> {course.progress ? `${course.progress} questions` : "N/A"}
-      </p>
-  
-      {course.progress !== undefined && (
-        <div className="mt-2">
-          <p className="text-zinc-500">Progress: {course.progress}%</p>
-          <div className="w-full bg-gray-200 rounded-full h-2.5">
-            <Progress value={progress} indicatorColor="bg-red-500" className="bg-gray-200 h-2.5" />
+  const renderCourseDetails = (course: CourseData) => {
+    let card_count = 0;
+
+    const cards = getCardsByCourseCode(course.course_code).then((res) => {
+      card_count = res.length;
+    });
+
+    return (
+      <div>
+        <h3 className="text-xl italic font-semibold text-red-500 font-gau-pop-magic mb-2">
+          {course.name || "Course Name"}
+        </h3>
+
+        <p className="text-zinc-500 font-semibold">
+          <span className="font-bold">Course Code:</span> {course.course_code || "N/A"}
+        </p>
+
+        <p className="text-zinc-500 font-semibold">
+          <span className="font-bold">Description:</span> {course.description || "No description available."}
+        </p>
+
+        <p className="text-zinc-500 font-semibold">
+          <span className="font-bold">Number of Questions:</span> {card_count != 0 ? `${card_count} questions` : "N/A"}
+        </p>
+
+        {course.progress !== undefined && (
+          <div className="mt-2">
+            <p className="text-zinc-500">Progress: {course.progress}%</p>
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <Progress value={progress} indicatorColor="bg-red-500" className="bg-gray-200 h-2.5" />
+            </div>
           </div>
-        </div>
-      )}
-      {course.completionDate && <p className="text-zinc-500 italic mt-2">Completed on: {course.completionDate}</p>}
-    </div>
-  );
+        )}
+        {course.is_completed && <p className="text-zinc-500 italic mt-2">Completed on: {course.is_completed}</p>}
+      </div>
+    );
+  };
 
   return (
     <div className={`flex h-screen bg-gray-100 text-extrabold`}>
@@ -276,7 +286,7 @@ export default function MainPage() {
             <div className="mt-4">
               <Button
                 className="bg-red-500 text-white hover:bg-zinc-500 flex items-center space-x-2"
-                onClick={() => redirect(`/review/${selectedCourse?.course_code}`)}
+                onClick={() => redirect(`/quiz/${selectedCourse?.course_code}`)}
               >
                 <Pen width="20" height="20" />
                 <span>Start Quiz</span>

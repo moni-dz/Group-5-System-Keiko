@@ -25,14 +25,13 @@ impl CardsAPI for KeikoDatabase {
     async fn create_card(&self, create_card: &CreateCard) -> CardResult<Card> {
         sqlx::query_as::<_, Card>(
             r#"
-      INSERT INTO flashcards (question, answer, difficulty, course_code)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO flashcards (question, answer, course_code)
+      VALUES ($1, $2, $3)
       RETURNING *
       "#,
         )
         .bind(&create_card.question)
         .bind(&create_card.answer)
-        .bind(&create_card.difficulty)
         .bind(&create_card.course_code)
         .fetch_one(&self.pool)
         .await
@@ -44,7 +43,7 @@ impl CardsAPI for KeikoDatabase {
         sqlx::query_as::<_, Card>(
             r#"
       UPDATE flashcards
-      SET question = $2, answer = $3, difficulty = $4, course_code = $5, updated_at = now()
+      SET question = $2, answer = $3, course_code = $4, updated_at = now()
       WHERE id = $1
       RETURNING *
       "#,
@@ -52,7 +51,6 @@ impl CardsAPI for KeikoDatabase {
         .bind(card.id)
         .bind(&card.question)
         .bind(&card.answer)
-        .bind(&card.difficulty)
         .bind(&card.course_code)
         .fetch_one(&self.pool)
         .await

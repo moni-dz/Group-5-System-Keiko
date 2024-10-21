@@ -13,7 +13,7 @@ export function cardMaxWidth(length: number): string {
 }
 
 export function Flashcard(props: Omit<CardData, "id" | "created_at" | "updated_at">) {
-  const { question, answer, difficulty, course_code } = props;
+  const { question, answer, course_code } = props;
 
   return (
     <div className="flashcard min-w-fit w-96 max-w-full h-64 cursor-pointer [perspective:1000px]">
@@ -39,9 +39,7 @@ export function Flashcard(props: Omit<CardData, "id" | "created_at" | "updated_a
           <CardHeader>
             <CardTitle className="flex justify-between items-center">
               <p>Answer</p>
-              <p>
-                {difficulty} - {course_code}
-              </p>
+              <p>{course_code}</p>
             </CardTitle>
           </CardHeader>
           <CardContent className="flex items-center justify-center h-[200px] text-2xl">{answer}</CardContent>
@@ -88,14 +86,6 @@ export function EditableCard(props: EditableCardProps) {
           <strong className="text-sm text-gray-600">Answer:</strong>
           <p className="text-sm line-clamp-2">{card.answer}</p>
         </div>
-        <div className="flex justify-between text-sm text-gray-600 mt-auto">
-          <p>
-            <strong>Difficulty:</strong> {card.difficulty}
-          </p>
-          <p>
-            <strong>Course:</strong> {card.course_code}
-          </p>
-        </div>
       </CardContent>
       <div className="flex justify-end p-4 bg-gray-100 mt-auto">
         <Button variant="outline" className="mr-2" onClick={() => handleEdit(card)}>
@@ -113,10 +103,11 @@ interface EditableCourseProps {
   course: CourseData;
   handleEdit: (course: CourseData) => void;
   handleDelete: (id: string) => void;
+  handleManageCourses: (id: string) => void; // Add this new prop
 }
 
 export function EditableCourse(props: EditableCourseProps) {
-  const { course, handleEdit, handleDelete } = props;
+  const { course, handleEdit, handleDelete, handleManageCourses } = props;
 
   return (
     <Card key={course.id} className="flex flex-col h-[250px] overflow-hidden">
@@ -127,13 +118,18 @@ export function EditableCourse(props: EditableCourseProps) {
       <CardContent className="flex-grow overflow-hidden">
         <p className="text-sm text-gray-600 line-clamp-3">{course.description}</p>
       </CardContent>
-      <div className="flex justify-end p-4 bg-gray-100 mt-auto">
-        <Button variant="outline" className="mr-2" onClick={() => handleEdit(course)}>
-          Edit
+      <div className="flex justify-between items-center p-4 bg-gray-100 mt-auto">
+        <Button variant="outline" onClick={() => handleManageCourses(course.course_code)}>
+          Manage
         </Button>
-        <Button variant="destructive" onClick={() => handleDelete(course.id)}>
-          <Trash2 className="h-4 w-4" />
-        </Button>
+        <div className="flex items-center">
+          <Button variant="outline" className="mr-2" onClick={() => handleEdit(course)}>
+            Edit
+          </Button>
+          <Button variant="destructive" onClick={() => handleDelete(course.id)}>
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     </Card>
   );
