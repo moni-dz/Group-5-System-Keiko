@@ -45,7 +45,7 @@ export default function MainPage() {
     queryFn: getAllCourses,
   });
 
-  const useMarkCompletion = useMutation({
+  const markCompletionMutation = useMutation({
     mutationFn: (props: { course_id: string; is_completed: boolean }) =>
       markCourseCompletion(props.course_id, props.is_completed),
     onSuccess: () => {
@@ -262,7 +262,20 @@ export default function MainPage() {
               <div className="mt-4 flex space-x-4">
                 <Button
                   className="bg-red-500 text-white hover:bg-zinc-500 flex items-center space-x-2"
-                  onClick={() => useMarkCompletion({ course_id: selectedCourse, is_completed: false })}
+                  onClick={() => {
+                    const course = filteredCompletedCourses.find((course) => course.course_code === selectedCourse);
+
+                    if (course) {
+                      markCompletionMutation({ course_id: course.id, is_completed: false });
+
+                      filteredCompletedCourses.splice(
+                        filteredCompletedCourses.findIndex(
+                          (course: CourseData): boolean => course.course_code === selectedCourse,
+                        ),
+                        1,
+                      );
+                    }
+                  }}
                 >
                   <FolderClock width="20" height="20" />
                   <span>Mark as Ongoing</span>
