@@ -66,7 +66,6 @@ export function SkeletonCard() {
     </div>
   );
 }
-
 interface EditableCardProps {
   card: CardData;
   handleEdit: (card: CardData) => void;
@@ -77,21 +76,21 @@ export function EditableCard(props: EditableCardProps) {
   const { card, handleEdit, handleDelete } = props;
 
   return (
-    <Card key={card.id} className="flex flex-col h-[300px] overflow-hidden">
+    <Card key={card.id} className="flex flex-col min-h-[200px] overflow-hidden">
       <CardHeader className="flex-shrink-0">
-        <CardTitle className="text-lg font-semibold line-clamp-2">{card.question}</CardTitle>
+        <CardTitle className="text-lg font-semibold text-zinc-600">{card.question}</CardTitle>
       </CardHeader>
-      <CardContent className="flex-grow overflow-hidden flex flex-col">
+      <CardContent className="flex-grow overflow-auto">
         <div className="mb-2">
-          <strong className="text-sm text-gray-600">Answer:</strong>
-          <p className="text-sm line-clamp-2">{card.answer}</p>
+          <strong className="text-sm text-zinc-500">Answer:</strong>
+          <p className="text-sm text-zinc-700 italic">{card.answer}</p>
         </div>
       </CardContent>
-      <div className="flex justify-end p-4 bg-gray-100 mt-auto">
-        <Button variant="outline" className="mr-2" onClick={() => handleEdit(card)}>
+      <div className="flex justify-end p-4 bg-zinc-100 mt-auto">
+        <Button variant="outline" className="mr-2 text-zinc-500 hover:bg-red-500 hover:text-white" onClick={() => handleEdit(card)}>
           Edit
         </Button>
-        <Button variant="destructive" onClick={() => handleDelete(card.id)}>
+        <Button variant="destructive" className="hover:bg-zinc-500" onClick={() => handleDelete(card.id)}>
           <Trash2 className="h-4 w-4" />
         </Button>
       </div>
@@ -99,11 +98,13 @@ export function EditableCard(props: EditableCardProps) {
   );
 }
 
+
 interface EditableCourseProps {
   course: CourseData;
   handleEdit: (course: CourseData) => void;
   handleDelete: (id: string) => void;
-  handleManageCourses: (id: string) => void; // Add this new prop
+  handleManageCourses: (course_code: string) => void;
+  className?: string; // Accept className as a prop
 }
 
 export function EditableCourse(props: EditableCourseProps) {
@@ -112,21 +113,21 @@ export function EditableCourse(props: EditableCourseProps) {
   return (
     <Card key={course.id} className="flex flex-col h-[250px] overflow-hidden">
       <CardHeader className="flex-shrink-0">
-        <CardTitle className="text-lg font-semibold truncate">{course.name}</CardTitle>
+        <CardTitle className="text-lg font-semibold truncate text-zinc-500">{course.name}</CardTitle>
         <p className="text-sm font-medium text-gray-500 truncate">{course.course_code}</p>
       </CardHeader>
       <CardContent className="flex-grow overflow-hidden">
-        <p className="text-sm text-gray-600 line-clamp-3">{course.description}</p>
+        <p className="text-sm text-zinc-500 line-clamp-3">{course.description}</p>
       </CardContent>
-      <div className="flex justify-between items-center p-4 bg-gray-100 mt-auto">
-        <Button variant="outline" onClick={() => handleManageCourses(course.course_code)}>
+      <div className="flex justify-between items-center p-4 bg-zinc-100 mt-auto">
+        <Button variant="outline" className="text-zinc-500 hover:bg-red-500 hover:text-white" onClick={() => handleManageCourses(course.course_code)}>
           Manage
         </Button>
         <div className="flex items-center">
-          <Button variant="outline" className="mr-2" onClick={() => handleEdit(course)}>
+          <Button variant="outline" className="mr-2 text-zinc-500 hover:bg-red-500 hover:text-white" onClick={() => handleEdit(course)}>
             Edit
           </Button>
-          <Button variant="destructive" onClick={() => handleDelete(course.id)}>
+          <Button variant="destructive" className="hover:bg-zinc-500 " onClick={() => handleDelete(course.id)}>
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>

@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardTitle } from "@/components/ui/card";
+import { Lightbulb } from "lucide-react";
 
 interface QuizCardProps {
   question: string;
@@ -51,54 +52,77 @@ function QuizCard({
         }`}
       >
         {/* Front of the card */}
-        <Card className="absolute w-full h-full [backface-visibility:hidden] bg-white">
-          <CardHeader>
+        <div className="absolute w-full h-full [backface-visibility:hidden] flex items-center justify-center">
+          <div className="w-full max-w-md mx-auto flex flex-col items-center justify-start border border-zinc-200 rounded-lg p-6 bg-white shadow-md">
             <CardTitle
-              className={`text-2xl text-center transition-opacity duration-250 ${isFlipping ? "opacity-0" : "opacity-100"}`}
+              className={`text-2xl text-center text-zinc-500 mb-6 transition-opacity duration-250 ${
+                isFlipping ? "opacity-0" : "opacity-100"
+              }`}
             >
               {question}
             </CardTitle>
-          </CardHeader>
-          <CardContent
-            className={`flex flex-col justify-between h-[calc(100%-6rem)] transition-opacity duration-250 ${isFlipping ? "opacity-0" : "opacity-100"}`}
-          >
             <RadioGroup
               value={selectedAnswer}
               onValueChange={setSelectedAnswer}
               disabled={isSubmitted}
-              className="space-y-2"
+              className="space-y-4 w-full mb-8"
             >
               {answerOptions.map((option, index) => (
-                <div key={index} className="flex items-center space-x-2">
-                  <RadioGroupItem value={option} id={`option-${index}`} />
-                  <Label htmlFor={`option-${index}`}>{option}</Label>
+                <div
+                  key={index}
+                  className={`flex items-center space-x-3 p-3 ${
+                    selectedAnswer === option
+                      ? "bg-red-100 text-zinc-500 rounded-lg" 
+                      : "text-zinc-500"
+                  }`}
+                >
+                  <RadioGroupItem
+                    value={option}
+                    id={`option-${index}`}
+                    className={`${
+                      selectedAnswer === option ? "border-zinc-500" : "" 
+                    }`}
+                  />
+                  <Label
+                    htmlFor={`option-${index}`}
+                    className={`${
+                      selectedAnswer === option ? "text-zinc-700" : "text-zinc-600"
+                    }`}
+                  >
+                    {option}
+                  </Label>
                 </div>
               ))}
             </RadioGroup>
-            <div className="flex justify-center mt-4">
-              <Button onClick={onSubmit} disabled={isSubmitted || !selectedAnswer}>
-                Submit Answer
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+            <Button
+              onClick={onSubmit}
+              disabled={isSubmitted || !selectedAnswer}
+              className="bg-zinc-600 text-white hover:bg-red-500 transition-colors font-gau-pop-magic"
+            >
+              SUBMIT ANSWER
+            </Button>
+          </div>
+        </div>
 
         {/* Back of the card */}
-        <Card className="absolute w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] bg-white">
-          <CardContent
-            className={`flex flex-col items-center justify-center h-full transition-opacity duration-250 ${isFlipping ? "opacity-0" : "opacity-100"}`}
-          >
-            <CardTitle className="text-2xl text-center mb-4">Answer: {correctAnswer}</CardTitle>
-            <p className={`text-lg mb-4 ${message === "Correct!" ? "text-green-600" : "text-red-600"}`}>{message}</p>
-            <Button onClick={handleNext} disabled={isFlipping}>
+        <div className="absolute w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] flex items-center justify-center">
+          <div className="w-full max-w-md mx-auto flex flex-col items-center justify-between border border-zinc-200 rounded-lg p-6 bg-white shadow-md">
+            <p className={`text-xl font-gau-pop-magic font-bold mb-4 ${message === "Correct!" ? "text-red-500" : "text-zinc-500"}`}>
+              {message}
+            </p>
+            <CardTitle className="text-1xl text-center text-zinc-500 mb-8">
+              Answer: {correctAnswer}
+            </CardTitle>
+            <Button onClick={handleNext} disabled={isFlipping} className="bg-zinc-500 text-white hover:bg-red-500">
               Next Card
             </Button>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
+
 
 interface QuizPageProps {
   params: Promise<{ course_code: string }>;
@@ -178,14 +202,24 @@ export default function QuizPage({ params }: QuizPageProps) {
   const currentCard = cards[currentCardIndex];
 
   return (
-    <div className="bg-gray-50 min-h-screen relative">
+    <div className="bg-gray-50 min-h-screen flex flex-col justify-center items-center relative">
       <header className="absolute top-0 left-0 right-0 flex justify-between items-center p-4">
-        <h1 className="text-2xl font-bold">Quiz: {course_code}</h1>
-        <Button asChild variant="outline">
-          <a href="/dashboard">Go Back</a>
-        </Button>
+        <h1 className="text-2xl font-bold font-gau-pop-magic">
+          <span className="text-red-500">QUIZ: </span>
+          <span className="text-zinc-500">{course_code}</span>
+        </h1>
+        <div className="flex items-center">
+          {/* Lightbulb Button */}
+          <Button variant="outline" className="mr-2 text-white bg-red-500 hover:bg-zinc-500 hover:text-white">
+            <Lightbulb className="h-5 w-5" />
+          </Button>
+          {/* Back Button */}
+          <Button asChild variant="outline">
+            <a href="/dashboard" className="bg-white-100 hover:bg-zinc-500 text-red-500 hover:text-white"> Back</a>
+          </Button>
+        </div>
       </header>
-      <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 w-full max-w-md px-4">
+      <div className="flex justify-center items-center w-full flex-grow px-4">
         <QuizCard
           question={currentCard.question}
           answerOptions={answerOptions}
