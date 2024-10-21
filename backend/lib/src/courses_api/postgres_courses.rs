@@ -76,7 +76,7 @@ impl CoursesAPI for KeikoDatabase {
         sqlx::query_as::<_, Course>(
             r#"
             UPDATE courses
-            SET is_completed = $2, completion_date = $3, updated_at = now()
+            SET is_completed = $2, completion_date = $3, progress = $4, updated_at = now()
             WHERE id = $1
             RETURNING *
             "#,
@@ -88,6 +88,7 @@ impl CoursesAPI for KeikoDatabase {
         } else {
             None
         })
+        .bind(if course.is_completed { 100 } else { 0 })
         .fetch_one(&self.pool)
         .await
         .map_err(|e| e.to_string())
