@@ -66,6 +66,7 @@ export function SkeletonCard() {
     </div>
   );
 }
+
 interface EditableCardProps {
   card: CardData;
   handleEdit: (card: CardData) => void;
@@ -87,7 +88,11 @@ export function EditableCard(props: EditableCardProps) {
         </div>
       </CardContent>
       <div className="flex justify-end p-4 bg-zinc-100 mt-auto">
-        <Button variant="outline" className="mr-2 text-zinc-500 hover:bg-red-500 hover:text-white" onClick={() => handleEdit(card)}>
+        <Button
+          variant="outline"
+          className="mr-2 text-zinc-500 hover:bg-red-500 hover:text-white"
+          onClick={() => handleEdit(card)}
+        >
           Edit
         </Button>
         <Button variant="destructive" className="hover:bg-zinc-500" onClick={() => handleDelete(card.id)}>
@@ -97,7 +102,6 @@ export function EditableCard(props: EditableCardProps) {
     </Card>
   );
 }
-
 
 interface EditableCourseProps {
   course: CourseData;
@@ -120,11 +124,19 @@ export function EditableCourse(props: EditableCourseProps) {
         <p className="text-sm text-zinc-500 line-clamp-3">{course.description}</p>
       </CardContent>
       <div className="flex justify-between items-center p-4 bg-zinc-100 mt-auto">
-        <Button variant="outline" className="text-zinc-500 hover:bg-red-500 hover:text-white" onClick={() => handleManageCourses(course.course_code)}>
+        <Button
+          variant="outline"
+          className="text-zinc-500 hover:bg-red-500 hover:text-white"
+          onClick={() => handleManageCourses(course.course_code)}
+        >
           Manage
         </Button>
         <div className="flex items-center">
-          <Button variant="outline" className="mr-2 text-zinc-500 hover:bg-red-500 hover:text-white" onClick={() => handleEdit(course)}>
+          <Button
+            variant="outline"
+            className="mr-2 text-zinc-500 hover:bg-red-500 hover:text-white"
+            onClick={() => handleEdit(course)}
+          >
             Edit
           </Button>
           <Button variant="destructive" className="hover:bg-zinc-500 " onClick={() => handleDelete(course.id)}>
