@@ -2,7 +2,7 @@
 
 import { useState, use, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { SkeletonCard, cardMaxWidth } from "@/components/cards";
+import { SkeletonCard } from "@/components/cards";
 import { CardData, getCardsByCourseCode } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";

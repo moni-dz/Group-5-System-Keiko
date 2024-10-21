@@ -36,7 +36,7 @@ interface CourseDetailsProps {
 
 export function CourseDetails(props: CourseDetailsProps) {
   const { course_code, courses } = props;
-  let course = courses.find((course) => course.course_code === course_code);
+  const course = courses.find((course) => course.course_code === course_code);
 
   return course === undefined ? (
     <p className="text-zinc-500 italic">✦ select a course to view details...</p>

@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { lorem } from "@/lib/api";
 
 export default function HelpPage() {
@@ -8,9 +9,6 @@ export default function HelpPage() {
       <h1 className={`text-4xl font-extrabold mb-6 italic text-red-500 font-gau-pop-magic`}>Keiko!</h1>
 
       <Card className="mb-6 border border-red-500 rounded-lg">
-        <CardHeader>
-          <CardTitle className={`text-1.5xl font-extrabold italic text-red-500`}>" "</CardTitle>
-        </CardHeader>
         <CardContent className="text-zinc-500 p-4">{lorem.generateParagraphs(2)}</CardContent>
       </Card>
 
@@ -35,12 +33,14 @@ export default function HelpPage() {
       </div>
 
       <div className="flex justify-end">
-        <Button
-          variant="outline"
-          className={`bg-red-500 text-white hover:bg-zinc-500 hover:text-white font-gau-pop-magic`}
-        >
-          <a href="/">Back</a>
-        </Button>
+        <Link href="/">
+          <Button
+            variant="outline"
+            className={`bg-red-500 text-white hover:bg-zinc-500 hover:text-white font-gau-pop-magic`}
+          >
+            Back
+          </Button>
+        </Link>
       </div>
     </div>
   );

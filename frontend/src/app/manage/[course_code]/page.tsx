@@ -38,32 +38,32 @@ export default function ManagePage(props: ManagePageProps) {
     queryFn: () => getCardsByCourseCode(course_code),
   });
 
-  const onError = (e: Error) => {
+  const mutateOnError = (e: Error) => {
     toast({ description: e.message });
   };
 
-  const onSuccess = () => {
+  const mutateOnSuccess = () => {
     queryClient.invalidateQueries({
       queryKey: [`cards-${course_code}`],
     });
   };
 
-  const useAddCard = useMutation({
+  const addCardMutation = useMutation({
     mutationFn: (card: Omit<CardData, "id" | "created_at" | "updated_at">) => addCard(card),
-    onSuccess: onSuccess,
-    onError: onError,
+    onSuccess: mutateOnSuccess,
+    onError: mutateOnError,
   }).mutate;
 
-  const useUpdateCard = useMutation({
+  const updateCardMutation = useMutation({
     mutationFn: (card: Omit<CardData, "created_at" | "updated_at">) => updateCard(card),
-    onSuccess: onSuccess,
-    onError: onError,
+    onSuccess: mutateOnSuccess,
+    onError: mutateOnError,
   }).mutate;
 
-  const useDeleteCard = useMutation({
+  const deleteCardMutation = useMutation({
     mutationFn: (id: string) => deleteCard(id),
-    onSuccess: onSuccess,
-    onError: onError,
+    onSuccess: mutateOnSuccess,
+    onError: mutateOnError,
   }).mutate;
 
   // Auto-resize logic
@@ -80,10 +80,10 @@ export default function ManagePage(props: ManagePageProps) {
     e.preventDefault();
 
     if (editingId) {
-      useUpdateCard({ id: editingId, course_code: course_code, ...formData });
+      updateCardMutation({ id: editingId, course_code: course_code, ...formData });
       setEditingId(null);
     } else {
-      useAddCard({ course_code: course_code, ...formData });
+      addCardMutation({ course_code: course_code, ...formData });
     }
 
     setFormData({ question: "", answer: "" });
@@ -158,7 +158,7 @@ export default function ManagePage(props: ManagePageProps) {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {data.map((card: CardData) => (
-              <EditableCard key={card.id} card={card} handleEdit={handleEdit} handleDelete={useDeleteCard} />
+              <EditableCard key={card.id} card={card} handleEdit={handleEdit} handleDelete={deleteCardMutation} />
             ))}
           </div>
         )}
