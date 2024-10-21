@@ -79,17 +79,12 @@ export default function CoursesPage() {
     setFormData({ name: "", course_code: "", description: "" });
   };
 
-  const handleManageCourses = useCallback(
-    (course_code: string) => {
-      router.push(`/manage/${course_code}`);
-    },
-    [router],
-  );
-
   const handleEdit = useCallback((course: Pick<CourseData, "id" | "name" | "course_code" | "description">) => {
     setEditingId(course.id);
     setFormData({ ...course });
   }, []);
+
+  const handleManageCourses = useCallback((course_code: string) => router.push(`/manage/${course_code}`), [router]);
 
   if (isError) {
     toast({ description: error.message });
