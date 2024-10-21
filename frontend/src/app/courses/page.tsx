@@ -61,9 +61,15 @@ export default function CoursesPage() {
     onError: onError,
   }).mutate;
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev: FormData): FormData => ({ ...prev, [name]: value }));
+
+  
+    if (e.target.tagName === "TEXTAREA") {
+      e.target.style.height = "auto"; //
+      e.target.style.height = `${e.target.scrollHeight}px`; 
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -98,13 +104,13 @@ export default function CoursesPage() {
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">Manage Courses</h1>
+        <h1 className="text-2xl font-semibold mb-4 font-gau-pop-magic text-red-500">MANAGE COURSES</h1>
         <form onSubmit={handleSubmit} className="mb-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="course_code">Course Code</Label>
+              <Label htmlFor="course_code" className="text-zinc-500">Course Code</Label>
               <Input
-                className="bg-white"
+                className="bg-white text-zinc-500 border-zinc-500"
                 id="course_code"
                 name="course_code"
                 value={formData.course_code}
@@ -113,9 +119,9 @@ export default function CoursesPage() {
               />
             </div>
             <div>
-              <Label htmlFor="name">Course Name</Label>
+              <Label htmlFor="name" className="text-zinc-500">Course Name</Label>
               <Input
-                className="bg-white"
+                className="bg-white text-zinc-500 border-zinc-500"
                 id="name"
                 name="name"
                 value={formData.name}
@@ -124,23 +130,25 @@ export default function CoursesPage() {
               />
             </div>
             <div>
-              <Label htmlFor="description">Description</Label>
-              <Input
-                className="bg-white"
+              <Label htmlFor="description" className="text-zinc-500">Description</Label>
+              <textarea
+                className="bg-white text-zinc-500 border-zinc-500 border p-2 rounded-md resize-none w-full"
                 id="description"
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
                 required
+                rows={3}
+                style={{ overflowY: "auto" }}
               />
             </div>
           </div>
           <div className="flex justify-end gap-2 mt-4">
-            <Button type="submit" className="bg-red-600 text-white">
+            <Button type="submit" className="bg-red-500 text-white hover:bg-zinc-500">
               {editingId ? "Update Course" : "Add Course"}
             </Button>
-            <Button className="bg-red-600 text-white" onClick={() => router.push("/dashboard")}>
-              Go Back
+            <Button className="bg-red-500 text-white hover:bg-zinc-500" onClick={() => router.push("/dashboard")}>
+              Back
             </Button>
           </div>
         </form>
@@ -160,6 +168,7 @@ export default function CoursesPage() {
                 handleEdit={handleEdit}
                 handleDelete={useDeleteCourse}
                 handleManageCourses={handleManageCourses}
+                className="text-zinc-500 border-zinc-500"
               />
             ))}
           </div>
