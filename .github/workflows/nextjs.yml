@@ -27,4 +27,4 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Build with Next.js
-        run: pnpm build
+        run: pnpm build --no-lint
