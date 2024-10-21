@@ -1,21 +1,21 @@
 use crate::KeikoDatabase;
 
-use super::{Course, CourseResult, CoursesAPI, CreateCourse};
+use super::{Course, CourseResult, CourseView, CoursesAPI, CreateCourse};
 use uuid::Uuid;
 
 #[async_trait::async_trait]
 impl CoursesAPI for KeikoDatabase {
     // GET /v1/courses
-    async fn get_courses(&self) -> CourseResult<Vec<Course>> {
-        sqlx::query_as::<_, Course>("SELECT * FROM courses")
+    async fn get_courses(&self) -> CourseResult<Vec<CourseView>> {
+        sqlx::query_as::<_, CourseView>("SELECT * FROM courses_with_flashcard_count")
             .fetch_all(&self.pool)
             .await
             .map_err(|e| e.to_string())
     }
 
     // GET /v1/courses/{course_id}
-    async fn get_course(&self, course_id: &Uuid) -> CourseResult<Course> {
-        sqlx::query_as::<_, Course>("SELECT * FROM courses WHERE id = $1")
+    async fn get_course(&self, course_id: &Uuid) -> CourseResult<CourseView> {
+        sqlx::query_as::<_, CourseView>("SELECT * FROM courses_with_flashcard_count WHERE id = $1")
             .bind(course_id)
             .fetch_one(&self.pool)
             .await

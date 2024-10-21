@@ -29,7 +29,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { redirect, useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { CourseData, getAllCourses, getCardsByCourseCode } from "@/lib/api";
+import { CourseData, getAllCourses } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
 export default function MainPage() {
@@ -38,27 +38,13 @@ export default function MainPage() {
   const { toast } = useToast();
   const activeView = searchParams.get("view") || "";
   const selectedCourse = searchParams.get("course") || "";
-  const [questionCount, setQuestionCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [progress, setProgress] = useState(0);
 
   const { data, error, isPending, isError } = useQuery({
     queryKey: ["courses"],
     queryFn: getAllCourses,
   });
-
-  useEffect(() => {
-    if (selectedCourse) {
-      getCardsByCourseCode(selectedCourse).then((res) => {
-        setQuestionCount(res.length);
-      });
-    }
-
-    return () => {
-      setQuestionCount(0);
-    };
-  }, [selectedCourse]);
 
   if (isPending) {
     return (
@@ -98,18 +84,15 @@ export default function MainPage() {
   const renderCourseList = (courses: CourseData[]) => (
     <ul>
       {courses.map((course) => (
-        <li
-          key={course.id}
-          className={`mb-2 p-2 rounded cursor-pointer ${
-            selectedCourse === course.course_code ? "bg-red-100" : "hover:bg-red-100"
-          } font-semibold text-zinc-500`}
-          onClick={() => {
-            setProgress(course.progress || 0);
-            router.push(`?view=${activeView}&course=${course.course_code}`);
-          }}
-        >
-          {course.course_code}
-        </li>
+        <Link href={`?view=${activeView}&course=${course.course_code}`} key={course.id}>
+          <li
+            className={`mb-2 p-2 rounded cursor-pointer ${
+              selectedCourse === course.course_code ? "bg-red-100" : "hover:bg-red-100"
+            } font-semibold text-zinc-500`}
+          >
+            {course.course_code}
+          </li>
+        </Link>
       ))}
     </ul>
   );
@@ -135,14 +118,14 @@ export default function MainPage() {
 
         <p className="text-zinc-500 font-semibold">
           <span className="font-bold">Number of Questions:</span>{" "}
-          {questionCount != 0 ? `${questionCount} questions` : "N/A"}
+          {course.questions != 0 ? `${course.questions} questions` : "N/A"}
         </p>
 
         {course.progress !== undefined && (
           <div className="mt-2">
             <p className="text-zinc-500">Progress: {course.progress}%</p>
             <div className="w-full bg-gray-200 rounded-full h-2.5">
-              <Progress value={progress} indicatorColor="bg-red-500" className="bg-gray-200 h-2.5" />
+              <Progress value={course.progress} indicatorColor="bg-red-500" className="bg-gray-200 h-2.5" />
             </div>
           </div>
         )}

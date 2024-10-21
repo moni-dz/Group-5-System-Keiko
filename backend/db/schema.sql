@@ -22,3 +22,19 @@ CREATE TABLE IF NOT EXISTS courses
     created_at timestamp with time zone default CURRENT_TIMESTAMP,
     updated_at timestamp with time zone
 );
+
+CREATE OR REPLACE VIEW courses_with_flashcard_count AS
+SELECT
+    c.*,
+    COALESCE(f.questions, 0) AS questions
+FROM
+    courses c
+LEFT JOIN (
+    SELECT
+        course_code,
+        COUNT(*) AS questions
+    FROM
+        flashcards
+    GROUP BY
+        course_code
+) f ON c.course_code = f.course_code;
