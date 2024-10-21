@@ -1,13 +1,13 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { use, useCallback, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { SkeletonEditableCard } from "@/components/cards";
-import { addCard, deleteCard, CardData, getAllCards, updateCard } from "@/lib/api";
+import { addCard, deleteCard, CardData, getAllCards, updateCard, getCardsByCourseCode } from "@/lib/api";
 import dynamic from "next/dynamic";
 import { useTransitionRouter } from "next-view-transitions";
 
@@ -15,8 +15,15 @@ const EditableCard = dynamic(() => import("@/components/cards").then((mod) => mo
   loading: () => <SkeletonEditableCard />,
 });
 
-export default function ManagePage() {
-  type FormData = Omit<CardData, "id" | "created_at" | "updated_at">;
+interface ManagePageProps {
+  params: Promise<{
+    course_code: string;
+  }>;
+}
+
+export default function ManagePage(props: ManagePageProps) {
+  const { course_code } = use(props.params);
+  type FormData = Omit<CardData, "id" | "course_code" | "created_at" | "updated_at">;
 
   const router = useTransitionRouter();
   const queryClient = useQueryClient();
@@ -25,13 +32,11 @@ export default function ManagePage() {
   const [formData, setFormData] = useState<FormData>({
     question: "",
     answer: "",
-    difficulty: "",
-    course_code: "",
   });
 
   const { data, isPending, isError, error } = useQuery({
-    queryKey: ["cards"],
-    queryFn: getAllCards,
+    queryKey: [`cards-${course_code}`],
+    queryFn: () => getCardsByCourseCode(course_code),
   });
 
   const onError = (e: Error) => {
@@ -40,7 +45,7 @@ export default function ManagePage() {
 
   const onSuccess = () => {
     queryClient.invalidateQueries({
-      queryKey: ["cards"],
+      queryKey: [`cards-${course_code}`],
     });
   };
 
@@ -71,13 +76,13 @@ export default function ManagePage() {
     e.preventDefault();
 
     if (editingId) {
-      useUpdateCard({ id: editingId, ...formData });
+      useUpdateCard({ id: editingId, course_code: course_code, ...formData });
       setEditingId(null);
     } else {
-      useAddCard(formData);
+      useAddCard({ course_code: course_code, ...formData });
     }
 
-    setFormData({ question: "", answer: "", difficulty: "", course_code: "" });
+    setFormData({ question: "", answer: "" });
   };
 
   const handleEdit = useCallback((card: Omit<CardData, "created_at" | "updated_at">) => {
@@ -122,32 +127,10 @@ export default function ManagePage() {
                 required
               />
             </div>
-            <div>
-              <Label htmlFor="difficulty">Difficulty</Label>
-              <Input
-                className="bg-white"
-                id="difficulty"
-                name="difficulty"
-                value={formData.difficulty}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="course_code">Course Code</Label>
-              <Input
-                className="bg-white"
-                id="course_code"
-                name="course_code"
-                value={formData.course_code}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
           </div>
           <div className="flex gap-2 mt-4">
             <Button type="submit">{editingId ? "Update" : "Add"} Item</Button>
-            <Button onClick={() => router.push("/")}>Go Back</Button>
+            <Button onClick={() => router.push("/courses")}>Go Back</Button>
           </div>
         </form>
 

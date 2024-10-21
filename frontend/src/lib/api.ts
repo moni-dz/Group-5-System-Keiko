@@ -5,7 +5,6 @@ export interface CardData {
   id: string;
   question: string;
   answer: string;
-  difficulty: string;
   course_code: string;
   created_at: string;
   updated_at: string;

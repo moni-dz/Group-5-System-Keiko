@@ -14,7 +14,6 @@ pub struct Card {
     pub id: Uuid,
     pub question: String,
     pub answer: String,
-    pub difficulty: String,
     pub course_code: String,
     pub created_at: Option<chrono::DateTime<chrono::Utc>>,
     pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
@@ -26,7 +25,6 @@ pub struct Card {
 pub struct CreateCard {
     pub question: String,
     pub answer: String,
-    pub difficulty: String,
     pub course_code: String,
 }
 
