@@ -16,6 +16,7 @@ export interface CourseData {
   course_code: string;
   description: string;
   progress: number;
+  questions: number;
   is_completed: boolean;
   completion_date: string;
   created_at: string;
