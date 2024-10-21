@@ -4,7 +4,6 @@ import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import localFont from "next/font/local";
 import { NextFontWithVariable } from "next/dist/compiled/@next/font";
-import { ViewTransitions } from "next-view-transitions";
 import Providers from "./providers";
 
 const gauPopMagic: NextFontWithVariable = localFont({
@@ -24,15 +23,13 @@ interface RootProps {
 
 export default function RootLayout({ children }: Readonly<RootProps>) {
   return (
-    <ViewTransitions>
-      <html lang="en" className={gauPopMagic.variable}>
-        <body className="antialiased">
-          <main>
-            <Providers>{children}</Providers>
-          </main>
-          <Toaster />
-        </body>
-      </html>
-    </ViewTransitions>
+    <html lang="en" className={gauPopMagic.variable}>
+      <body className="antialiased">
+        <main>
+          <Providers>{children}</Providers>
+        </main>
+        <Toaster />
+      </body>
+    </html>
   );
 }

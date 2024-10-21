@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { SkeletonEditableCard } from "@/components/cards";
 import { addCard, deleteCard, CardData, getCardsByCourseCode, updateCard } from "@/lib/api";
 import dynamic from "next/dynamic";
-import { useTransitionRouter } from "next-view-transitions";
+import { useRouter } from "next/navigation";
 
 const EditableCard = dynamic(() => import("@/components/cards").then((mod) => mod.EditableCard), {
   loading: () => <SkeletonEditableCard />,
@@ -24,7 +24,7 @@ export default function ManagePage(props: ManagePageProps) {
   const { course_code } = use(props.params);
   type FormData = Omit<CardData, "id" | "course_code" | "created_at" | "updated_at">;
 
-  const router = useTransitionRouter();
+  const router = useRouter();
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [editingId, setEditingId] = useState<string | null>(null);
