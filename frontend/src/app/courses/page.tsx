@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { SkeletonEditableCourse } from "@/components/cards";
 import { addCourse, CourseData, deleteCourse, getAllCourses, updateCourse } from "@/lib/api";
 import dynamic from "next/dynamic";
-import { useTransitionRouter } from "next-view-transitions";
+import { useRouter } from "next/navigation";
 
 const EditableCourse = dynamic(() => import("@/components/cards").then((mod) => mod.EditableCourse), {
   loading: () => <SkeletonEditableCourse />,
@@ -18,7 +18,7 @@ const EditableCourse = dynamic(() => import("@/components/cards").then((mod) => 
 export default function CoursesPage() {
   type FormData = Pick<CourseData, "name" | "course_code" | "description">;
 
-  const router = useTransitionRouter();
+  const router = useRouter();
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -65,10 +65,9 @@ export default function CoursesPage() {
     const { name, value } = e.target;
     setFormData((prev: FormData): FormData => ({ ...prev, [name]: value }));
 
-  
     if (e.target.tagName === "TEXTAREA") {
       e.target.style.height = "auto"; //
-      e.target.style.height = `${e.target.scrollHeight}px`; 
+      e.target.style.height = `${e.target.scrollHeight}px`;
     }
   };
 
@@ -108,7 +107,9 @@ export default function CoursesPage() {
         <form onSubmit={handleSubmit} className="mb-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="course_code" className="text-zinc-500">Course Code</Label>
+              <Label htmlFor="course_code" className="text-zinc-500">
+                Course Code
+              </Label>
               <Input
                 className="bg-white text-zinc-500 border-zinc-500"
                 id="course_code"
@@ -119,7 +120,9 @@ export default function CoursesPage() {
               />
             </div>
             <div>
-              <Label htmlFor="name" className="text-zinc-500">Course Name</Label>
+              <Label htmlFor="name" className="text-zinc-500">
+                Course Name
+              </Label>
               <Input
                 className="bg-white text-zinc-500 border-zinc-500"
                 id="name"
@@ -130,7 +133,9 @@ export default function CoursesPage() {
               />
             </div>
             <div>
-              <Label htmlFor="description" className="text-zinc-500">Description</Label>
+              <Label htmlFor="description" className="text-zinc-500">
+                Description
+              </Label>
               <textarea
                 className="bg-white text-zinc-500 border-zinc-500 border p-2 rounded-md resize-none w-full"
                 id="description"

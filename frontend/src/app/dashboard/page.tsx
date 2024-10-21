@@ -27,17 +27,17 @@ import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { redirect, useSearchParams } from "next/navigation";
+import { redirect, useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { CourseData, getAllCourses, getCardsByCourseCode } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
-import { useTransitionRouter, Link } from "next-view-transitions";
 
 export default function MainPage() {
-  const router = useTransitionRouter();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
   const activeView = searchParams.get("view") || "";
-  const [selectedCourse, setSelectedCourse] = useState<CourseData | null>(null);
+  const selectedCourse = searchParams.get("course") || "";
   const [questionCount, setQuestionCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -50,7 +50,7 @@ export default function MainPage() {
 
   useEffect(() => {
     if (selectedCourse) {
-      getCardsByCourseCode(selectedCourse.course_code).then((res) => {
+      getCardsByCourseCode(selectedCourse).then((res) => {
         setQuestionCount(res.length);
       });
     }
@@ -101,11 +101,11 @@ export default function MainPage() {
         <li
           key={course.id}
           className={`mb-2 p-2 rounded cursor-pointer ${
-            selectedCourse?.course_code === course.course_code ? "bg-red-100" : "hover:bg-red-100"
+            selectedCourse === course.course_code ? "bg-red-100" : "hover:bg-red-100"
           } font-semibold text-zinc-500`}
           onClick={() => {
-            setSelectedCourse(course);
             setProgress(course.progress || 0);
+            router.push(`?view=${activeView}&course=${course.course_code}`);
           }}
         >
           {course.course_code}
@@ -114,38 +114,46 @@ export default function MainPage() {
     </ul>
   );
 
-  const renderCourseDetails = (course: CourseData) => (
-    <div>
-      <h3 className="text-xl italic font-semibold text-red-500 font-gau-pop-magic mb-2">
-        {course.name || "Course Name"}
-      </h3>
+  const renderCourseDetails = (course_code: string, courses: CourseData[]) => {
+    let course = courses.find((course) => course.course_code === course_code);
 
-      <p className="text-zinc-500 font-semibold">
-        <span className="font-bold">Course Code:</span> {course.course_code || "N/A"}
-      </p>
+    return course === undefined ? (
+      <p className="text-zinc-500 italic">✦ select a course to view details...</p>
+    ) : (
+      <div>
+        <h3 className="text-xl italic font-semibold text-red-500 font-gau-pop-magic mb-2">
+          {course.name || "Course Name"}
+        </h3>
 
-      <p className="text-zinc-500 font-semibold">
-        <span className="font-bold">Description:</span> {course.description || "No description available."}
-      </p>
+        <p className="text-zinc-500 font-semibold">
+          <span className="font-bold">Course Code:</span> {course.course_code || "N/A"}
+        </p>
 
-      <p className="text-zinc-500 font-semibold">
-        <span className="font-bold">Number of Questions:</span>{" "}
-        {questionCount != 0 ? `${questionCount} questions` : "N/A"}
-      </p>
+        <p className="text-zinc-500 font-semibold">
+          <span className="font-bold">Description:</span> {course.description || "No description available."}
+        </p>
 
-      {course.progress !== undefined && (
-        <div className="mt-2">
-          <p className="text-zinc-500">Progress: {course.progress}%</p>
-          <div className="w-full bg-gray-200 rounded-full h-2.5">
-            <Progress value={progress} indicatorColor="bg-red-500" className="bg-gray-200 h-2.5" />
+        <p className="text-zinc-500 font-semibold">
+          <span className="font-bold">Number of Questions:</span>{" "}
+          {questionCount != 0 ? `${questionCount} questions` : "N/A"}
+        </p>
+
+        {course.progress !== undefined && (
+          <div className="mt-2">
+            <p className="text-zinc-500">Progress: {course.progress}%</p>
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <Progress value={progress} indicatorColor="bg-red-500" className="bg-gray-200 h-2.5" />
+            </div>
           </div>
-        </div>
-      )}
-      {course.is_completed && (
-        <p className="text-zinc-500 italic mt-2">Completed on: {dayjs(course.completion_date).format("MM-DD-YYYY")}</p>
-      )}
-    </div>
-  );
+        )}
+        {course.is_completed && (
+          <p className="text-zinc-500 italic mt-2">
+            Completed on: {dayjs(course.completion_date).format("MM-DD-YYYY")}
+          </p>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className={`flex h-screen bg-gray-100 text-extrabold`}>
@@ -168,7 +176,6 @@ export default function MainPage() {
                 <Button
                   variant="ghost"
                   className={`w-full flex items-center mb-2 text-1.5xl text-zinc-500 ${isSidebarCollapsed ? `px-2 font-gau-pop-magic` : ""} justify-start hover:bg-red-500 active:bg-red-500 hover:text-white active:text-white`}
-                  onClick={() => setSelectedCourse(null)}
                 >
                   {isSidebarCollapsed ? (
                     <ClipboardList />
@@ -185,7 +192,6 @@ export default function MainPage() {
                 <Button
                   variant="ghost"
                   className={`w-full flex items-center mb-2 text-1.5xl text-zinc-500 ${isSidebarCollapsed ? `px-2 font-gau-pop-magic` : ""} justify-start hover:bg-red-500 active:bg-red-500 hover:text-white active:text-white`}
-                  onClick={() => setSelectedCourse(null)}
                 >
                   {isSidebarCollapsed ? (
                     <Clock />
@@ -202,7 +208,6 @@ export default function MainPage() {
                 <Button
                   variant="ghost"
                   className={`w-full flex items-center mb-2 text-1.5xl text-zinc-500 ${isSidebarCollapsed ? `px-2 font-gau-pop-magic` : ""} justify-start hover:bg-red-500 active:bg-red-500 hover:text-white active:text-white`}
-                  onClick={() => setSelectedCourse(null)}
                 >
                   {isSidebarCollapsed ? (
                     <BookCheck />
@@ -256,11 +261,7 @@ export default function MainPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-white shadow-md rounded-lg p-4">{renderCourseList(filteredCourses)}</div>
               <div className="bg-white shadow-md rounded-lg p-4">
-                {selectedCourse ? (
-                  renderCourseDetails(selectedCourse)
-                ) : (
-                  <p className="text-zinc-500 italic">✦ select a course to view details...</p>
-                )}
+                {renderCourseDetails(selectedCourse, filteredCourses)}
               </div>
             </div>
             <div className="mt-4 flex justify-between">
@@ -290,18 +291,14 @@ export default function MainPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-white shadow-md rounded-lg p-4">{renderCourseList(filteredOngoingCourses)}</div>
                 <div className="bg-white shadow-md rounded-lg p-4">
-                  {selectedCourse ? (
-                    renderCourseDetails(selectedCourse)
-                  ) : (
-                    <p className="text-zinc-500 italic">✦ select a course to view details...</p>
-                  )}
+                  {renderCourseDetails(selectedCourse, filteredOngoingCourses)}
                 </div>
               </div>
             </div>
             <div className="mt-4">
               <Button
                 className="bg-red-500 text-white hover:bg-zinc-500 flex items-center space-x-2"
-                onClick={() => redirect(`/quiz/${selectedCourse?.course_code}`)}
+                onClick={() => redirect(`/quiz/${selectedCourse}`)}
               >
                 <Pen width="20" height="20" />
                 <span>Start Quiz</span>
@@ -315,11 +312,7 @@ export default function MainPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-white shadow-md rounded-lg p-4">{renderCourseList(filteredCompletedCourses)}</div>
                 <div className="bg-white shadow-md rounded-lg p-4">
-                  {selectedCourse ? (
-                    renderCourseDetails(selectedCourse)
-                  ) : (
-                    <p className="text-zinc-500 italic">✦ select a course to view details...</p>
-                  )}
+                  {renderCourseDetails(selectedCourse, filteredCompletedCourses)}
                 </div>
               </div>
             </div>
