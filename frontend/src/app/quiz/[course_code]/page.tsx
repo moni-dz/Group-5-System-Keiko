@@ -184,14 +184,6 @@ export default function QuizPage({ params }: QuizPageProps) {
     return <SkeletonCard />;
   }
 
-  if (!cards || cards.length === 0) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-        No cards available for this course
-      </div>
-    );
-  }
-
   const currentCard = cards[currentCardIndex];
 
   return (
@@ -215,17 +207,21 @@ export default function QuizPage({ params }: QuizPageProps) {
         </div>
       </header>
       <div className="flex justify-center items-center w-full flex-grow px-4">
-        <QuizCard
-          question={currentCard.question}
-          answerOptions={answerOptions}
-          selectedAnswer={selectedAnswer}
-          setSelectedAnswer={setSelectedAnswer}
-          isSubmitted={isSubmitted}
-          correctAnswer={currentCard.answer}
-          message={message}
-          onSubmit={handleSubmit}
-          onNext={handleNext}
-        />
+        {!cards || cards.length === 0 ? (
+          <a>No cards available for this course.</a>
+        ) : (
+          <QuizCard
+            question={currentCard.question}
+            answerOptions={answerOptions}
+            selectedAnswer={selectedAnswer}
+            setSelectedAnswer={setSelectedAnswer}
+            isSubmitted={isSubmitted}
+            correctAnswer={currentCard.answer}
+            message={message}
+            onSubmit={handleSubmit}
+            onNext={handleNext}
+          />
+        )}
       </div>
     </div>
   );
