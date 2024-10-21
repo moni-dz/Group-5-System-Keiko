@@ -22,7 +22,7 @@ import {
 import dayjs from "dayjs";
 import Image from "next/image";
 import logo from "../../public/logo.png";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,7 @@ export default function MainPage() {
   const { toast } = useToast();
   const [activeView, setActiveView] = useState("default");
   const [selectedCourse, setSelectedCourse] = useState<CourseData | null>(null);
+  const [questionCount, setQuestionCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -45,6 +46,14 @@ export default function MainPage() {
     queryKey: ["courses"],
     queryFn: getAllCourses,
   });
+
+  useEffect(() => {
+    if (selectedCourse) {
+      getCardsByCourseCode(selectedCourse.course_code).then((res) => {
+        setQuestionCount(res.length);
+      });
+    }
+  }, [selectedCourse]);
 
   if (isPending) {
     return (
@@ -100,43 +109,36 @@ export default function MainPage() {
     </ul>
   );
 
-  const renderCourseDetails = (course: CourseData) => {
-    let card_count = 0;
+  const renderCourseDetails = (course: CourseData) => (
+    <div>
+      <h3 className="text-xl italic font-semibold text-red-500 font-gau-pop-magic mb-2">
+        {course.name || "Course Name"}
+      </h3>
 
-    const cards = getCardsByCourseCode(course.course_code).then((res) => {
-      card_count = res.length;
-    });
+      <p className="text-zinc-500 font-semibold">
+        <span className="font-bold">Course Code:</span> {course.course_code || "N/A"}
+      </p>
 
-    return (
-      <div>
-        <h3 className="text-xl italic font-semibold text-red-500 font-gau-pop-magic mb-2">
-          {course.name || "Course Name"}
-        </h3>
+      <p className="text-zinc-500 font-semibold">
+        <span className="font-bold">Description:</span> {course.description || "No description available."}
+      </p>
 
-        <p className="text-zinc-500 font-semibold">
-          <span className="font-bold">Course Code:</span> {course.course_code || "N/A"}
-        </p>
+      <p className="text-zinc-500 font-semibold">
+        <span className="font-bold">Number of Questions:</span>{" "}
+        {questionCount != 0 ? `${questionCount} questions` : "N/A"}
+      </p>
 
-        <p className="text-zinc-500 font-semibold">
-          <span className="font-bold">Description:</span> {course.description || "No description available."}
-        </p>
-
-        <p className="text-zinc-500 font-semibold">
-          <span className="font-bold">Number of Questions:</span> {card_count != 0 ? `${card_count} questions` : "N/A"}
-        </p>
-
-        {course.progress !== undefined && (
-          <div className="mt-2">
-            <p className="text-zinc-500">Progress: {course.progress}%</p>
-            <div className="w-full bg-gray-200 rounded-full h-2.5">
-              <Progress value={progress} indicatorColor="bg-red-500" className="bg-gray-200 h-2.5" />
-            </div>
+      {course.progress !== undefined && (
+        <div className="mt-2">
+          <p className="text-zinc-500">Progress: {course.progress}%</p>
+          <div className="w-full bg-gray-200 rounded-full h-2.5">
+            <Progress value={progress} indicatorColor="bg-red-500" className="bg-gray-200 h-2.5" />
           </div>
-        )}
-        {course.is_completed && <p className="text-zinc-500 italic mt-2">Completed on: {course.is_completed}</p>}
-      </div>
-    );
-  };
+        </div>
+      )}
+      {course.is_completed && <p className="text-zinc-500 italic mt-2">Completed on: {course.is_completed}</p>}
+    </div>
+  );
 
   return (
     <div className={`flex h-screen bg-gray-100 text-extrabold`}>
