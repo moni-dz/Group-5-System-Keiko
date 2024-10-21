@@ -47,6 +47,13 @@ pub struct CreateCourse {
     pub description: String,
 }
 
+#[derive(
+    Serialize, Deserialize, FromRow, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Default,
+)]
+pub struct CourseCompletion {
+    pub is_completed: bool,
+}
+
 #[async_trait::async_trait]
 pub trait CoursesAPI: Send + Sync + 'static {
     async fn get_courses(&self) -> CourseResult<Vec<CourseView>>;
@@ -54,4 +61,9 @@ pub trait CoursesAPI: Send + Sync + 'static {
     async fn create_course(&self, create_course: &CreateCourse) -> CourseResult<Course>;
     async fn update_course(&self, course: &Course) -> CourseResult<Course>;
     async fn delete_course(&self, course_id: &Uuid) -> CourseResult<Uuid>;
+    async fn mark_course_completion(
+        &self,
+        course_id: &Uuid,
+        is_completed: &CourseCompletion,
+    ) -> CourseResult<Course>;
 }

@@ -88,3 +88,7 @@ export async function updateCourse(
 export async function deleteCourse(id: string): Promise<CourseData> {
   return ax.delete<CourseData>(`/api/v1/courses/${id}`).then((r): CourseData => r.data);
 }
+
+export async function markCourseCompletion(id: string, is_completed: boolean): Promise<CourseData> {
+  return ax.patch<CourseData>(`/api/v1/courses/${id}/completion`, { is_completed }).then((r): CourseData => r.data);
+}
