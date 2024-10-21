@@ -195,7 +195,7 @@ export default function QuizPage({ params }: QuizPageProps) {
   const currentCard = cards[currentCardIndex];
 
   return (
-    <div className="bg-gray-50 min-h-screen flex flex-col justify-center items-center relative">
+    <div className="bg-gray-50 min-h-screen flex flex-col justify-center items-center relative overflow-hidden">
       <header className="absolute top-0 left-0 right-0 flex justify-between items-center p-4">
         <h1 className="text-2xl font-bold font-gau-pop-magic">
           <span className="text-red-500">QUIZ: </span>
