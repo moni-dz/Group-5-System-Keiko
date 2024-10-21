@@ -21,17 +21,18 @@ import {
 import Image from "next/image";
 import logo from "../../public/logo.png";
 import { useState, Suspense } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { CourseData, getAllCourses } from "@/lib/api";
+import { CourseData, getAllCourses, markCourseCompletion } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import DashboardLoading from "./loading";
 import { CourseDetails, CourseList } from "./components";
 
 export default function MainPage() {
+  const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const { toast } = useToast();
   const activeView = searchParams.get("view") || "";
@@ -43,6 +44,17 @@ export default function MainPage() {
     queryKey: ["courses"],
     queryFn: getAllCourses,
   });
+
+  const useMarkCompletion = useMutation({
+    mutationFn: (props: { course_id: string; is_completed: boolean }) =>
+      markCourseCompletion(props.course_id, props.is_completed),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["courses"],
+      });
+    },
+    onError: (error) => toast({ description: error.message }),
+  }).mutate;
 
   if (isPending) {
     return <DashboardLoading />;
@@ -248,7 +260,10 @@ export default function MainPage() {
                 </div>
               </div>
               <div className="mt-4 flex space-x-4">
-                <Button className="bg-red-500 text-white hover:bg-zinc-500 flex items-center space-x-2">
+                <Button
+                  className="bg-red-500 text-white hover:bg-zinc-500 flex items-center space-x-2"
+                  onClick={() => useMarkCompletion({ course_id: selectedCourse, is_completed: false })}
+                >
                   <FolderClock width="20" height="20" />
                   <span>Mark as Ongoing</span>
                 </Button>

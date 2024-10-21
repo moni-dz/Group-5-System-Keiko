@@ -1,6 +1,6 @@
 use crate::KeikoDatabase;
 
-use super::{Course, CourseResult, CourseView, CoursesAPI, CreateCourse};
+use super::{Course, CourseCompletion, CourseResult, CourseView, CoursesAPI, CreateCourse};
 use uuid::Uuid;
 
 #[async_trait::async_trait]
@@ -65,5 +65,27 @@ impl CoursesAPI for KeikoDatabase {
             .fetch_one(&self.pool)
             .await
             .map_err(|e| e.to_string())
+    }
+
+    // PATCH /v1/courses/{course_id}/completion
+    async fn mark_course_completion(
+        &self,
+        course_id: &Uuid,
+        course: &CourseCompletion,
+    ) -> CourseResult<Course> {
+        sqlx::query_as::<_, Course>(
+            r#"
+            UPDATE courses
+            SET is_completed = $2, completion_date = $3, updated_at = now()
+            WHERE id = $1
+            RETURNING *
+            "#,
+        )
+        .bind(course_id)
+        .bind(course.is_completed)
+        .bind(if course.is_completed { "now()" } else { "NULL" })
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|e| e.to_string())
     }
 }
