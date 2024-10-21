@@ -110,7 +110,9 @@ export default function ManagePage(props: ManagePageProps) {
         <form onSubmit={handleSubmit} className="mb-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="question" className="text-zinc-500">Question</Label>
+              <Label htmlFor="question" className="text-zinc-500">
+                Question
+              </Label>
               <textarea
                 className="bg-white text-zinc-500 resize-none overflow-hidden w-full p-2 border border-zinc-500 rounded"
                 id="question"
@@ -122,7 +124,9 @@ export default function ManagePage(props: ManagePageProps) {
               />
             </div>
             <div>
-              <Label htmlFor="answer" className="text-zinc-500">Answer</Label>
+              <Label htmlFor="answer" className="text-zinc-500">
+                Answer
+              </Label>
               <textarea
                 className="bg-white text-zinc-500 resize-none overflow-hidden w-full p-2 border border-zinc-500 rounded"
                 id="answer"
@@ -136,8 +140,12 @@ export default function ManagePage(props: ManagePageProps) {
           </div>
           {/* Aligning the buttons to the right */}
           <div className="flex justify-end gap-2 mt-4">
-            <Button type="submit" className="bg-red-500 text-white hover:bg-zinc-500">{editingId ? "Update" : "Add"} Item</Button>
-            <Button onClick={() => router.push("/courses")} className="bg-red-500 hover:bg-zinc-500 text-white">Back</Button>
+            <Button type="submit" className="bg-red-500 text-white hover:bg-zinc-500">
+              {editingId ? "Update" : "Add"} Item
+            </Button>
+            <Button onClick={() => router.push("/courses")} className="bg-red-500 hover:bg-zinc-500 text-white">
+              Back
+            </Button>
           </div>
         </form>
 
