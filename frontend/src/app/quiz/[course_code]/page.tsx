@@ -71,23 +71,17 @@ function QuizCard({
                 <div
                   key={index}
                   className={`flex items-center space-x-3 p-3 ${
-                    selectedAnswer === option
-                      ? "bg-red-100 text-zinc-500 rounded-lg" 
-                      : "text-zinc-500"
+                    selectedAnswer === option ? "bg-red-100 text-zinc-500 rounded-lg" : "text-zinc-500"
                   }`}
                 >
                   <RadioGroupItem
                     value={option}
                     id={`option-${index}`}
-                    className={`${
-                      selectedAnswer === option ? "border-zinc-500" : "" 
-                    }`}
+                    className={`${selectedAnswer === option ? "border-zinc-500" : ""}`}
                   />
                   <Label
                     htmlFor={`option-${index}`}
-                    className={`${
-                      selectedAnswer === option ? "text-zinc-700" : "text-zinc-600"
-                    }`}
+                    className={`${selectedAnswer === option ? "text-zinc-700" : "text-zinc-600"}`}
                   >
                     {option}
                   </Label>
@@ -107,12 +101,12 @@ function QuizCard({
         {/* Back of the card */}
         <div className="absolute w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] flex items-center justify-center">
           <div className="w-full max-w-md mx-auto flex flex-col items-center justify-between border border-zinc-200 rounded-lg p-6 bg-white shadow-md">
-            <p className={`text-xl font-gau-pop-magic font-bold mb-4 ${message === "Correct!" ? "text-red-500" : "text-zinc-500"}`}>
+            <p
+              className={`text-xl font-gau-pop-magic font-bold mb-4 ${message === "Correct!" ? "text-red-500" : "text-zinc-500"}`}
+            >
               {message}
             </p>
-            <CardTitle className="text-1xl text-center text-zinc-500 mb-8">
-              Answer: {correctAnswer}
-            </CardTitle>
+            <CardTitle className="text-1xl text-center text-zinc-500 mb-8">Answer: {correctAnswer}</CardTitle>
             <Button onClick={handleNext} disabled={isFlipping} className="bg-zinc-500 text-white hover:bg-red-500">
               Next Card
             </Button>
@@ -122,7 +116,6 @@ function QuizCard({
     </div>
   );
 }
-
 
 interface QuizPageProps {
   params: Promise<{ course_code: string }>;
@@ -159,9 +152,9 @@ export default function QuizPage({ params }: QuizPageProps) {
 
   const cards = data as CardData[];
 
-  const generateAnswerOptions = (allCards: CardData[], currentIndex: number) => {
-    const correctAnswer = allCards[currentIndex].answer;
-    let options = allCards.map((card) => card.answer);
+  const generateAnswerOptions = (cards: CardData[], idx: number) => {
+    const correctAnswer = cards[idx].answer;
+    let options = cards.map((card) => card.answer);
     options = Array.from(new Set(options));
     if (!options.includes(correctAnswer)) {
       options.push(correctAnswer);
@@ -215,7 +208,9 @@ export default function QuizPage({ params }: QuizPageProps) {
           </Button>
           {/* Back Button */}
           <Button asChild variant="outline">
-            <a href="/dashboard" className="bg-white-100 hover:bg-zinc-500 text-red-500 hover:text-white"> Back</a>
+            <a href="/dashboard?view=ongoing" className="bg-white-100 hover:bg-zinc-500 text-red-500 hover:text-white">
+              Back
+            </a>
           </Button>
         </div>
       </header>

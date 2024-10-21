@@ -27,15 +27,16 @@ import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { redirect } from "next/navigation";
+import { redirect, useSearchParams } from "next/navigation";
 import { CourseData, getAllCourses, getCardsByCourseCode } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
-import { useTransitionRouter } from "next-view-transitions";
+import { useTransitionRouter, Link } from "next-view-transitions";
 
 export default function MainPage() {
   const router = useTransitionRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
-  const [activeView, setActiveView] = useState("default");
+  const activeView = searchParams.get("view") || "";
   const [selectedCourse, setSelectedCourse] = useState<CourseData | null>(null);
   const [questionCount, setQuestionCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
@@ -53,6 +54,10 @@ export default function MainPage() {
         setQuestionCount(res.length);
       });
     }
+
+    return () => {
+      setQuestionCount(0);
+    };
   }, [selectedCourse]);
 
   if (isPending) {
@@ -96,7 +101,7 @@ export default function MainPage() {
         <li
           key={course.id}
           className={`mb-2 p-2 rounded cursor-pointer ${
-            selectedCourse?.id === course.id ? "bg-red-100" : "hover:bg-red-100"
+            selectedCourse?.course_code === course.course_code ? "bg-red-100" : "hover:bg-red-100"
           } font-semibold text-zinc-500`}
           onClick={() => {
             setSelectedCourse(course);
@@ -136,7 +141,9 @@ export default function MainPage() {
           </div>
         </div>
       )}
-      {course.is_completed && <p className="text-zinc-500 italic mt-2">Completed on: {course.is_completed}</p>}
+      {course.is_completed && (
+        <p className="text-zinc-500 italic mt-2">Completed on: {dayjs(course.completion_date).format("MM-DD-YYYY")}</p>
+      )}
     </div>
   );
 
@@ -157,50 +164,56 @@ export default function MainPage() {
             </div>
 
             <nav className="flex flex-col">
-              <Button
-                variant="ghost"
-                className={`w-full flex items-center mb-2 text-1.5xl text-zinc-500 ${isSidebarCollapsed ? `px-2 font-gau-pop-magic` : ""} justify-start hover:bg-red-500 active:bg-red-500 hover:text-white active:text-white`}
-                onClick={() => setActiveView("courses")}
-              >
-                {isSidebarCollapsed ? (
-                  <ClipboardList />
-                ) : (
-                  <>
-                    <ClipboardList className="mr-2" />
-                    Courses
-                  </>
-                )}
-              </Button>
+              <Link href="?view=courses">
+                <Button
+                  variant="ghost"
+                  className={`w-full flex items-center mb-2 text-1.5xl text-zinc-500 ${isSidebarCollapsed ? `px-2 font-gau-pop-magic` : ""} justify-start hover:bg-red-500 active:bg-red-500 hover:text-white active:text-white`}
+                  onClick={() => setSelectedCourse(null)}
+                >
+                  {isSidebarCollapsed ? (
+                    <ClipboardList />
+                  ) : (
+                    <>
+                      <ClipboardList className="mr-2" />
+                      Courses
+                    </>
+                  )}
+                </Button>
+              </Link>
 
-              <Button
-                variant="ghost"
-                className={`w-full flex items-center mb-2 text-1.5xl text-zinc-500 ${isSidebarCollapsed ? `px-2 font-gau-pop-magic` : ""} justify-start hover:bg-red-500 active:bg-red-500 hover:text-white active:text-white`}
-                onClick={() => setActiveView("ongoing")}
-              >
-                {isSidebarCollapsed ? (
-                  <Clock />
-                ) : (
-                  <>
-                    <Clock className="mr-2" />
-                    On-Going
-                  </>
-                )}
-              </Button>
+              <Link href="?view=ongoing">
+                <Button
+                  variant="ghost"
+                  className={`w-full flex items-center mb-2 text-1.5xl text-zinc-500 ${isSidebarCollapsed ? `px-2 font-gau-pop-magic` : ""} justify-start hover:bg-red-500 active:bg-red-500 hover:text-white active:text-white`}
+                  onClick={() => setSelectedCourse(null)}
+                >
+                  {isSidebarCollapsed ? (
+                    <Clock />
+                  ) : (
+                    <>
+                      <Clock className="mr-2" />
+                      On-Going
+                    </>
+                  )}
+                </Button>
+              </Link>
 
-              <Button
-                variant="ghost"
-                className={`w-full flex items-center mb-2 text-1.5xl text-zinc-500 ${isSidebarCollapsed ? `px-2 font-gau-pop-magic` : ""} justify-start hover:bg-red-500 active:bg-red-500 hover:text-white active:text-white`}
-                onClick={() => setActiveView("completed")}
-              >
-                {isSidebarCollapsed ? (
-                  <BookCheck />
-                ) : (
-                  <>
-                    <BookCheck className="mr-2" />
-                    Completed
-                  </>
-                )}
-              </Button>
+              <Link href="?view=completed">
+                <Button
+                  variant="ghost"
+                  className={`w-full flex items-center mb-2 text-1.5xl text-zinc-500 ${isSidebarCollapsed ? `px-2 font-gau-pop-magic` : ""} justify-start hover:bg-red-500 active:bg-red-500 hover:text-white active:text-white`}
+                  onClick={() => setSelectedCourse(null)}
+                >
+                  {isSidebarCollapsed ? (
+                    <BookCheck />
+                  ) : (
+                    <>
+                      <BookCheck className="mr-2" />
+                      Completed
+                    </>
+                  )}
+                </Button>
+              </Link>
             </nav>
           </div>
 
