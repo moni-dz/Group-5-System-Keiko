@@ -83,7 +83,11 @@ impl CoursesAPI for KeikoDatabase {
         )
         .bind(course_id)
         .bind(course.is_completed)
-        .bind(if course.is_completed { "now()" } else { "NULL" })
+        .bind(if course.is_completed {
+            Some(chrono::Utc::now())
+        } else {
+            None
+        })
         .fetch_one(&self.pool)
         .await
         .map_err(|e| e.to_string())
