@@ -77,6 +77,7 @@ async fn delete_course<S: CoursesAPI>(
     }
 }
 
+// PATCH /v1/courses/{course_id}/completion
 async fn mark_course_completion<S: CoursesAPI>(
     course_id: web::Path<Uuid>,
     course: web::Json<CourseCompletion>,
