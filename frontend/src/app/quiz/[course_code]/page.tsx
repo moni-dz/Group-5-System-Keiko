@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, use, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { SkeletonCard } from "@/components/cards";
-import { CardData, getCardsByCourseCode } from "@/lib/api";
 import { Button } from "@/components/ui/button";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
 import { CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useToast } from "@/hooks/use-toast";
+import { CardData, getCardsByCourseCode } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
 import { Lightbulb } from "lucide-react";
+import { use, useEffect, useState } from "react";
 
 interface QuizCardProps {
   question: string;

@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import React from "react";
 import { Toaster } from "@/components/ui/toaster";
-import localFont from "next/font/local";
+import type { Metadata } from "next";
 import { NextFontWithVariable } from "next/dist/compiled/@next/font";
+import localFont from "next/font/local";
+import React from "react";
+import "./globals.css";
 import Providers from "./providers";
 
 const gauPopMagic: NextFontWithVariable = localFont({

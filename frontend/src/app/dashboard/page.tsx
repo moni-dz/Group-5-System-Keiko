@@ -1,35 +1,35 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+import { CourseData, getAllCourses, markCourseCompletion } from "@/lib/api";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  BookCheck,
+  ChevronsLeft,
+  CircleX,
+  ClipboardList,
+  Clock,
+  Edit,
+  FileChartLine,
+  FolderClock,
   // search in https://lucide.dev/icons, add import here and use as component
   // e.g. circle-x is <CircleX /> imported as below when uncommented:
   // CircleX,
   Home,
-  Search,
-  Plus,
-  Edit,
   Menu,
-  ChevronsLeft,
-  ClipboardList,
-  Clock,
-  BookCheck,
   Pen,
-  CircleX,
-  FolderClock,
-  FileChartLine,
+  Plus,
+  Search,
 } from "lucide-react";
 import Image from "next/image";
-import logo from "../../public/logo.png";
-import { useState, Suspense } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { CourseData, getAllCourses, markCourseCompletion } from "@/lib/api";
-import { useToast } from "@/hooks/use-toast";
-import DashboardLoading from "./loading";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
+import logo from "../../public/logo.png";
 import { CourseDetails, CourseList } from "./components";
+import DashboardLoading from "./loading";
 
 export default function MainPage() {
   const queryClient = useQueryClient();

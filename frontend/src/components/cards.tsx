@@ -1,6 +1,6 @@
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
 import { CardData, CourseData } from "@/lib/api";
 import { Trash2 } from "lucide-react";
 
