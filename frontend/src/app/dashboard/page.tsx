@@ -29,7 +29,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import logo from "../../public/logo.png";
 import { CourseDetails, CourseList } from "./components";
-import DashboardLoading from "./loading";
+import Loading from "./loading";
 
 export default function MainPage() {
   const queryClient = useQueryClient();
@@ -57,7 +57,7 @@ export default function MainPage() {
   }).mutate;
 
   if (isPending) {
-    return <DashboardLoading />;
+    return <Loading />;
   }
 
   if (isError) {
@@ -88,7 +88,7 @@ export default function MainPage() {
   const toggleSidebar = () => setIsSidebarCollapsed(!isSidebarCollapsed);
 
   return (
-    <Suspense fallback={<DashboardLoading />}>
+    <Suspense fallback={<Loading />}>
       <div className={`flex h-screen bg-gray-100 text-extrabold`}>
         {/* Sidebar */}
         <aside
