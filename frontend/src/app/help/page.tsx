@@ -8,8 +8,8 @@ export default function HelpPage() {
     <div className="container mx-auto p-4">
       <h1 className={`text-4xl font-extrabold mb-6 italic text-red-500 font-gau-pop-magic`}>Keiko!</h1>
 
-      <Card className="mb-6 border border-red-500 rounded-lg">
-        <CardContent className="text-zinc-500 p-4">{lorem.generateParagraphs(2)}</CardContent>
+      <Card className="mb-6 border border-red-500 rounded-lg overflow-hidden">
+        <CardContent className="text-zinc-500 p-4 break-words">{lorem.generateParagraphs(1)}</CardContent>
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
