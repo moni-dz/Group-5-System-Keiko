@@ -260,31 +260,35 @@ export default function MainPage() {
                 </div>
               </div>
               <div className="mt-4 flex space-x-4">
-                <Button
-                  className="bg-red-500 text-white hover:bg-zinc-500 flex items-center space-x-2"
-                  onClick={() => {
-                    const course = filteredCompletedCourses.find((course) => course.course_code === selectedCourse);
+  <Button
+    className="bg-red-500 text-white hover:bg-zinc-500 flex items-center space-x-2"
+    onClick={() => {
+      const course = filteredCompletedCourses.find((course) => course.course_code === selectedCourse);
 
-                    if (course) {
-                      markCompletionMutation({ course_id: course.id, is_completed: false });
+      if (course) {
+        markCompletionMutation({ course_id: course.id, is_completed: false });
 
-                      filteredCompletedCourses.splice(
-                        filteredCompletedCourses.findIndex(
-                          (course: CourseData): boolean => course.course_code === selectedCourse,
-                        ),
-                        1,
-                      );
-                    }
-                  }}
-                >
-                  <FolderClock width="20" height="20" />
-                  <span>Mark as Ongoing</span>
-                </Button>
-                <Button className="bg-white text-red-500 border border-red-500 hover:border-zinc-500 hover:bg-zinc-500 hover:text-white flex items-center space-x-2">
-                  <FileChartLine width="24" height="24" />
-                  <span>Course Analytics</span>
-                </Button>
-              </div>
+        filteredCompletedCourses.splice(
+          filteredCompletedCourses.findIndex(
+            (course: CourseData): boolean => course.course_code === selectedCourse,
+          ),
+          1,
+        );
+      }
+    }}
+  >
+    <FolderClock width="20" height="20" />
+    <span>Mark as Ongoing</span>
+  </Button>
+  
+  <Link href="/analytics">
+    <Button className="bg-white text-red-500 border border-red-500 hover:border-zinc-500 hover:bg-zinc-500 hover:text-white flex items-center space-x-2">
+      <FileChartLine width="24" height="24" />
+      <span>Course Analytics</span>
+    </Button>
+  </Link>
+</div>
+
             </div>
           ) : (
             <div className="bg-white shadow-md rounded-lg p-8">
