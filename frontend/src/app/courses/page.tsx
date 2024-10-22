@@ -43,19 +43,19 @@ export default function CoursesPage() {
     });
   };
 
-  const useAddCourse = useMutation({
+  const addCourseMutation = useMutation({
     mutationFn: (course: Pick<CourseData, "name" | "course_code" | "description">) => addCourse(course),
     onSuccess: onSuccess,
     onError: onError,
   }).mutate;
 
-  const useUpdateCourse = useMutation({
+  const updateCourseMutation = useMutation({
     mutationFn: (course: Pick<CourseData, "id" | "name" | "course_code" | "description">) => updateCourse(course),
     onSuccess: onSuccess,
     onError: onError,
   }).mutate;
 
-  const useDeleteCourse = useMutation({
+  const deleteCourseMutation = useMutation({
     mutationFn: (id: string) => deleteCourse(id),
     onSuccess: onSuccess,
     onError: onError,
@@ -75,10 +75,10 @@ export default function CoursesPage() {
     e.preventDefault();
 
     if (editingId) {
-      useUpdateCourse({ id: editingId, ...formData });
+      updateCourseMutation({ id: editingId, ...formData });
       setEditingId(null);
     } else {
-      useAddCourse(formData);
+      addCourseMutation(formData);
     }
 
     setFormData({ name: "", course_code: "", description: "" });
@@ -171,7 +171,7 @@ export default function CoursesPage() {
                 key={course.id}
                 course={course}
                 handleEdit={handleEdit}
-                handleDelete={useDeleteCourse}
+                handleDelete={deleteCourseMutation}
                 handleManageCourses={handleManageCourses}
                 className="text-zinc-500 border-zinc-500"
               />
