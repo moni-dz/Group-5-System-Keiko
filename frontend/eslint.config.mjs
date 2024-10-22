@@ -23,6 +23,8 @@ export default [
 
     rules: {
       "react-compiler/react-compiler": "error",
+      "@typescript-eslint/no-empty-object-type": "off",
+      "@typescript-eslint/no-unused-vars": "off",
     },
   },
 ];
