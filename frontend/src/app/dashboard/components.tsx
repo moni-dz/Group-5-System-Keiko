@@ -1,7 +1,7 @@
-import { CourseData } from "@/lib/api";
-import Link from "next/link";
 import { Progress } from "@/components/ui/progress";
+import { CourseData } from "@/lib/api";
 import dayjs from "dayjs";
+import Link from "next/link";
 
 interface CourseListProps {
   courses: CourseData[];

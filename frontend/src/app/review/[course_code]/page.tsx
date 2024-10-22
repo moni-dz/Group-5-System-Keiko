@@ -1,6 +1,6 @@
 import { SkeletonCard, cardMaxWidth } from "@/components/cards";
-import { CardData, getCardsByCourseCode } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { CardData, getCardsByCourseCode } from "@/lib/api";
 import dynamic from "next/dynamic";
 
 const Flashcard = dynamic(() => import("@/components/cards").then((mod) => mod.Flashcard), {
