@@ -59,9 +59,7 @@ function QuizCard({
                 isFlipping ? "opacity-0" : "opacity-100"
               }`}
             >
-              <div className="max-h-[60vh] overflow-y-auto">
-                {question}
-              </div>
+              <div className="max-h-[60vh] overflow-y-auto">{question}</div>
             </CardTitle>
             <RadioGroup
               value={selectedAnswer}
@@ -111,7 +109,11 @@ function QuizCard({
             <CardTitle className="text-1xl text-center text-zinc-500 mb-8 max-h-[60vh] overflow-y-auto">
               Answer: {correctAnswer}
             </CardTitle>
-            <Button onClick={handleNext} disabled={isFlipping} className="bg-zinc-500 text-white hover:bg-red-500 mt-auto">
+            <Button
+              onClick={handleNext}
+              disabled={isFlipping}
+              className="bg-zinc-500 text-white hover:bg-red-500 mt-auto"
+            >
               Next Card
             </Button>
           </div>
@@ -134,7 +136,12 @@ export default function QuizPage({ params }: QuizPageProps) {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { toast } = useToast();
 
-  const { data, isLoading, isError, error } = useQuery({
+  const {
+    data = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     queryKey: [`cards_${course_code}`],
     queryFn: () => getCardsByCourseCode(course_code),
   });
