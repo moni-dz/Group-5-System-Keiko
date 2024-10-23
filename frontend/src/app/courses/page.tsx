@@ -10,6 +10,7 @@ import { SkeletonEditableCourse } from "@/components/cards";
 import { addCourse, CourseData, deleteCourse, getAllCourses, updateCourse } from "@/lib/api";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
+import { Home } from "lucide-react"
 
 const EditableCourse = dynamic(() => import("@/components/cards").then((mod) => mod.EditableCourse), {
   loading: () => <SkeletonEditableCourse />,
@@ -152,9 +153,13 @@ export default function CoursesPage() {
             <Button type="submit" className="bg-red-500 text-white hover:bg-zinc-500">
               {editingId ? "Update Course" : "Add Course"}
             </Button>
-            <Button className="bg-red-500 text-white hover:bg-zinc-500" onClick={() => router.push("/dashboard")}>
-              Back
-            </Button>
+            <Button 
+          className="absolute top-4 right-4 bg-gray hover:bg-gray" 
+          onClick={() => router.push("/")} 
+          variant="ghost"
+        >
+          <Home className="h-5 w-5 text-red-500 bg-gray hover:text-white hover:bg-red-500 rounded-sm"  />
+        </Button>
           </div>
         </form>
 

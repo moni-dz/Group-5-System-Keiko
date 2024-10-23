@@ -129,7 +129,7 @@ export function EditableCourse(props: EditableCourseProps) {
           className="text-zinc-500 hover:bg-red-500 hover:text-white"
           onClick={() => handleManageCourses(course.course_code)}
         >
-          Manage
+          Manage Quizzes
         </Button>
         <div className="flex items-center">
           <Button

@@ -11,6 +11,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Lightbulb } from "lucide-react";
 import { use, useEffect, useState } from "react";
 
+
+
 interface QuizCardProps {
   question: string;
   answerOptions: string[];
