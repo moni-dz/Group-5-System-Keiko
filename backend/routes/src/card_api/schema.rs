@@ -49,7 +49,7 @@ impl CardAPI for KeikoDatabase {
       RETURNING *
       "#,
         )
-        .bind(card.id)
+        .bind(&card.id)
         .bind(&card.question)
         .bind(&card.answer)
         .bind(&card.course_code)

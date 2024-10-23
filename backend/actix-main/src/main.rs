@@ -2,9 +2,9 @@ use actix_cors::Cors;
 use actix_web::middleware::Logger;
 use actix_web::web::ServiceConfig;
 use actix_web::{web, App, HttpServer};
-use api_lib::{card, course, health, quiz, KeikoDatabase};
 use clap::Parser;
 use fern::colors::ColoredLevelConfig;
+use routes::{card, course, health, quiz, KeikoDatabase};
 use sqlx::postgres::PgPoolOptions;
 use sqlx::Executor;
 
@@ -57,11 +57,9 @@ async fn main() -> std::io::Result<()> {
             panic!("Failed to initialize database: {:?}", e);
         });
 
-    pool.execute(include_str!("../../db/schema.sql"))
-        .await
-        .unwrap_or_else(|e| {
-            panic!("Failed to initialize schema: {:?}", e);
-        });
+    pool.execute(routes::SCHEMA).await.unwrap_or_else(|e| {
+        panic!("Failed to initialize schema: {:?}", e);
+    });
 
     let keiko_db = KeikoDatabase::new(pool);
     let keiko_db = web::Data::new(keiko_db);

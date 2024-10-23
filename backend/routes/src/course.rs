@@ -1,4 +1,4 @@
-use crate::courses_api::{Course, CourseAPI, CreateCourse};
+use crate::course_api::{Course, CourseAPI, CreateCourse};
 use actix_web::{
     web::{self, ServiceConfig},
     HttpResponse,
