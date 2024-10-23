@@ -2,6 +2,7 @@ use actix_cors::Cors;
 use actix_web::middleware::Logger;
 use actix_web::web::ServiceConfig;
 use actix_web::{web, App, HttpServer};
+use api_lib::{card, course, health, quiz, KeikoDatabase};
 use clap::Parser;
 use fern::colors::ColoredLevelConfig;
 use sqlx::postgres::PgPoolOptions;
@@ -62,16 +63,17 @@ async fn main() -> std::io::Result<()> {
             panic!("Failed to initialize schema: {:?}", e);
         });
 
-    let keiko_db = api_lib::KeikoDatabase::new(pool);
+    let keiko_db = KeikoDatabase::new(pool);
     let keiko_db = web::Data::new(keiko_db);
 
     let config = move |cfg: &mut ServiceConfig| {
         cfg.service(
             web::scope("/api")
                 .app_data(keiko_db)
-                .configure(api_lib::health::service)
-                .configure(api_lib::flashcards::service::<api_lib::KeikoDatabase>)
-                .configure(api_lib::courses::service::<api_lib::KeikoDatabase>),
+                .configure(health::service)
+                .configure(card::service::<KeikoDatabase>)
+                .configure(course::service::<KeikoDatabase>)
+                .configure(quiz::service::<KeikoDatabase>),
         );
     };
 
@@ -83,7 +85,6 @@ async fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
             .configure(config.clone())
     })
-    .bind(("127.0.0.1", 7777))?
     .bind(("0.0.0.0", 1107))?
     .run()
     .await

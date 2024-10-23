@@ -15,12 +15,24 @@ export interface CourseData {
   name: string;
   course_code: string;
   description: string;
-  progress: number;
-  questions: number;
-  is_completed: boolean;
   completion_date: string;
   created_at: string;
   updated_at: string;
+  questions: number;
+  progress: number;
+}
+
+export interface QuizData {
+  id: string;
+  course_code: string;
+  category: string;
+  current_index: number;
+  correct_count: number;
+  is_completed: boolean;
+  started_at: string;
+  completed_at: string;
+  card_count: number;
+  progress: number;
 }
 
 // For development only
@@ -72,7 +84,7 @@ export async function getAllCourses(): Promise<CourseData[]> {
 }
 
 export async function getCourse(id: string): Promise<CourseData> {
-  return ax.get<CourseData>(`/api/v1/courses/${id}`).then((r): CourseData => r.data);
+  return ax.get<CourseData>(`/api/v1/courses/id/${id}`).then((r): CourseData => r.data);
 }
 
 export async function addCourse(course: Pick<CourseData, "name" | "course_code" | "description">): Promise<CourseData> {
@@ -86,9 +98,39 @@ export async function updateCourse(
 }
 
 export async function deleteCourse(id: string): Promise<CourseData> {
-  return ax.delete<CourseData>(`/api/v1/courses/${id}`).then((r): CourseData => r.data);
+  return ax.delete<CourseData>(`/api/v1/courses/id/${id}`).then((r): CourseData => r.data);
 }
 
-export async function markCourseCompletion(id: string, is_completed: boolean): Promise<CourseData> {
-  return ax.patch<CourseData>(`/api/v1/courses/${id}/completion`, { is_completed }).then((r): CourseData => r.data);
+export async function getAllQuizzes(): Promise<QuizData[]> {
+  return ax.get<QuizData[]>("/api/v1/quiz").then((r): QuizData[] => r.data);
+}
+
+export async function getQuiz(id: string): Promise<QuizData> {
+  return ax.get<QuizData>(`/api/v1/quiz/id/${id}`).then((r): QuizData => r.data);
+}
+
+export async function getOngoingQuizzes(): Promise<QuizData[]> {
+  return ax.get<QuizData[]>("/api/v1/quiz/ongoing").then((r): QuizData[] => r.data);
+}
+
+export async function getCompletedQuizzes(): Promise<QuizData[]> {
+  return ax.get<QuizData[]>("/api/v1/quiz/completed").then((r): QuizData[] => r.data);
+}
+
+export async function addQuiz(quiz: Pick<QuizData, "course_code" | "category">): Promise<QuizData> {
+  return ax.post<QuizData>("/api/v1/quiz", { ...quiz }).then((r): QuizData => r.data);
+}
+
+export async function updateQuiz(
+  quiz: Pick<QuizData, "id" | "current_index" | "correct_count" | "is_completed">,
+): Promise<QuizData> {
+  return ax.put<QuizData>("/api/v1/quiz", { ...quiz }).then((r): QuizData => r.data);
+}
+
+export async function deleteQuiz(id: string): Promise<QuizData> {
+  return ax.delete<QuizData>(`/api/v1/quiz/id/${id}`).then((r): QuizData => r.data);
+}
+
+export async function markQuizCompletion(id: string, is_completed: boolean): Promise<QuizData> {
+  return ax.patch<QuizData>("/api/v1/quiz", { id, is_completed }).then((r): QuizData => r.data);
 }

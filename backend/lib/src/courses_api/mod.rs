@@ -4,8 +4,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use uuid::Uuid;
 
-pub type CourseError = String;
-pub type CourseResult<T> = Result<T, CourseError>;
+use crate::KeikoResult;
 
 #[derive(
     Serialize, Deserialize, FromRow, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Default,
@@ -15,12 +14,11 @@ pub struct CourseView {
     pub name: String,
     pub course_code: String,
     pub description: String,
-    pub progress: i32,
-    pub is_completed: bool,
     pub completion_date: Option<chrono::DateTime<chrono::Utc>>,
-    pub created_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub created_at: chrono::DateTime<chrono::Utc>,
     pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
     pub questions: i64,
+    pub progress: i64,
 }
 
 #[derive(
@@ -31,10 +29,7 @@ pub struct Course {
     pub name: String,
     pub course_code: String,
     pub description: String,
-    pub progress: i32,
-    pub is_completed: bool,
-    pub completion_date: Option<chrono::DateTime<chrono::Utc>>,
-    pub created_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub created_at: chrono::DateTime<chrono::Utc>,
     pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
 }
 
@@ -50,20 +45,17 @@ pub struct CreateCourse {
 #[derive(
     Serialize, Deserialize, FromRow, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Default,
 )]
-pub struct CourseCompletion {
-    pub is_completed: bool,
+pub struct CourseCategory {
+    pub category: String,
 }
 
 #[async_trait::async_trait]
-pub trait CoursesAPI: Send + Sync + 'static {
-    async fn get_courses(&self) -> CourseResult<Vec<CourseView>>;
-    async fn get_course(&self, course_id: &Uuid) -> CourseResult<CourseView>;
-    async fn create_course(&self, create_course: &CreateCourse) -> CourseResult<Course>;
-    async fn update_course(&self, course: &Course) -> CourseResult<Course>;
-    async fn delete_course(&self, course_id: &Uuid) -> CourseResult<Uuid>;
-    async fn mark_course_completion(
-        &self,
-        course_id: &Uuid,
-        is_completed: &CourseCompletion,
-    ) -> CourseResult<Course>;
+pub trait CourseAPI: Send + Sync + 'static {
+    async fn get_courses(&self) -> KeikoResult<Vec<CourseView>>;
+    async fn get_course(&self, course_id: &Uuid) -> KeikoResult<CourseView>;
+    async fn get_categories_for_course(&self, course_id: &Uuid)
+        -> KeikoResult<Vec<CourseCategory>>;
+    async fn create_course(&self, create_course: &CreateCourse) -> KeikoResult<Course>;
+    async fn update_course(&self, course: &Course) -> KeikoResult<Course>;
+    async fn delete_course(&self, course_id: &Uuid) -> KeikoResult<Uuid>;
 }
