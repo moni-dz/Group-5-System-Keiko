@@ -1,87 +1,77 @@
-use sqlx::{PgPool, query_as, query_scalar};
+use super::{Card, CardResult, CardsAPI, CreateCard};
+use crate::KeikoDatabase;
 use uuid::Uuid;
-use crate::CourseError;
-use crate::{Course, CourseResult, CourseCompletion};
-use chrono::Utc;
 
-pub struct CourseRepository {
-    pool: PgPool,
-}
-
-impl CourseRepository {
-    pub fn new(pool: PgPool) -> Self {
-        Self { pool }
+#[async_trait::async_trait]
+impl CardsAPI for KeikoDatabase {
+    // GET /v1/cards
+    async fn get_cards(&self) -> CardResult<Vec<Card>> {
+        sqlx::query_as::<_, Card>("SELECT * FROM flashcards")
+            .fetch_all(&self.pool)
+            .await
+            .map_err(|e| e.to_string())
     }
 
-    // POST /v1/courses
-    pub async fn create_course(&self, create_course: &Course) -> CourseResult<Course> {
-        query_as::<_, Course>(
-            r#"
-            INSERT INTO courses (name, course_code, description)
-            VALUES ($1, $2, $3)
-            RETURNING *
-            "#,
-        )
-        .bind(&create_course.name)
-        .bind(&create_course.course_code)
-        .bind(&create_course.description)
-        .fetch_one(&self.pool)
-        .await
-        .map_err(|e| CourseError::DatabaseError(e.to_string()))
-    }
-
-    // PUT /v1/courses
-    pub async fn update_course(&self, course: &Course) -> CourseResult<Course> {
-        query_as::<_, Course>(
-            r#"
-            UPDATE courses
-            SET name = $2, course_code = $3, description = $4, updated_at = now()
-            WHERE id = $1
-            RETURNING *
-            "#,
-        )
-        .bind(course.id)
-        .bind(&course.name)
-        .bind(&course.course_code)
-        .bind(&course.description)
-        .fetch_one(&self.pool)
-        .await
-        .map_err(|e| CourseError::DatabaseError(e.to_string()))
-    }
-
-    // DELETE /v1/courses/{course_id}
-    pub async fn delete_course(&self, course_id: &Uuid) -> CourseResult<Uuid> {
-        query_scalar::<_, Uuid>("DELETE FROM courses WHERE id = $1 RETURNING id")
-            .bind(course_id)
+    // GET /v1/cards/{card_id}
+    async fn get_card(&self, card_id: &Uuid) -> CardResult<Card> {
+        sqlx::query_as::<_, Card>("SELECT * FROM flashcards WHERE id = $1")
+            .bind(card_id)
             .fetch_one(&self.pool)
             .await
-            .map_err(|e| CourseError::DatabaseError(e.to_string()))
+            .map_err(|e| e.to_string())
     }
 
-    // PATCH /v1/courses/{course_id}/completion
-    pub async fn mark_course_completion(
-        &self,
-        course_id: &Uuid,
-        course: &CourseCompletion,
-    ) -> CourseResult<Course> {
-        query_as::<_, Course>(
+    // POST /v1/cards
+    async fn create_card(&self, create_card: &CreateCard) -> CardResult<Card> {
+        sqlx::query_as::<_, Card>(
             r#"
-            UPDATE courses
-            SET is_completed = $2, completion_date = $3, progress = $4, updated_at = now()
-            WHERE id = $1
-            RETURNING *
-            "#,
+      INSERT INTO flashcards (question, answer, course_code)
+      VALUES ($1, $2, $3)
+      RETURNING *
+      "#,
         )
-        .bind(course_id)
-        .bind(course.is_completed)
-        .bind(if course.is_completed {
-            Some(Utc::now())
-        } else {
-            None
-        })
-        .bind(if course.is_completed { 100 } else { 0 })
+        .bind(&create_card.question)
+        .bind(&create_card.answer)
+        .bind(&create_card.course_code)
         .fetch_one(&self.pool)
         .await
-        .map_err(|e| CourseError::DatabaseError(e.to_string()))
+        .map_err(|e| e.to_string())
+    }
+
+    // PUT /v1/cards
+    async fn update_card(&self, card: &Card) -> CardResult<Card> {
+        sqlx::query_as::<_, Card>(
+            r#"
+      UPDATE flashcards
+      SET question = $2, answer = $3, course_code = $4, updated_at = now()
+      WHERE id = $1
+      RETURNING *
+      "#,
+        )
+        .bind(card.id)
+        .bind(&card.question)
+        .bind(&card.answer)
+        .bind(&card.course_code)
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|e| e.to_string())
+    }
+
+    // DELETE /v1/cards/{card_id}
+    async fn delete_card(&self, card_id: &Uuid) -> CardResult<Uuid> {
+        sqlx::query_scalar::<_, Uuid>("DELETE FROM flashcards WHERE id = $1 RETURNING id")
+            .bind(card_id)
+            .fetch_one(&self.pool)
+            .await
+            .map_err(|e| e.to_string())
+    }
+
+    // GET /v1/cards/course/{course}
+    async fn get_cards_by_course_code(&self, course_code: &String) -> CardResult<Vec<Card>> {
+        sqlx::query_as::<_, Card>("SELECT * FROM flashcards WHERE course_code = $1")
+            .bind(course_code)
+            .fetch_all(&self.pool)
+            .await
+            .map_err(|e| e.to_string())
     }
 }
