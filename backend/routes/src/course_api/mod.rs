@@ -1,4 +1,4 @@
-mod postgres_courses;
+mod schema;
 
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;

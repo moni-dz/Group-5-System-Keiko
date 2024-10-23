@@ -1,4 +1,4 @@
-use crate::cards_api::{Card, CardAPI, CreateCard};
+use crate::card_api::{Card, CardAPI, CreateCard};
 use actix_web::{
     web::{self, ServiceConfig},
     HttpResponse,

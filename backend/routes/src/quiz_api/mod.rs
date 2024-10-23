@@ -1,4 +1,4 @@
-mod postgres_quizzes;
+mod schema;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use uuid::Uuid;
