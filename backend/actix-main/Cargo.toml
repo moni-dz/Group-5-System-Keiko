@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-api-lib = { path = "../lib" }
+routes = { path = "../routes" }
 actix-web = "4.3.1"
 actix-files = "0.6.6"
 actix-cors = "0.7.0"
