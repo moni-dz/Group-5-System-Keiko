@@ -1,8 +1,18 @@
 "use client";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { CourseData, getAllCourses, markCourseCompletion } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -14,14 +24,12 @@ import {
   Edit,
   FileChartLine,
   FolderClock,
-  // search in https://lucide.dev/icons, add import here and use as component
-  // e.g. circle-x is <CircleX /> imported as below when uncommented:
-  // CircleX,
   Home,
   Menu,
   Pen,
   Plus,
   Search,
+  BookOpen,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -104,7 +112,9 @@ export default function MainPage() {
       <div className={`flex h-screen bg-gray-100 text-extrabold`}>
         {/* Sidebar */}
         <aside
-          className={`transition-all duration-300 ${isSidebarCollapsed ? "w-16 bg-white text-zinc-500" : "w-64 bg-white shadow-md"}`}
+          className={`transition-all duration-300 ${
+            isSidebarCollapsed ? "w-16 bg-white text-zinc-500" : "w-64 bg-white shadow-md"
+          }`}
         >
           <div className="p-4 flex flex-col h-full">
             <div className="flex-1">
@@ -120,7 +130,9 @@ export default function MainPage() {
                 <Link href="?view=courses">
                   <Button
                     variant="ghost"
-                    className={`w-full flex items-center mb-2 text-1.5xl text-zinc-500 ${isSidebarCollapsed ? `px-2 font-gau-pop-magic` : ""} justify-start hover:bg-red-500 active:bg-red-500 hover:text-white active:text-white`}
+                    className={`w-full flex items-center mb-2 text-1.5xl text-zinc-500 ${
+                      isSidebarCollapsed ? `px-2 font-gau-pop-magic` : ""
+                    } justify-start hover:bg-red-500 active:bg-red-500 hover:text-white active:text-white`}
                   >
                     {isSidebarCollapsed ? (
                       <ClipboardList />
@@ -136,7 +148,9 @@ export default function MainPage() {
                 <Link href="?view=ongoing">
                   <Button
                     variant="ghost"
-                    className={`w-full flex items-center mb-2 text-1.5xl text-zinc-500 ${isSidebarCollapsed ? `px-2 font-gau-pop-magic` : ""} justify-start hover:bg-red-500 active:bg-red-500 hover:text-white active:text-white`}
+                    className={`w-full flex items-center mb-2 text-1.5xl text-zinc-500 ${
+                      isSidebarCollapsed ? `px-2 font-gau-pop-magic` : ""
+                    } justify-start hover:bg-red-500 active:bg-red-500 hover:text-white active:text-white`}
                   >
                     {isSidebarCollapsed ? (
                       <Clock />
@@ -152,7 +166,9 @@ export default function MainPage() {
                 <Link href="?view=completed">
                   <Button
                     variant="ghost"
-                    className={`w-full flex items-center mb-2 text-1.5xl text-zinc-500 ${isSidebarCollapsed ? `px-2 font-gau-pop-magic` : ""} justify-start hover:bg-red-500 active:bg-red-500 hover:text-white active:text-white`}
+                    className={`w-full flex items-center mb-2 text-1.5xl text-zinc-500 ${
+                      isSidebarCollapsed ? `px-2 font-gau-pop-magic` : ""
+                    } justify-start hover:bg-red-500 active:bg-red-500 hover:text-white active:text-white`}
                   >
                     {isSidebarCollapsed ? (
                       <BookCheck />
@@ -235,7 +251,7 @@ export default function MainPage() {
           ) : activeView === "ongoing" ? (
             <div className="space-y-4">
               <div>
-                <h2 className="text-xl font-bold font-gau-pop-magic text-red-500 mb-4">ON-GOING COURSES</h2>
+                <h2 className="text-xl font-bold font-gau-pop-magic text-red-500 mb-4">ON-GOING QUIZZES</h2>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-white shadow-md rounded-lg p-4">
                     <CourseList courses={filteredOngoingCourses} activeView={activeView} course_code={selectedCourse} />
@@ -245,56 +261,77 @@ export default function MainPage() {
                   </div>
                 </div>
               </div>
-              <div className="mt-4">
+
+              {/* Action buttons */}
+              <div className="mt-4 flex space-x-4">
+                {/* Start Quiz button */}
                 <Link href={`/quiz/${selectedCourse}`}>
                   <Button className="bg-red-500 text-white hover:bg-zinc-500 flex items-center space-x-2">
                     <Pen width="20" height="20" />
                     <span>Start Quiz</span>
                   </Button>
                 </Link>
-              </div>
-            </div>
-          ) : activeView === "completed" ? (
-            <div className="space-y-4">
-              <div>
-                <h2 className="text-xl font-bold font-gau-pop-magic text-red-500 mb-4">COMPLETED COURSES</h2>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-white shadow-md rounded-lg p-4">
-                    <CourseList
-                      courses={filteredCompletedCourses}
-                      activeView={activeView}
-                      course_code={selectedCourse}
-                    />
-                  </div>
-                  <div className="bg-white shadow-md rounded-lg p-4">
-                    <CourseDetails courses={filteredCompletedCourses} course_code={selectedCourse} />
-                  </div>
-                </div>
-              </div>
-              <div className="mt-4 flex space-x-4">
-                <Button
-                  className="bg-red-500 text-white hover:bg-zinc-500 flex items-center space-x-2"
-                  onClick={() => markCourseAsCompleted()}
-                >
-                  <FolderClock width="20" height="20" />
-                  <span>Mark as Ongoing</span>
-                </Button>
 
-                <Link href={`/analytics/${selectedCourse}`}>
-                  <Button className="bg-white text-red-500 border border-red-500 hover:border-zinc-500 hover:bg-zinc-500 hover:text-white flex items-center space-x-2">
-                    <FileChartLine width="24" height="24" />
-                    <span>Course Analytics</span>
+                {/* Start Review button */}
+                <Link href={`/review/${selectedCourse}`}>
+                  <Button className="bg-white text-red-500 border-red-500 border hover:bg-red-500 hover:text-white flex items-center space-x-2">
+                    <BookOpen width="20" height="20" />
+                    <span>Start Review</span>
                   </Button>
                 </Link>
               </div>
             </div>
-          ) : (
-            <div className="bg-white shadow-md rounded-lg p-8">
-              <h2 className={`text-3xl font-bold text-zinc-300 font-gau-pop-magic`}>Get Started</h2>
-            </div>
-          )}
-        </main>
-      </div>
-    </Suspense>
-  );
-}
+          ) : activeView === "completed" ? (
+            <div>
+              <h2 className="text-xl font-bold mb-4 font-gau-pop-magic text-red-500">COMPLETED QUIZZES</h2>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-white shadow-md rounded-lg p-4">
+                  <CourseList courses={filteredCompletedCourses} activeView={activeView} course_code={selectedCourse} />
+                </div>
+                <div className="bg-white shadow-md rounded-lg p-4">
+                  <CourseDetails courses={filteredCompletedCourses} course_code={selectedCourse} />
+                </div>
+              </div>
+              <div className="mt-4 flex justify-between">
+                <div className="space-x-2">
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        onClick={markCourseAsCompleted}
+                        className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white"
+                      >
+                        <FolderClock className="mr-2 h-4 w-4" />
+                        Mark as On-going
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="font-gau-pop-magic text-red-500"> CHANGE QUIZ STATUS </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to mark this quiz as ongoing? This will reset the course progress!
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel className=" hover:bg-red-500 hover:text-white border border-red-500 text-red-500">Cancel</AlertDialogCancel>
+                        <AlertDialogAction className= "hover:bg-red-500 hover:text-white border border-red-500 text-red-500 bg-white">Confirm</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+                <Button className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white">
+                <FileChartLine className="mr-2 h-4 w-4" />
+                  Reports
+                  </Button>
+                  </div>
+                  </div>
+                  ) : (
+                    <div className="bg-white shadow-md rounded-lg p-8">
+                      <h2 className="text-3xl font-bold text-zinc-300 font-gau-pop-magic">Get Started</h2>
+                    </div>
+                  )}
+                  </main>
+                  </div>
+                  </Suspense>
+                  );
+                }
+
