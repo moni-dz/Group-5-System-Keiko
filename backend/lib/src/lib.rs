@@ -1,8 +1,10 @@
+pub mod card;
 pub mod cards_api;
-pub mod courses;
+pub mod course;
 pub mod courses_api;
-pub mod flashcards;
 pub mod health;
+pub mod quiz;
+pub mod quiz_api;
 
 pub struct KeikoDatabase {
     pool: sqlx::PgPool,
@@ -13,3 +15,5 @@ impl KeikoDatabase {
         Self { pool }
     }
 }
+
+pub type KeikoResult<T> = Result<T, String>;
