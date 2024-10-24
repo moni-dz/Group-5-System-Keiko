@@ -21,6 +21,18 @@ CREATE TABLE IF NOT EXISTS courses
     updated_at timestamp with time zone
 );
 
+CREATE TABLE IF NOT EXISTS quizzes
+(
+    id uuid DEFAULT uuid_generate_v1() NOT NULL CONSTRAINT quiz_pkey PRIMARY KEY,
+    course_code text NOT NULL,
+    category text NOT NULL,
+    current_index integer DEFAULT 0 NOT NULL,
+    correct_count integer DEFAULT 0 NOT NULL,
+    is_completed boolean DEFAULT false NOT NULL,
+    started_at timestamp with time zone default CURRENT_TIMESTAMP NOT NULL,
+    completed_at timestamp with time zone
+);
+
 CREATE OR REPLACE VIEW courses_view AS
 SELECT
     c.*,
@@ -50,22 +62,6 @@ LEFT JOIN (
         course_code
 ) q ON c.course_code = q.course_code;
 
-CREATE TABLE IF NOT EXISTS quizzes
-(
-    id uuid DEFAULT uuid_generate_v1() NOT NULL CONSTRAINT quiz_pkey PRIMARY KEY,
-    course_code text NOT NULL,
-    category text NOT NULL,
-    current_index integer DEFAULT 0 NOT NULL,
-    correct_count integer DEFAULT 0 NOT NULL,
-    is_completed boolean DEFAULT false NOT NULL,
-    started_at timestamp with time zone default CURRENT_TIMESTAMP NOT NULL,
-    completed_at timestamp with time zone
-);
-
-/*
-    SELECT * FROM quizzes_view;
-    SELECT * FROM quizzes_view WHERE quiz_id = 'your_quiz_id_here';
-*/
 CREATE OR REPLACE VIEW quizzes_view AS
 SELECT
     q.id AS quiz_id,

@@ -14,11 +14,10 @@ pub struct CourseView {
     pub name: String,
     pub course_code: String,
     pub description: String,
-    pub completion_date: Option<chrono::DateTime<chrono::Utc>>,
     pub created_at: chrono::DateTime<chrono::Utc>,
     pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
     pub questions: i64,
-    pub progress: i64,
+    pub progress: i32,
 }
 
 #[derive(
