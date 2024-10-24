@@ -1,7 +1,8 @@
 use crate::card_api::{Card, CardAPI, CreateCard};
-use actix_web::{
-    web::{self, ServiceConfig},
-    HttpResponse,
+use ntex::web::{
+    self,
+    types::{Json, Path, State},
+    HttpResponse, ServiceConfig,
 };
 use uuid::Uuid;
 
@@ -21,28 +22,28 @@ pub fn service<S: CardAPI>(cfg: &mut ServiceConfig) {
 }
 
 /// GET /v1/cards
-async fn get_cards<S: CardAPI>(stack: web::Data<S>) -> HttpResponse {
+async fn get_cards<S: CardAPI>(stack: State<S>) -> HttpResponse {
     match stack.get_cards().await {
-        Ok(cards) => HttpResponse::Ok().json(cards),
+        Ok(cards) => HttpResponse::Ok().json(&cards),
         Err(e) => HttpResponse::NotFound().body(format!("Internal server error: {:?}", e)),
     }
 }
 
 /// GET /v1/cards/id/{card_id}
-async fn get_card<S: CardAPI>(card_id: web::Path<Uuid>, stack: web::Data<S>) -> HttpResponse {
+async fn get_card<S: CardAPI>(card_id: Path<Uuid>, stack: State<S>) -> HttpResponse {
     match stack.get_card(&card_id).await {
-        Ok(card) => HttpResponse::Ok().json(card),
+        Ok(card) => HttpResponse::Ok().json(&card),
         Err(_) => HttpResponse::NotFound().body("Not found"),
     }
 }
 
 /// GET /v1/cards/course/{course_code}
 async fn get_cards_by_course_code<S: CardAPI>(
-    course_code: web::Path<String>,
-    stack: web::Data<S>,
+    course_code: Path<String>,
+    stack: State<S>,
 ) -> HttpResponse {
     match stack.get_cards_by_course_code(&course_code).await {
-        Ok(cards) => HttpResponse::Ok().json(cards),
+        Ok(cards) => HttpResponse::Ok().json(&cards),
         Err(e) => {
             HttpResponse::InternalServerError().body(format!("Internal server error: {:?}", e))
         }
@@ -50,12 +51,9 @@ async fn get_cards_by_course_code<S: CardAPI>(
 }
 
 /// POST /v1/cards
-async fn add_card<S: CardAPI>(
-    create_card: web::Json<CreateCard>,
-    stack: web::Data<S>,
-) -> HttpResponse {
+async fn add_card<S: CardAPI>(create_card: Json<CreateCard>, stack: State<S>) -> HttpResponse {
     match stack.create_card(&create_card).await {
-        Ok(card) => HttpResponse::Ok().json(card),
+        Ok(card) => HttpResponse::Ok().json(&card),
         Err(e) => {
             HttpResponse::InternalServerError().body(format!("Internal server error: {:?}", e))
         }
@@ -63,17 +61,17 @@ async fn add_card<S: CardAPI>(
 }
 
 /// PUT /v1/cards
-async fn update_card<S: CardAPI>(card: web::Json<Card>, stack: web::Data<S>) -> HttpResponse {
+async fn update_card<S: CardAPI>(card: Json<Card>, stack: State<S>) -> HttpResponse {
     match stack.update_card(&card).await {
-        Ok(card) => HttpResponse::Ok().json(card),
+        Ok(card) => HttpResponse::Ok().json(&card),
         Err(e) => HttpResponse::NotFound().body(format!("Internal server error: {:?}", e)),
     }
 }
 
 /// DELETE /v1/cards/id/{card_id}
-async fn delete_card<S: CardAPI>(card_id: web::Path<Uuid>, stack: web::Data<S>) -> HttpResponse {
+async fn delete_card<S: CardAPI>(card_id: Path<Uuid>, stack: State<S>) -> HttpResponse {
     match stack.delete_card(&card_id).await {
-        Ok(card) => HttpResponse::Ok().json(card),
+        Ok(card) => HttpResponse::Ok().json(&card),
         Err(e) => {
             HttpResponse::InternalServerError().body(format!("Internal server error: {:?}", e))
         }
