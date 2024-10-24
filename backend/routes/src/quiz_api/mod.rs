@@ -64,6 +64,14 @@ pub struct QuizCorrectCount {
     pub correct_count: i32,
 }
 
+#[derive(
+    Serialize, Deserialize, FromRow, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Default,
+)]
+pub struct RenameQuiz {
+    pub old: String,
+    pub new: String,
+}
+
 #[async_trait::async_trait]
 pub trait QuizAPI: Send + Sync + 'static {
     async fn get_quizzes(&self) -> KeikoResult<Vec<QuizView>>;
@@ -80,4 +88,5 @@ pub trait QuizAPI: Send + Sync + 'static {
         quiz_id: &Uuid,
         quiz_count: &QuizCorrectCount,
     ) -> KeikoResult<Quiz>;
+    async fn rename_quiz(&self, course_code: &String, quiz_rename: &RenameQuiz) -> KeikoResult<()>;
 }

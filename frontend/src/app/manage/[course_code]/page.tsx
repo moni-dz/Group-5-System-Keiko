@@ -6,12 +6,24 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { addCard, CardData, deleteCard, getCardsByCourseCode, updateCard } from "@/lib/api";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  addCard,
+  addQuiz,
+  CardData,
+  deleteCard,
+  getAllCards,
+  getAllQuizzes,
+  getCardsByQuizId,
+  renameQuiz,
+  updateCard,
+} from "@/lib/api";
+import { useMutation, useQuery, useQueryClient, UseQueryResult } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { use, useCallback, useState } from "react";
-import { Home } from "lucide-react"
+import { Home } from "lucide-react";
+import { ErrorSkeleton, LoadingSkeleton } from "@/components/status";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 const EditableCard = dynamic(() => import("@/components/cards").then((mod) => mod.EditableCard), {
   loading: () => <SkeletonEditableCard />,
@@ -25,7 +37,7 @@ interface ManagePageProps {
 
 export default function ManagePage(props: ManagePageProps) {
   const { course_code } = use(props.params);
-  type FormData = Omit<CardData, "id" | "course_code" | "created_at" | "updated_at">;
+  type FormData = { question: string; answer: string };
 
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -40,14 +52,14 @@ export default function ManagePage(props: ManagePageProps) {
 
   const { data, isPending, isError, error } = useQuery({
     queryKey: [`cards-${course_code}`],
-    queryFn: () => getCardsByCourseCode(course_code),
+    queryFn: () => getAllCards(),
   });
 
-  const mutateOnError = (e: Error) => {
+  const cardMutateOnError = (e: Error) => {
     toast({ description: e.message });
   };
 
-  const mutateOnSuccess = () => {
+  const cardMutateOnSuccess = () => {
     queryClient.invalidateQueries({
       queryKey: [`cards-${course_code}`],
     });
@@ -55,31 +67,35 @@ export default function ManagePage(props: ManagePageProps) {
 
   const addCardMutation = useMutation({
     mutationFn: (card: Omit<CardData, "id" | "created_at" | "updated_at">) => addCard(card),
-    onSuccess: mutateOnSuccess,
-    onError: mutateOnError,
+    onSuccess: cardMutateOnSuccess,
+    onError: cardMutateOnError,
   }).mutate;
 
   const updateCardMutation = useMutation({
     mutationFn: (card: Omit<CardData, "created_at" | "updated_at">) => updateCard(card),
-    onSuccess: mutateOnSuccess,
-    onError: mutateOnError,
+    onSuccess: cardMutateOnSuccess,
+    onError: cardMutateOnError,
   }).mutate;
 
   const deleteCardMutation = useMutation({
     mutationFn: (id: string) => deleteCard(id),
-    onSuccess: mutateOnSuccess,
-    onError: mutateOnError,
+    onSuccess: cardMutateOnSuccess,
+    onError: cardMutateOnError,
   }).mutate;
 
   const handleQuizNameSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (quizName.trim()) {
+    const name = quizName.trim();
+    if (name.length > 0) {
+      addQuiz({ category: name, course_code });
       setIsQuizNameSet(true);
     }
   };
 
-  const handleRename = () => {
-    setIsQuizNameSet(false);
+  const handleRename = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const name = e.currentTarget["newQuizName"].value.trim();
+    renameQuiz(course_code, quizName, name);
   };
 
   // Auto-resize logic
@@ -110,13 +126,12 @@ export default function ManagePage(props: ManagePageProps) {
     setFormData({ ...card });
   }, []);
 
+  if (isPending) {
+    return <LoadingSkeleton />;
+  }
+
   if (isError) {
-    toast({ description: error.message });
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-        {error.message}
-      </div>
-    );
+    return <ErrorSkeleton message={error.message} />;
   }
 
   return (
@@ -126,17 +141,28 @@ export default function ManagePage(props: ManagePageProps) {
           <div className="relative mb-4">
             <h1 className="text-2xl font-bold font-gau-pop-magic text-red-500 text-center">{quizName}</h1>
             <div className="absolute top-0 right-4 flex items-center space-x-2">
-              <Button 
-                onClick={handleRename}
-                className="bg-red-500 hover:bg-zinc-500 text-white"
-              >
-                Rename Quiz
-              </Button>
-              <Button 
-                className="bg-gray hover:bg-gray" 
-                onClick={() => router.push("/")} 
-                variant="ghost"
-              >
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button className="bg-red-500 hover:bg-zinc-500 text-white">Rename Quiz</Button>
+                </PopoverTrigger>
+                <PopoverContent>
+                  <div className="grid gap-4">
+                    <div className="space-y-2">
+                      <h4 className="font-medium leading-none">Rename Quiz</h4>
+                      <p className="text-sm text-muted-foreground">Enter a new name for the current quiz.</p>
+                    </div>
+                    <div className="grid gap-2">
+                      <div className="grid grid-cols-3 items-center gap-4">
+                        <form onSubmit={handleRename}>
+                          <Label htmlFor="newQuizName">Name</Label>
+                          <Input id="newQuizName" defaultValue="100%" className="col-span-2 h-8" />
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+              <Button className="bg-gray hover:bg-gray" onClick={() => router.push("/")} variant="ghost">
                 <Home className="h-5 w-5 text-red-500 bg-gray hover:text-white hover:bg-red-500 rounded-sm" />
               </Button>
             </div>
@@ -156,10 +182,7 @@ export default function ManagePage(props: ManagePageProps) {
                   placeholder="Enter quiz name"
                   required
                 />
-                <Button 
-                  type="submit" 
-                  className="w-full bg-red-500 hover:bg-zinc-500 text-white"
-                >
+                <Button type="submit" className="w-full bg-red-500 hover:bg-zinc-500 text-white">
                   Create Quiz
                 </Button>
               </form>
