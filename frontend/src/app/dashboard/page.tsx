@@ -117,22 +117,9 @@ export default function MainPage() {
     searchQuery,
   );
 
-  function markQuizAsOngoing(selected_id: string) {
-    const quiz = filteredCompleted.find((quiz) => quiz.id === selectedQuiz);
-
-    if (quiz) {
-      markCompletionMutation({ quiz_id: quiz.id, is_completed: false });
-
-      filteredCompleted.splice(
-        filteredCompleted.findIndex((quiz: QuizData): boolean => quiz.id === selected_id),
-        1,
-      );
-    }
-  }
-
   return (
     <Suspense fallback={<Loading />}>
-      <div className={`flex h-screen bg-gray-100 text-extrabold`}>
+      <div className="fixed inset-0 flex bg-gray-100 text-extrabold overflow-hidden">
         {/* Sidebar */}
         <aside
           className={`transition-all duration-300 ${
@@ -145,7 +132,7 @@ export default function MainPage() {
                 {isSidebarCollapsed ? (
                   <Image src={logo} alt="logo" />
                 ) : (
-                  <h1 className={`text-3xl font-bold font-gau-pop-magic text-red-500 text-center`}>Keiko!</h1>
+                  <h1 className="text-3xl font-bold font-gau-pop-magic text-red-500 text-center">Keiko!</h1>
                 )}
               </div>
 
@@ -154,7 +141,7 @@ export default function MainPage() {
                   <Button
                     variant="ghost"
                     className={`w-full flex items-center mb-2 text-1.5xl text-zinc-500 ${
-                      isSidebarCollapsed ? `px-2 font-gau-pop-magic` : ""
+                      isSidebarCollapsed ? "px-2 font-gau-pop-magic" : ""
                     } justify-start hover:bg-red-500 active:bg-red-500 hover:text-white active:text-white`}
                   >
                     {isSidebarCollapsed ? (
@@ -172,7 +159,7 @@ export default function MainPage() {
                   <Button
                     variant="ghost"
                     className={`w-full flex items-center mb-2 text-1.5xl text-zinc-500 ${
-                      isSidebarCollapsed ? `px-2 font-gau-pop-magic` : ""
+                      isSidebarCollapsed ? "px-2 font-gau-pop-magic" : ""
                     } justify-start hover:bg-red-500 active:bg-red-500 hover:text-white active:text-white`}
                   >
                     {isSidebarCollapsed ? (
@@ -190,7 +177,7 @@ export default function MainPage() {
                   <Button
                     variant="ghost"
                     className={`w-full flex items-center mb-2 text-1.5xl text-zinc-500 ${
-                      isSidebarCollapsed ? `px-2 font-gau-pop-magic` : ""
+                      isSidebarCollapsed ? "px-2 font-gau-pop-magic" : ""
                     } justify-start hover:bg-red-500 active:bg-red-500 hover:text-white active:text-white`}
                   >
                     {isSidebarCollapsed ? (
@@ -221,145 +208,132 @@ export default function MainPage() {
         </aside>
 
         {/* Main content */}
-        <main className="flex-1 p-8">
-          <div className="flex justify-between items-center mb-8">
-            <div className="relative w-1/2">
-              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-red-400 text-semibold font-sans" />
-              <Input
-                type="text"
-                placeholder={activeView === "courses" ? "search for courses..." : "search for quizzes..."}
-                className="pl-10 pr-4 py-2 w-full"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+        <Suspense>
+          <main className="flex-1 p-8 overflow-hidden">
+            <div className="flex justify-between items-center mb-8">
+              <div className="relative w-1/2">
+                <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-red-400 font-semibold font-sans" />
+                <Input
+                  type="text"
+                  placeholder={activeView === "courses" ? "search for courses..." : "search for quizzes..."}
+                  className="pl-10 pr-4 py-2 w-full"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+
+              <button
+                onClick={() => (window.location.href = '/')}
+                className="p-2 rounded-full hover:bg-red-50 text-red-500 transition-colors"
+                aria-label="Go to home"
+              >
+                <Home className="w-6 h-6" />
+              </button>
             </div>
 
-            <Link href="/">
-              <Button variant="ghost" className="p-2">
-                <Home className="h-5 w-5 text-red-500 bg-gray-100 hover:text-white hover:bg-red-500 rounded-sm" />
-              </Button>
-            </Link>
-          </div>
-
-          {activeView === "courses" ? (
-            <div>
-              <h2 className={`text-2xl font-bold mb-4 font-gau-pop-magic text-red-500`}>COURSES</h2>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white shadow-md rounded-lg p-4">
-                  <CourseList courses={filteredCourses} activeView={activeView} course_code={selectedCourse} />
+            {activeView === "courses" ? (
+              <div>
+                <h2 className="text-2xl font-bold mb-4 font-gau-pop-magic text-red-500">COURSES</h2>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-white shadow-md rounded-lg p-4 h-[calc(100vh-280px)] overflow-y-auto">
+                    <CourseList courses={filteredCourses} activeView={activeView} course_code={selectedCourse} />
+                  </div>
+                  <div className="bg-white shadow-md rounded-lg p-4 h-[calc(100vh-280px)] overflow-y-auto">
+                    <CourseDetails courses={filteredCourses} course_code={selectedCourse} />
+                  </div>
                 </div>
-                <div className="bg-white shadow-md rounded-lg p-4">
-                  <CourseDetails courses={filteredCourses} course_code={selectedCourse} />
-                </div>
-              </div>
-              <div className="mt-4 flex justify-between">
-                <div className="space-x-2">
-                  <Link href="/courses">
+                <div className="mt-4 flex justify-between">
+                  <div className="space-x-2">
+                    <Link href="/courses">
+                      <Button className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white">
+                        <Plus className="mr-2 h-4 w-4 hover:text-white" />
+                        Add
+                      </Button>
+                    </Link>
                     <Button className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white">
-                      <Plus className="mr-2 h-4 w-4 hover:text-white" />
-                      Add
+                      <CircleX className="mr-2 h-4 w-4" />
+                      Delete
                     </Button>
-                  </Link>
+                    <Button className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white">
+                      <FileChartLine className="mr-2 h-4 w-4" />
+                      Reports
+                    </Button>
+                  </div>
                   <Button className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white">
-                    <CircleX className="mr-2 h-4 w-4" />
-                    Delete
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit
                   </Button>
                 </div>
-                <Button className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white">
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit
-                </Button>
               </div>
-            </div>
-          ) : activeView === "ongoing" ? (
-            <div className="space-y-4">
-              <div>
+            ) : activeView === "ongoing" ? (
+              <div className="space-y-4">
                 <h2 className="text-xl font-bold font-gau-pop-magic text-red-500 mb-4">ON-GOING QUIZZES</h2>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-white shadow-md rounded-lg p-4">
+                  <div className="bg-white shadow-md rounded-lg p-4 h-[calc(100vh-280px)] overflow-y-auto">
                     <QuizList quizzes={filteredOngoing} activeView={activeView} quizId={selectedQuiz} />
                   </div>
-                  <div className="bg-white shadow-md rounded-lg p-4">
+                  <div className="bg-white shadow-md rounded-lg p-4 h-[calc(100vh-280px)] overflow-y-auto">
                     <QuizDetails quizzes={filteredOngoing} quizId={selectedQuiz} />
                   </div>
                 </div>
-              </div>
 
-              {/* Action buttons */}
-              <div className="mt-4 flex space-x-4">
-                {/* Start Quiz button */}
-                <Link href={`/quiz/${selectedQuiz}`}>
-                  <Button className="bg-red-500 text-white hover:bg-zinc-500 flex items-center space-x-2">
-                    <Pen width="20" height="20" />
-                    <span>Start Quiz</span>
-                  </Button>
-                </Link>
+                <div className="mt-4 flex space-x-4">
+                  <Link href={`/quiz/${selectedQuiz}`}>
+                    <Button className="bg-red-500 text-white hover:bg-zinc-500 flex items-center space-x-2">
+                      <Pen width="20" height="20" />
+                      <span>Start Quiz</span>
+                    </Button>
+                  </Link>
 
-                {/* Start Review button */}
-                <Link href={`/review/${selectedCourse}`}>
-                  <Button className="bg-white text-red-500 border-red-500 border hover:bg-red-500 hover:text-white flex items-center space-x-2">
-                    <BookOpen width="20" height="20" />
-                    <span>Start Review</span>
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          ) : activeView === "completed" ? (
-            <div>
-              <h2 className="text-xl font-bold mb-4 font-gau-pop-magic text-red-500">COMPLETED QUIZZES</h2>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white shadow-md rounded-lg p-4">
-                  <QuizList quizzes={filteredCompleted} activeView={activeView} quizId={selectedQuiz} />
-                </div>
-                <div className="bg-white shadow-md rounded-lg p-4">
-                  <QuizDetails quizzes={filteredCompleted} quizId={selectedQuiz} />
+                  <Link href={`/review/${selectedCourse}`}>
+                    <Button className="bg-white text-red-500 border-red-500 border hover:bg-red-500 hover:text-white flex items-center space-x-2">
+                      <BookOpen width="20" height="20" />
+                      <span>Start Review</span>
+                    </Button>
+                  </Link>
                 </div>
               </div>
-              <div className="mt-4 flex justify-between">
-                <div className="space-x-2">
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white">
-                        <FolderClock className="mr-2 h-4 w-4" />
-                        Mark as On-going
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle className="font-gau-pop-magic text-red-500">
-                          {" "}
-                          CHANGE QUIZ STATUS{" "}
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to mark this quiz as ongoing? This will reset the course progress!
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel className=" hover:bg-red-500 hover:text-white border border-red-500 text-red-500">
-                          Cancel
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                          className="hover:bg-red-500 hover:text-white border border-red-500 text-red-500 bg-white"
-                          onClick={() => markCompletionMutation({ quiz_id: selectedQuiz, is_completed: false })}
-                        >
-                          Confirm
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+            ) : activeView === "completed" ? (
+              <div>
+                <h2 className="text-xl font-bold mb-4 font-gau-pop-magic text-red-500">COMPLETED QUIZZES</h2>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-white shadow-md rounded-lg p-4 h-[calc(100vh-280px)] overflow-y-auto">
+                    <QuizList quizzes={filteredCompleted} activeView={activeView} quizId={selectedQuiz} />
+                  </div>
+                  <div className="bg-white shadow-md rounded-lg p-4 h-[calc(100vh-280px)] overflow-y-auto">
+                    <QuizDetails quizzes={filteredCompleted} quizId={selectedQuiz} />
+                  </div>
                 </div>
-                <Button className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white">
-                  <FileChartLine className="mr-2 h-4 w-4" />
-                  Reports
-                </Button>
+                <div className="mt-4 flex justify-between">
+                  <div className="space-x-2">
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white">
+                          <FolderClock className="mr-2 h-4 w-4" />
+                          Mark as On-going
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle className="font-gau-pop-magic text-red-500">
+                            CHANGE QUIZ STATUS
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to change the status of this quiz to ongoing?
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction>Continue</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="bg-white shadow-md rounded-lg p-8">
-              <h2 className="text-3xl font-bold text-zinc-300 font-gau-pop-magic">Get Started</h2>
-            </div>
-          )}
-        </main>
+            ) : null}
+          </main>
+        </Suspense>
       </div>
     </Suspense>
   );
