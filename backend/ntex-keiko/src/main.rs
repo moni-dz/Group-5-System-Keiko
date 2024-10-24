@@ -1,12 +1,14 @@
-use actix_cors::Cors;
-use actix_web::middleware::Logger;
-use actix_web::web::ServiceConfig;
-use actix_web::{web, App, HttpServer};
+#[cfg(not(debug_assertions))]
 use clap::Parser;
 use fern::colors::ColoredLevelConfig;
+use ntex::web::middleware::Logger;
+use ntex::web::{self, App, HttpServer, ServiceConfig};
+use ntex_cors::Cors;
+use routes::{card, course, health, quiz, KeikoDatabase};
 use sqlx::postgres::PgPoolOptions;
 use sqlx::Executor;
 
+#[cfg(not(debug_assertions))]
 #[derive(Parser)]
 struct Config {
     #[arg(default_value = "moni")]
@@ -15,8 +17,9 @@ struct Config {
     addr: String,
 }
 
-#[actix_web::main]
+#[ntex::main]
 async fn main() -> std::io::Result<()> {
+    #[cfg(not(debug_assertions))]
     let args = Config::parse();
 
     let log_colors = ColoredLevelConfig::new()
@@ -42,48 +45,47 @@ async fn main() -> std::io::Result<()> {
             panic!("Failed to initialize logging: {:?}", e);
         });
 
+    #[cfg(debug_assertions)]
+    let connection_string = "postgres://postgres@localhost:5432/keiko";
+
+    #[cfg(not(debug_assertions))]
+    let connection_string = format!(
+        "postgres://postgres:{}@{}:5432/keiko",
+        args.db_pass, args.addr
+    )
+    .as_str();
+
     let pool = PgPoolOptions::new()
         .max_connections(5)
-        .connect(
-            format!(
-                "postgres://postgres:{}@{}:5432/cs121_flashcards_app",
-                args.db_pass, args.addr
-            )
-            .as_str(),
-        )
+        .connect(connection_string)
         .await
         .unwrap_or_else(|e| {
             panic!("Failed to initialize database: {:?}", e);
         });
 
-    pool.execute(include_str!("../../db/schema.sql"))
-        .await
-        .unwrap_or_else(|e| {
-            panic!("Failed to initialize schema: {:?}", e);
-        });
-
-    let keiko_db = api_lib::KeikoDatabase::new(pool);
-    let keiko_db = web::Data::new(keiko_db);
+    pool.execute(routes::SCHEMA).await.unwrap_or_else(|e| {
+        panic!("Failed to initialize schema: {:?}", e);
+    });
 
     let config = move |cfg: &mut ServiceConfig| {
         cfg.service(
             web::scope("/api")
-                .app_data(keiko_db)
-                .configure(api_lib::health::service)
-                .configure(api_lib::flashcards::service::<api_lib::KeikoDatabase>)
-                .configure(api_lib::courses::service::<api_lib::KeikoDatabase>),
+                .state(KeikoDatabase::new(pool))
+                .configure(health::service)
+                .configure(card::service::<KeikoDatabase>)
+                .configure(course::service::<KeikoDatabase>)
+                .configure(quiz::service::<KeikoDatabase>),
         );
     };
 
     HttpServer::new(move || {
-        let cors = Cors::permissive();
+        let cors = Cors::default();
 
         App::new()
             .wrap(cors)
             .wrap(Logger::default())
             .configure(config.clone())
     })
-    .bind(("127.0.0.1", 7777))?
     .bind(("0.0.0.0", 1107))?
     .run()
     .await
