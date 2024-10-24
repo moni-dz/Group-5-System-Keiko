@@ -107,7 +107,7 @@ export default function Page() {
               <button
                 onClick={() => (window.location.href = '/')}
                 className="p-2 rounded-full hover:bg-red-50 text-red-500 transition-colors"
-                aria-label="Go to home"
+              
               >
                 <Home className="w-6 h-6" />
               </button>
@@ -228,9 +228,9 @@ export default function Page() {
                   </Card>
                   <button
                     onClick={() => setSelectedCategory(null)}
-                    className="mt-4 p-2 text-red-500 border border-red-500 rounded-lg hover:bg-red-50 transition-colors"
+                    className="mt-4 p-2 bg-white text-red-500 font-gau-pop-magic border rounded-lg hover:bg-red-500 hover:text-white transition-colors"
                   >
-                    Back to Quizzes
+                    BACK TO QUIZZES
                   </button>
                 </div>
               )}
