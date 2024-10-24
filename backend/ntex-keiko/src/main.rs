@@ -1,9 +1,8 @@
-use actix_cors::Cors;
-use actix_web::middleware::Logger;
-use actix_web::web::ServiceConfig;
-use actix_web::{web, App, HttpServer};
 use clap::Parser;
 use fern::colors::ColoredLevelConfig;
+use ntex::web::middleware::Logger;
+use ntex::web::{self, App, HttpServer, ServiceConfig};
+use ntex_cors::Cors;
 use routes::{card, course, health, quiz, KeikoDatabase};
 use sqlx::postgres::PgPoolOptions;
 use sqlx::Executor;
@@ -16,7 +15,7 @@ struct Config {
     addr: String,
 }
 
-#[actix_web::main]
+#[ntex::main]
 async fn main() -> std::io::Result<()> {
     let args = Config::parse();
 
@@ -61,13 +60,10 @@ async fn main() -> std::io::Result<()> {
         panic!("Failed to initialize schema: {:?}", e);
     });
 
-    let keiko_db = KeikoDatabase::new(pool);
-    let keiko_db = web::Data::new(keiko_db);
-
     let config = move |cfg: &mut ServiceConfig| {
         cfg.service(
             web::scope("/api")
-                .app_data(keiko_db)
+                .state(KeikoDatabase::new(pool))
                 .configure(health::service)
                 .configure(card::service::<KeikoDatabase>)
                 .configure(course::service::<KeikoDatabase>)
@@ -76,7 +72,7 @@ async fn main() -> std::io::Result<()> {
     };
 
     HttpServer::new(move || {
-        let cors = Cors::permissive();
+        let cors = Cors::default();
 
         App::new()
             .wrap(cors)
