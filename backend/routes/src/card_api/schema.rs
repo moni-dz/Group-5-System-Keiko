@@ -6,7 +6,7 @@ use uuid::Uuid;
 impl CardAPI for KeikoDatabase {
     /// GET /v1/cards
     async fn get_cards(&self) -> KeikoResult<Vec<Card>> {
-        sqlx::query_as::<_, Card>("SELECT * FROM flashcards")
+        sqlx::query_as::<_, Card>("SELECT * FROM cards")
             .fetch_all(&self.pool)
             .await
             .map_err(|e| e.to_string())
@@ -14,7 +14,7 @@ impl CardAPI for KeikoDatabase {
 
     /// GET /v1/cards/id/{card_id}
     async fn get_card(&self, card_id: &Uuid) -> KeikoResult<Card> {
-        sqlx::query_as::<_, Card>("SELECT * FROM flashcards WHERE id = $1")
+        sqlx::query_as::<_, Card>("SELECT * FROM cards WHERE id = $1")
             .bind(card_id)
             .fetch_one(&self.pool)
             .await
@@ -25,7 +25,7 @@ impl CardAPI for KeikoDatabase {
     async fn create_card(&self, create_card: &CreateCard) -> KeikoResult<Card> {
         sqlx::query_as::<_, Card>(
             r#"
-      INSERT INTO flashcards (question, answer, course_code, category)
+      INSERT INTO cards (question, answer, course_code, category)
       VALUES ($1, $2, $3, $4)
       RETURNING *
       "#,
@@ -43,7 +43,7 @@ impl CardAPI for KeikoDatabase {
     async fn update_card(&self, card: &Card) -> KeikoResult<Card> {
         sqlx::query_as::<_, Card>(
             r#"
-      UPDATE flashcards
+      UPDATE cards
       SET question = $2, answer = $3, course_code = $4, category = $5, updated_at = now()
       WHERE id = $1
       RETURNING *
@@ -61,7 +61,7 @@ impl CardAPI for KeikoDatabase {
 
     /// DELETE /v1/cards/id/{card_id}
     async fn delete_card(&self, card_id: &Uuid) -> KeikoResult<Uuid> {
-        sqlx::query_scalar::<_, Uuid>("DELETE FROM flashcards WHERE id = $1 RETURNING id")
+        sqlx::query_scalar::<_, Uuid>("DELETE FROM cards WHERE id = $1 RETURNING id")
             .bind(card_id)
             .fetch_one(&self.pool)
             .await
@@ -70,7 +70,7 @@ impl CardAPI for KeikoDatabase {
 
     /// GET /v1/cards/course/{course}
     async fn get_cards_by_course_code(&self, course_code: &String) -> KeikoResult<Vec<Card>> {
-        sqlx::query_as::<_, Card>("SELECT * FROM flashcards WHERE course_code = $1")
+        sqlx::query_as::<_, Card>("SELECT * FROM cards WHERE course_code = $1")
             .bind(course_code)
             .fetch_all(&self.pool)
             .await

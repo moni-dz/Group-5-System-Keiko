@@ -1,3 +1,4 @@
+#[cfg(not(debug_assertions))]
 use clap::Parser;
 use fern::colors::ColoredLevelConfig;
 use ntex::web::middleware::Logger;
@@ -7,6 +8,7 @@ use routes::{card, course, health, quiz, KeikoDatabase};
 use sqlx::postgres::PgPoolOptions;
 use sqlx::Executor;
 
+#[cfg(not(debug_assertions))]
 #[derive(Parser)]
 struct Config {
     #[arg(default_value = "moni")]
@@ -17,6 +19,7 @@ struct Config {
 
 #[ntex::main]
 async fn main() -> std::io::Result<()> {
+    #[cfg(not(debug_assertions))]
     let args = Config::parse();
 
     let log_colors = ColoredLevelConfig::new()
@@ -42,15 +45,19 @@ async fn main() -> std::io::Result<()> {
             panic!("Failed to initialize logging: {:?}", e);
         });
 
+    #[cfg(debug_assertions)]
+    let connection_string = "postgres://postgres@localhost:5432/keiko";
+
+    #[cfg(not(debug_assertions))]
+    let connection_string = format!(
+        "postgres://postgres:{}@{}:5432/keiko",
+        args.db_pass, args.addr
+    )
+    .as_str();
+
     let pool = PgPoolOptions::new()
         .max_connections(5)
-        .connect(
-            format!(
-                "postgres://postgres:{}@{}:5432/cs121_flashcards_app",
-                args.db_pass, args.addr
-            )
-            .as_str(),
-        )
+        .connect(connection_string)
         .await
         .unwrap_or_else(|e| {
             panic!("Failed to initialize database: {:?}", e);
