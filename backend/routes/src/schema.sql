@@ -64,7 +64,7 @@ LEFT JOIN (
 
 CREATE OR REPLACE VIEW quizzes_view AS
 SELECT
-    q.id AS quiz_id,
+    q.id,
     q.course_code,
     q.category,
     q.current_index,
@@ -72,7 +72,7 @@ SELECT
     q.correct_count,
     q.started_at,
     q.completed_at,
-    COUNT(f.id) AS card_count,
+    COALESCE(COUNT(f.id), 0) AS card_count,
     CASE
         WHEN COUNT(f.id) = 0 THEN 0
         ELSE ROUND((q.current_index::float / COUNT(f.id)) * 100)::integer

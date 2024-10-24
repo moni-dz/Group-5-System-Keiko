@@ -13,7 +13,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { CourseData, getAllCourses, markCourseCompletion } from "@/lib/api";
+import { CourseData, QuizData, getAllCourses, getAllQuizzes, setQuizCompletion } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   BookCheck,
@@ -36,7 +36,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import logo from "../../public/logo.png";
-import { CourseDetails, CourseList } from "./components";
+import { CourseDetails, CourseList, QuizDetails, QuizList } from "./components";
 import Loading from "./loading";
 
 export default function MainPage() {
@@ -45,40 +45,49 @@ export default function MainPage() {
   const { toast } = useToast();
   const activeView = searchParams.get("view") || "";
   const selectedCourse = searchParams.get("course") || "";
+  const selectedQuiz = searchParams.get("quiz") || "";
   const [searchQuery, setSearchQuery] = useState("");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const toggleSidebar = () => setIsSidebarCollapsed(!isSidebarCollapsed);
 
-  const { data, error, isPending, isError } = useQuery({
+  const courseQuery = useQuery({
     queryKey: ["courses"],
     queryFn: getAllCourses,
   });
 
+  const quizQuery = useQuery({
+    queryKey: ["quizzes"],
+    queryFn: getAllQuizzes,
+  });
+
   const markCompletionMutation = useMutation({
-    mutationFn: (props: { course_id: string; is_completed: boolean }) =>
-      markCourseCompletion(props.course_id, props.is_completed),
+    mutationFn: (props: { quiz_id: string; is_completed: boolean }) =>
+      setQuizCompletion(props.quiz_id, props.is_completed),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["courses"],
+        queryKey: ["quizzes"],
       });
     },
-    onError: (error) => toast({ description: error.message }),
+    onError: (e) => toast({ description: e.message }),
   }).mutate;
 
-  if (isPending) {
+  if (courseQuery.isPending || quizQuery.isPending) {
     return <Loading />;
   }
 
-  if (isError) {
-    toast({ description: error.message });
+  if (courseQuery.isError || quizQuery.isError) {
+    if (courseQuery.isError) {
+      toast({ description: courseQuery.error.message });
+    } else if (quizQuery.isError) {
+      toast({ description: quizQuery.error.message });
+    }
+
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-        {error.message}
+        {courseQuery.isError ? courseQuery.error.message : quizQuery.isError ? quizQuery.error.message : ""}
       </div>
     );
   }
-
-  const courses = data;
 
   function filterCourses(courses: CourseData[], query: string) {
     return courses.filter(
@@ -88,20 +97,34 @@ export default function MainPage() {
     );
   }
 
-  const ongoingCourses = courses.filter((course: CourseData) => !course.is_completed);
-  const completedCourses = courses.filter((course: CourseData) => course.is_completed);
-  const filteredCourses = filterCourses(courses, searchQuery);
-  const filteredOngoingCourses = filterCourses(ongoingCourses, searchQuery);
-  const filteredCompletedCourses = filterCourses(completedCourses, searchQuery);
+  function filterQuizzes(quizzes: QuizData[], query: string) {
+    return quizzes.filter(
+      (quiz) =>
+        quiz.course_code.toLowerCase().includes(query.toLowerCase()) ||
+        quiz.category.toLowerCase().includes(query.toLowerCase()),
+    );
+  }
 
-  function markCourseAsCompleted() {
-    const course = filteredCompletedCourses.find((course) => course.course_code === selectedCourse);
+  const filteredCourses = filterCourses(courseQuery.data, searchQuery);
 
-    if (course) {
-      markCompletionMutation({ course_id: course.id, is_completed: false });
+  const filteredOngoing = filterQuizzes(
+    quizQuery.data.filter((quiz: QuizData) => !quiz.is_completed),
+    searchQuery,
+  );
 
-      filteredCompletedCourses.splice(
-        filteredCompletedCourses.findIndex((course: CourseData): boolean => course.course_code === selectedCourse),
+  const filteredCompleted = filterQuizzes(
+    quizQuery.data.filter((quiz: QuizData) => quiz.is_completed),
+    searchQuery,
+  );
+
+  function markQuizAsOngoing(selected_id: string) {
+    const quiz = filteredCompleted.find((quiz) => quiz.id === selectedQuiz);
+
+    if (quiz) {
+      markCompletionMutation({ quiz_id: quiz.id, is_completed: false });
+
+      filteredCompleted.splice(
+        filteredCompleted.findIndex((quiz: QuizData): boolean => quiz.id === selected_id),
         1,
       );
     }
@@ -204,7 +227,7 @@ export default function MainPage() {
               <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-red-400 text-semibold font-sans" />
               <Input
                 type="text"
-                placeholder="search for courses..."
+                placeholder={activeView === "courses" ? "search for courses..." : "search for quizzes..."}
                 className="pl-10 pr-4 py-2 w-full"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -254,10 +277,10 @@ export default function MainPage() {
                 <h2 className="text-xl font-bold font-gau-pop-magic text-red-500 mb-4">ON-GOING QUIZZES</h2>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-white shadow-md rounded-lg p-4">
-                    <CourseList courses={filteredOngoingCourses} activeView={activeView} course_code={selectedCourse} />
+                    <QuizList quizzes={filteredOngoing} activeView={activeView} quizId={selectedQuiz} />
                   </div>
                   <div className="bg-white shadow-md rounded-lg p-4">
-                    <CourseDetails courses={filteredOngoingCourses} course_code={selectedCourse} />
+                    <QuizDetails quizzes={filteredOngoing} quizId={selectedQuiz} />
                   </div>
                 </div>
               </div>
@@ -265,7 +288,7 @@ export default function MainPage() {
               {/* Action buttons */}
               <div className="mt-4 flex space-x-4">
                 {/* Start Quiz button */}
-                <Link href={`/quiz/${selectedCourse}`}>
+                <Link href={`/quiz/${selectedQuiz}`}>
                   <Button className="bg-red-500 text-white hover:bg-zinc-500 flex items-center space-x-2">
                     <Pen width="20" height="20" />
                     <span>Start Quiz</span>
@@ -286,52 +309,58 @@ export default function MainPage() {
               <h2 className="text-xl font-bold mb-4 font-gau-pop-magic text-red-500">COMPLETED QUIZZES</h2>
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-white shadow-md rounded-lg p-4">
-                  <CourseList courses={filteredCompletedCourses} activeView={activeView} course_code={selectedCourse} />
+                  <QuizList quizzes={filteredCompleted} activeView={activeView} quizId={selectedQuiz} />
                 </div>
                 <div className="bg-white shadow-md rounded-lg p-4">
-                  <CourseDetails courses={filteredCompletedCourses} course_code={selectedCourse} />
+                  <QuizDetails quizzes={filteredCompleted} quizId={selectedQuiz} />
                 </div>
               </div>
               <div className="mt-4 flex justify-between">
                 <div className="space-x-2">
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button
-                        onClick={markCourseAsCompleted}
-                        className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white"
-                      >
+                      <Button className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white">
                         <FolderClock className="mr-2 h-4 w-4" />
                         Mark as On-going
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle className="font-gau-pop-magic text-red-500"> CHANGE QUIZ STATUS </AlertDialogTitle>
+                        <AlertDialogTitle className="font-gau-pop-magic text-red-500">
+                          {" "}
+                          CHANGE QUIZ STATUS{" "}
+                        </AlertDialogTitle>
                         <AlertDialogDescription>
                           Are you sure you want to mark this quiz as ongoing? This will reset the course progress!
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel className=" hover:bg-red-500 hover:text-white border border-red-500 text-red-500">Cancel</AlertDialogCancel>
-                        <AlertDialogAction className= "hover:bg-red-500 hover:text-white border border-red-500 text-red-500 bg-white">Confirm</AlertDialogAction>
+                        <AlertDialogCancel className=" hover:bg-red-500 hover:text-white border border-red-500 text-red-500">
+                          Cancel
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                          className="hover:bg-red-500 hover:text-white border border-red-500 text-red-500 bg-white"
+                          onClick={() => markCompletionMutation({ quiz_id: selectedQuiz, is_completed: false })}
+                        >
+                          Confirm
+                        </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
                 </div>
                 <Button className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white">
-                <FileChartLine className="mr-2 h-4 w-4" />
+                  <FileChartLine className="mr-2 h-4 w-4" />
                   Reports
-                  </Button>
-                  </div>
-                  </div>
-                  ) : (
-                    <div className="bg-white shadow-md rounded-lg p-8">
-                      <h2 className="text-3xl font-bold text-zinc-300 font-gau-pop-magic">Get Started</h2>
-                    </div>
-                  )}
-                  </main>
-                  </div>
-                  </Suspense>
-                  );
-                }
-
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-white shadow-md rounded-lg p-8">
+              <h2 className="text-3xl font-bold text-zinc-300 font-gau-pop-magic">Get Started</h2>
+            </div>
+          )}
+        </main>
+      </div>
+    </Suspense>
+  );
+}
