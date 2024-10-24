@@ -2,7 +2,9 @@ use uuid::Uuid;
 
 use crate::{KeikoDatabase, KeikoResult};
 
-use super::{CreateQuiz, Quiz, QuizAPI, QuizCompletion, QuizCorrectCount, QuizIndex, QuizView};
+use super::{
+    CreateQuiz, Quiz, QuizAPI, QuizCompletion, QuizCorrectCount, QuizIndex, QuizView, RenameQuiz,
+};
 
 #[async_trait::async_trait]
 impl QuizAPI for KeikoDatabase {
@@ -130,6 +132,17 @@ impl QuizAPI for KeikoDatabase {
         sqlx::query_as::<_, Quiz>("UPDATE quizzes SET correct_count = $2 WHERE id = $1 RETURNING *")
             .bind(&quiz_id)
             .bind(&quiz_count.correct_count)
+            .fetch_one(&self.pool)
+            .await
+            .map_err(|e| e.to_string())
+    }
+
+    /// POST /v1/quiz/rename/{course_code}
+    async fn rename_quiz(&self, course_code: &String, quiz_rename: &RenameQuiz) -> KeikoResult<()> {
+        sqlx::query_scalar::<_, ()>("SELECT update_category($1, $2, $3)")
+            .bind(&course_code)
+            .bind(&quiz_rename.old)
+            .bind(&quiz_rename.new)
             .fetch_one(&self.pool)
             .await
             .map_err(|e| e.to_string())

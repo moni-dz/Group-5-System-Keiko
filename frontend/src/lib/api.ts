@@ -47,6 +47,8 @@ export const lorem = new LoremIpsum({
   },
 });
 
+// 62.146.233.89
+//
 const ax = axios.create({
   baseURL: `http://${process.env.API_HOST || "62.146.233.89"}:${process.env.API_PORT || "1107"}`,
   headers: {
@@ -138,6 +140,11 @@ export async function setQuizCompletion(id: string, is_completed: boolean): Prom
 export async function setQuizCurrentIndex(id: string, index: number): Promise<QuizData> {
   return ax.patch<QuizData>(`/api/v1/quiz/id/${id}/index`, { current_index: index }).then((r): QuizData => r.data);
 }
+
 export async function setQuizCorrectCount(id: string, count: number): Promise<QuizData> {
   return ax.patch<QuizData>(`/api/v1/quiz/id/${id}/correct`, { correct_count: count }).then((r): QuizData => r.data);
+}
+
+export async function renameQuiz(course_code: string, old_name: string, new_name: string) {
+  return ax.post<void>(`/api/v1/quiz/rename/${course_code}`, { old: old_name, new: new_name }).then((r) => {});
 }
