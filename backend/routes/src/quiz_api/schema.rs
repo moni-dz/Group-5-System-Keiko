@@ -2,7 +2,7 @@ use uuid::Uuid;
 
 use crate::{KeikoDatabase, KeikoResult};
 
-use super::{CreateQuiz, Quiz, QuizAPI, QuizCompletion, QuizView};
+use super::{CreateQuiz, Quiz, QuizAPI, QuizCompletion, QuizCorrectCount, QuizIndex, QuizView};
 
 #[async_trait::async_trait]
 impl QuizAPI for KeikoDatabase {
@@ -89,11 +89,11 @@ impl QuizAPI for KeikoDatabase {
     }
 
     /// PATCH /v1/quiz
-    async fn mark_quiz_completion(&self, quiz_completion: &QuizCompletion) -> KeikoResult<Quiz> {
+    async fn set_quiz_completion(&self, quiz_completion: &QuizCompletion) -> KeikoResult<Quiz> {
         sqlx::query_as::<_, Quiz>(
             r#"
             UPDATE quizzes
-            SET is_completed = $2, completed_at = $3
+            SET is_completed = $2, completed_at = $3, current_index = 0, correct_count = 0
             WHERE id = $1
             RETURNING *
             "#,
@@ -109,5 +109,29 @@ impl QuizAPI for KeikoDatabase {
         .fetch_one(&self.pool)
         .await
         .map_err(|e| e.to_string())
+    }
+
+    /// PATCH /v1/quiz/id/{quiz_id}/index
+    async fn set_current_index(&self, quiz_id: &Uuid, quiz_index: &QuizIndex) -> KeikoResult<Quiz> {
+        sqlx::query_as::<_, Quiz>("UPDATE quizzes SET current_index = $2 WHERE id = $1 RETURNING *")
+            .bind(&quiz_id)
+            .bind(&quiz_index.current_index)
+            .fetch_one(&self.pool)
+            .await
+            .map_err(|e| e.to_string())
+    }
+
+    /// PATCH /v1/quiz/id/{quiz_id}/correct
+    async fn set_correct_count(
+        &self,
+        quiz_id: &Uuid,
+        quiz_count: &QuizCorrectCount,
+    ) -> KeikoResult<Quiz> {
+        sqlx::query_as::<_, Quiz>("UPDATE quizzes SET correct_count = $2 WHERE id = $1 RETURNING *")
+            .bind(&quiz_id)
+            .bind(&quiz_count.correct_count)
+            .fetch_one(&self.pool)
+            .await
+            .map_err(|e| e.to_string())
     }
 }

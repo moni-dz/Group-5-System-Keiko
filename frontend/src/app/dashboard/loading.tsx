@@ -1,9 +1,5 @@
-import { Loader2 } from "lucide-react";
+import { LoadingSkeleton } from "@/components/status";
 
 export default function Loading() {
-  return (
-    <div className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-      <Loader2 className="h-8 w-8 animate-spin text-red-500" />
-    </div>
-  );
+  return <LoadingSkeleton />;
 }

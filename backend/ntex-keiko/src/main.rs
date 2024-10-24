@@ -52,12 +52,11 @@ async fn main() -> std::io::Result<()> {
     let connection_string = format!(
         "postgres://postgres:{}@{}:5432/keiko",
         args.db_pass, args.addr
-    )
-    .as_str();
+    );
 
     let pool = PgPoolOptions::new()
         .max_connections(5)
-        .connect(connection_string)
+        .connect(&connection_string)
         .await
         .unwrap_or_else(|e| {
             panic!("Failed to initialize database: {:?}", e);

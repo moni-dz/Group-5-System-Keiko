@@ -5,7 +5,7 @@ use ntex::web::{
 };
 use uuid::Uuid;
 
-use crate::quiz_api::{CreateQuiz, Quiz, QuizAPI};
+use crate::quiz_api::{CreateQuiz, Quiz, QuizAPI, QuizCompletion, QuizCorrectCount, QuizIndex};
 
 pub fn service<S: QuizAPI>(cfg: &mut ServiceConfig) {
     cfg.service(
@@ -16,7 +16,16 @@ pub fn service<S: QuizAPI>(cfg: &mut ServiceConfig) {
             .route("/completed", web::get().to(get_completed_quizzes::<S>))
             .route("", web::post().to(create_quiz::<S>))
             .route("", web::put().to(update_quiz::<S>))
-            .route("/id/{quiz_id}", web::delete().to(delete_quiz::<S>)),
+            .route("/id/{quiz_id}", web::delete().to(delete_quiz::<S>))
+            .route("", web::patch().to(set_quiz_completion::<S>))
+            .route(
+                "/id/{quiz_id}/index",
+                web::patch().to(set_current_index::<S>),
+            )
+            .route(
+                "/id/{quiz_id}/correct",
+                web::patch().to(set_correct_count::<S>),
+            ),
     );
 }
 
@@ -73,5 +82,40 @@ async fn delete_quiz<S: QuizAPI>(quiz_id: Path<Uuid>, stack: State<S>) -> HttpRe
     match stack.delete_quiz(&quiz_id).await {
         Ok(_) => HttpResponse::Ok().finish(),
         Err(e) => HttpResponse::NotFound().body(format!("Quiz not found: {:?}", e)),
+    }
+}
+
+/// PATCH /v1/quiz
+async fn set_quiz_completion<S: QuizAPI>(
+    quiz_completion: Json<QuizCompletion>,
+    stack: State<S>,
+) -> HttpResponse {
+    match stack.set_quiz_completion(&quiz_completion).await {
+        Ok(quiz) => HttpResponse::Ok().json(&quiz),
+        Err(e) => HttpResponse::NotFound().body(format!("Internal server error: {:?}", e)),
+    }
+}
+
+/// PATCH /v1/quiz/id/{quiz_id}/index
+async fn set_current_index<S: QuizAPI>(
+    quiz_id: Path<Uuid>,
+    quiz_index: Json<QuizIndex>,
+    stack: State<S>,
+) -> HttpResponse {
+    match stack.set_current_index(&quiz_id, &quiz_index).await {
+        Ok(quiz) => HttpResponse::Ok().json(&quiz),
+        Err(e) => HttpResponse::NotFound().body(format!("Internal server error: {:?}", e)),
+    }
+}
+
+/// PATCH /v1/quiz/id/{quiz_id}/correct
+async fn set_correct_count<S: QuizAPI>(
+    quiz_id: Path<Uuid>,
+    quiz_correct: Json<QuizCorrectCount>,
+    stack: State<S>,
+) -> HttpResponse {
+    match stack.set_correct_count(&quiz_id, &quiz_correct).await {
+        Ok(quiz) => HttpResponse::Ok().json(&quiz),
+        Err(e) => HttpResponse::NotFound().body(format!("Internal server error: {:?}", e)),
     }
 }

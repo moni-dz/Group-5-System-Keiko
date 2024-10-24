@@ -75,8 +75,8 @@ export async function deleteCard(id: string): Promise<CardData> {
   return ax.delete<CardData>(`/api/v1/cards/id/${id}`).then((r): CardData => r.data);
 }
 
-export async function getCardsByCourseCode(course_code: string): Promise<CardData[]> {
-  return ax.get<CardData[]>(`/api/v1/cards/course/${course_code}`).then((r): CardData[] => r.data);
+export async function getCardsByQuizId(quiz_id: string): Promise<CardData[]> {
+  return ax.get<CardData[]>(`/api/v1/cards/quiz/${quiz_id}`).then((r): CardData[] => r.data);
 }
 
 export async function getAllCourses(): Promise<CourseData[]> {
@@ -131,6 +131,13 @@ export async function deleteQuiz(id: string): Promise<QuizData> {
   return ax.delete<QuizData>(`/api/v1/quiz/id/${id}`).then((r): QuizData => r.data);
 }
 
-export async function markQuizCompletion(id: string, is_completed: boolean): Promise<QuizData> {
+export async function setQuizCompletion(id: string, is_completed: boolean): Promise<QuizData> {
   return ax.patch<QuizData>("/api/v1/quiz", { id, is_completed }).then((r): QuizData => r.data);
+}
+
+export async function setQuizCurrentIndex(id: string, index: number): Promise<QuizData> {
+  return ax.patch<QuizData>(`/api/v1/quiz/id/${id}/index`, { current_index: index }).then((r): QuizData => r.data);
+}
+export async function setQuizCorrectCount(id: string, count: number): Promise<QuizData> {
+  return ax.patch<QuizData>(`/api/v1/quiz/id/${id}/correct`, { correct_count: count }).then((r): QuizData => r.data);
 }

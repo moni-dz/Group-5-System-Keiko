@@ -36,5 +36,5 @@ pub trait CardAPI: Send + Sync + 'static {
     async fn create_card(&self, create_card: &CreateCard) -> KeikoResult<Card>;
     async fn update_card(&self, card: &Card) -> KeikoResult<Card>;
     async fn delete_card(&self, card_id: &Uuid) -> KeikoResult<Uuid>;
-    async fn get_cards_by_course_code(&self, course_code: &String) -> KeikoResult<Vec<Card>>;
+    async fn get_cards_by_quiz_id(&self, quiz_id: &Uuid) -> KeikoResult<Vec<Card>>;
 }

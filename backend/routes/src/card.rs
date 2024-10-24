@@ -11,10 +11,7 @@ pub fn service<S: CardAPI>(cfg: &mut ServiceConfig) {
         web::scope("/v1/cards")
             .route("", web::get().to(get_cards::<S>))
             .route("/id/{card_id}", web::get().to(get_card::<S>))
-            .route(
-                "/course/{course_code}",
-                web::get().to(get_cards_by_course_code::<S>),
-            )
+            .route("/quiz/{quiz_id}", web::get().to(get_cards_by_quiz_id::<S>))
             .route("", web::post().to(add_card::<S>))
             .route("", web::put().to(update_card::<S>))
             .route("/id/{card_id}", web::delete().to(delete_card::<S>)),
@@ -38,11 +35,8 @@ async fn get_card<S: CardAPI>(card_id: Path<Uuid>, stack: State<S>) -> HttpRespo
 }
 
 /// GET /v1/cards/course/{course_code}
-async fn get_cards_by_course_code<S: CardAPI>(
-    course_code: Path<String>,
-    stack: State<S>,
-) -> HttpResponse {
-    match stack.get_cards_by_course_code(&course_code).await {
+async fn get_cards_by_quiz_id<S: CardAPI>(quiz_id: Path<Uuid>, stack: State<S>) -> HttpResponse {
+    match stack.get_cards_by_quiz_id(&quiz_id).await {
         Ok(cards) => HttpResponse::Ok().json(&cards),
         Err(e) => {
             HttpResponse::InternalServerError().body(format!("Internal server error: {:?}", e))

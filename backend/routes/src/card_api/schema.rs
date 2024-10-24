@@ -68,12 +68,19 @@ impl CardAPI for KeikoDatabase {
             .map_err(|e| e.to_string())
     }
 
-    /// GET /v1/cards/course/{course}
-    async fn get_cards_by_course_code(&self, course_code: &String) -> KeikoResult<Vec<Card>> {
-        sqlx::query_as::<_, Card>("SELECT * FROM cards WHERE course_code = $1")
-            .bind(course_code)
-            .fetch_all(&self.pool)
-            .await
-            .map_err(|e| e.to_string())
+    /// GET /v1/cards/quiz/{quiz_id}
+    async fn get_cards_by_quiz_id(&self, quiz_id: &Uuid) -> KeikoResult<Vec<Card>> {
+        sqlx::query_as::<_, Card>(
+            r#"
+            SELECT c.*
+            FROM cards c
+            JOIN quizzes q ON c.course_code = q.course_code AND c.category = q.category
+            WHERE q.id = $1;
+            "#,
+        )
+        .bind(quiz_id)
+        .fetch_all(&self.pool)
+        .await
+        .map_err(|e| e.to_string())
     }
 }
