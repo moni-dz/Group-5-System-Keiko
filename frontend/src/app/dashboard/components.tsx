@@ -1,5 +1,5 @@
 import { Progress } from "@/components/ui/progress";
-import { CourseData } from "@/lib/api";
+import { CourseData, QuizData } from "@/lib/api";
 import dayjs from "dayjs";
 import Link from "next/link";
 
@@ -67,8 +67,74 @@ export function CourseDetails(props: CourseDetailsProps) {
           </div>
         </div>
       )}
-      {course.is_completed && (
-        <p className="text-zinc-500 italic mt-2">Completed on: {dayjs(course.completion_date).format("MM-DD-YYYY")}</p>
+    </div>
+  );
+}
+
+interface QuizListProps {
+  quizzes: QuizData[];
+  quizId: string;
+  activeView: string;
+}
+
+export function QuizList(props: QuizListProps) {
+  const { quizzes, quizId, activeView } = props;
+
+  return (
+    <ul>
+      {quizzes.map((quiz) => (
+        <Link href={`?view=${activeView}&quiz=${quiz.id}`} key={quiz.id}>
+          <li
+            className={`mb-2 p-2 rounded cursor-pointer ${
+              quizId === quiz.id ? "bg-red-100" : "hover:bg-red-100"
+            } font-semibold text-zinc-500`}
+          >
+            {quiz.course_code} - {quiz.category}
+          </li>
+        </Link>
+      ))}
+    </ul>
+  );
+}
+
+interface QuizDetailsProps {
+  quizId: string;
+  quizzes: QuizData[];
+}
+
+export function QuizDetails(props: QuizDetailsProps) {
+  const { quizId, quizzes } = props;
+  const quiz = quizzes.find((quiz) => quiz.id === quizId);
+
+  if (quiz === undefined) {
+    return <p className="text-zinc-500 italic">✦ select a course to view details...</p>;
+  }
+
+  return (
+    <div>
+      <h3 className="text-xl italic font-semibold text-red-500 font-gau-pop-magic mb-2">
+        {quiz.category || "Quiz Name"}
+      </h3>
+
+      <p className="text-zinc-500 font-semibold">
+        <span className="font-bold">Course Code:</span> {quiz.course_code || "N/A"}
+      </p>
+
+      <p className="text-zinc-500 font-semibold">
+        <span className="font-bold">Number of Questions:</span>{" "}
+        {quiz.card_count != 0 ? `${quiz.card_count} questions` : "N/A"}
+      </p>
+
+      {quiz.progress !== undefined && (
+        <div className="mt-2">
+          <p className="text-zinc-500">Progress: {quiz.progress}%</p>
+          <div className="w-full bg-gray-200 rounded-full h-2.5">
+            <Progress value={quiz.progress} indicatorColor="bg-red-500" className="bg-gray-200 h-2.5" />
+          </div>
+        </div>
+      )}
+      {quiz.is_completed && (
+        <p className="text-zinc-500 italic mt-2">Completed on: {dayjs(quiz.completed_at).format("MM-DD-YYYY")}</p>
       )}
     </div>
   );

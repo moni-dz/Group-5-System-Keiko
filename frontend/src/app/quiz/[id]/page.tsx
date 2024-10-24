@@ -1,17 +1,16 @@
 "use client";
 
 import { SkeletonCard } from "@/components/cards";
+import { LoadingSkeleton, ErrorSkeleton } from "@/components/status";
 import { Button } from "@/components/ui/button";
 import { CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
-import { CardData, getCardsByCourseCode } from "@/lib/api";
-import { useQuery } from "@tanstack/react-query";
+import { CardData, getCardsByQuizId, getQuiz, setQuizCurrentIndex } from "@/lib/api";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Lightbulb } from "lucide-react";
 import { use, useEffect, useState } from "react";
-
-
 
 interface QuizCardProps {
   question: string;
@@ -126,44 +125,66 @@ function QuizCard({
 }
 
 interface QuizPageProps {
-  params: Promise<{ course_code: string }>;
+  params: Promise<{ id: string }>;
 }
 
 export default function QuizPage({ params }: QuizPageProps) {
-  const { course_code } = use(params);
-  const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  const { id } = use(params);
+  const queryClient = useQueryClient();
+  //const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const [answerOptions, setAnswerOptions] = useState<string[]>([]);
   const [message, setMessage] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { toast } = useToast();
 
-  const {
-    data = [],
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
-    queryKey: [`cards_${course_code}`],
-    queryFn: () => getCardsByCourseCode(course_code),
+  const quizQuery = useQuery({
+    queryKey: [`quiz_${id}`],
+    queryFn: () => getQuiz(id),
   });
 
-  useEffect(() => {
-    if (data && data.length > 0) {
-      generateAnswerOptions(data, currentCardIndex);
-    }
-  }, [data, currentCardIndex]);
+  const cardsQuery = useQuery({
+    queryKey: [`cards_${id}`],
+    queryFn: () => getCardsByQuizId(id),
+  });
 
-  if (isError) {
+  const setCurrentIndexMutation = useMutation({
+    mutationFn: (index: number) => setQuizCurrentIndex(id, index),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [`quiz_${id}`],
+      });
+    },
+  }).mutate;
+
+  useEffect(() => {
+    const data = cardsQuery.data || [];
+    if (data.length > 0 && quizQuery.data) generateAnswerOptions(data, quizQuery.data.current_index); // temporary
+  }, [cardsQuery.data, quizQuery.data]);
+
+  if (quizQuery.isError || cardsQuery.isError) {
     toast({ description: "Failed to fetch cards" });
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-        {error.message}
-      </div>
-    );
+
+    const message = quizQuery.isError
+      ? quizQuery.error.message
+      : cardsQuery.isError
+        ? cardsQuery.error.message
+        : "Failed to fetch cards.";
+
+    return <ErrorSkeleton message={message} />;
   }
 
-  const cards = data as CardData[];
+  if (quizQuery.isPending) {
+    return <LoadingSkeleton />;
+  }
+
+  if (cardsQuery.isPending) {
+    return <SkeletonCard />;
+  }
+
+  const quiz = quizQuery.data;
+  const cards = cardsQuery.data;
+  const currentCardIndex = quizQuery.data.current_index;
 
   const generateAnswerOptions = (cards: CardData[], idx: number) => {
     const correctAnswer = cards[idx].answer;
@@ -187,15 +208,11 @@ export default function QuizPage({ params }: QuizPageProps) {
 
   const handleNext = () => {
     const nextIndex = (currentCardIndex + 1) % cards.length;
-    setCurrentCardIndex(nextIndex);
+    setCurrentIndexMutation(nextIndex);
     setSelectedAnswer("");
     setMessage("");
     setIsSubmitted(false);
   };
-
-  if (isLoading) {
-    return <SkeletonCard />;
-  }
 
   const currentCard = cards[currentCardIndex];
 
@@ -204,7 +221,9 @@ export default function QuizPage({ params }: QuizPageProps) {
       <header className="sticky top-0 z-10 bg-transparent flex justify-between items-center p-4">
         <h1 className="text-2xl font-bold font-gau-pop-magic">
           <span className="text-red-500">QUIZ: </span>
-          <span className="text-zinc-500">{course_code}</span>
+          <span className="text-zinc-500">
+            {quiz.course_code} - {quiz.category}
+          </span>
         </h1>
         <div className="flex items-center">
           <Button variant="outline" className="mr-2 text-white bg-red-500 hover:bg-zinc-500 hover:text-white">
