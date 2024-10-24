@@ -10,7 +10,7 @@ import { SkeletonEditableCourse } from "@/components/cards";
 import { addCourse, CourseData, deleteCourse, getAllCourses, updateCourse } from "@/lib/api";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { Home } from "lucide-react"
+import { Home } from "lucide-react";
 
 const EditableCourse = dynamic(() => import("@/components/cards").then((mod) => mod.EditableCourse), {
   loading: () => <SkeletonEditableCourse />,
@@ -39,27 +39,25 @@ export default function CoursesPage() {
   };
 
   const onSuccess = () => {
-    queryClient.invalidateQueries({
-      queryKey: ["courses"],
-    });
+    queryClient.invalidateQueries({ queryKey: ["courses"] });
   };
 
   const addCourseMutation = useMutation({
     mutationFn: (course: Pick<CourseData, "name" | "course_code" | "description">) => addCourse(course),
-    onSuccess: onSuccess,
-    onError: onError,
+    onSuccess,
+    onError,
   }).mutate;
 
   const updateCourseMutation = useMutation({
     mutationFn: (course: Pick<CourseData, "id" | "name" | "course_code" | "description">) => updateCourse(course),
-    onSuccess: onSuccess,
-    onError: onError,
+    onSuccess,
+    onError,
   }).mutate;
 
   const deleteCourseMutation = useMutation({
     mutationFn: (id: string) => deleteCourse(id),
-    onSuccess: onSuccess,
-    onError: onError,
+    onSuccess,
+    onError,
   }).mutate;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -67,7 +65,7 @@ export default function CoursesPage() {
     setFormData((prev: FormData): FormData => ({ ...prev, [name]: value }));
 
     if (e.target.tagName === "TEXTAREA") {
-      e.target.style.height = "auto"; //
+      e.target.style.height = "auto";
       e.target.style.height = `${e.target.scrollHeight}px`;
     }
   };
@@ -154,12 +152,12 @@ export default function CoursesPage() {
               {editingId ? "Update Course" : "Add Course"}
             </Button>
             <Button 
-          className="absolute top-4 right-4 bg-gray hover:bg-gray" 
-          onClick={() => router.push("/")} 
-          variant="ghost"
-        >
-          <Home className="h-5 w-5 text-red-500 bg-gray hover:text-white hover:bg-red-500 rounded-sm"  />
-        </Button>
+              className="absolute top-4 right-4 p-2 rounded-full hover:bg-red-50 text-red-500 transition-colors"
+              onClick={() => router.push("/")}
+              variant="ghost"
+            >
+              <Home className="w-6 h-6 text-red-500 bg-gray rounded-sm" />
+            </Button>
           </div>
         </form>
 
