@@ -1,7 +1,4 @@
-use actix_web::{
-    web::{self, ServiceConfig},
-    HttpResponse,
-};
+use ntex::web::{self, HttpResponse, ServiceConfig};
 
 pub fn service(cfg: &mut ServiceConfig) {
     cfg.route("/health", web::get().to(health));
@@ -9,7 +6,7 @@ pub fn service(cfg: &mut ServiceConfig) {
 
 async fn health() -> HttpResponse {
     HttpResponse::Ok()
-        .append_header(("version", "v0.0.1"))
-        .append_header(("status", "alive"))
+        .set_header("version", "v0.0.1")
+        .set_header("status", "alive")
         .finish()
 }
