@@ -11,9 +11,15 @@ importers:
       '@radix-ui/react-alert-dialog':
         specifier: ^1.1.2
         version: 1.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@tanstack/react-query':
+        specifier: ^5.59.16
+        version: 5.59.16(react@18.3.1)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      lucide-react:
+        specifier: ^0.453.0
+        version: 0.453.0(react@18.3.1)
       tailwind-merge:
         specifier: ^2.5.4
         version: 2.5.4
@@ -195,6 +201,14 @@ packages:
       '@types/react':
         optional: true
 
+  '@tanstack/query-core@5.59.16':
+    resolution: {integrity: sha512-crHn+G3ltqb5JG0oUv6q+PMz1m1YkjpASrXTU+sYWW9pLk0t2GybUHNRqYPZWhxgjPaVGC4yp92gSFEJgYEsPw==}
+
+  '@tanstack/react-query@5.59.16':
+    resolution: {integrity: sha512-MuyWheG47h6ERd4PKQ6V8gDyBu3ThNG22e1fRVwvq6ap3EqsFhyuxCAwhNP/03m/mLg+DAb0upgbPaX6VB+CkQ==}
+    peerDependencies:
+      react: ^18 || ^19
+
   aria-hidden@1.2.4:
     resolution: {integrity: sha512-y+CcFFwelSXpLZk/7fMB2mUbGtX9lKycf1MWJ7CaTIERyitVlyQx6C+sxcROU2BAJ24OiZyK+8wj2i8AlBoS3A==}
     engines: {node: '>=10'}
@@ -219,6 +233,11 @@ packages:
   loose-envify@1.4.0:
     resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
     hasBin: true
+
+  lucide-react@0.453.0:
+    resolution: {integrity: sha512-kL+RGZCcJi9BvJtzg2kshO192Ddy9hv3ij+cPrVPWSRzgCWCVazoQJxOjAwgK53NomL07HB7GPHW120FimjNhQ==}
+    peerDependencies:
+      react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0-rc
 
   react-dom@18.3.1:
     resolution: {integrity: sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==}
@@ -400,6 +419,13 @@ snapshots:
     dependencies:
       react: 18.3.1
 
+  '@tanstack/query-core@5.59.16': {}
+
+  '@tanstack/react-query@5.59.16(react@18.3.1)':
+    dependencies:
+      '@tanstack/query-core': 5.59.16
+      react: 18.3.1
+
   aria-hidden@1.2.4:
     dependencies:
       tslib: 2.8.0
@@ -419,6 +445,10 @@ snapshots:
   loose-envify@1.4.0:
     dependencies:
       js-tokens: 4.0.0
+
+  lucide-react@0.453.0(react@18.3.1):
+    dependencies:
+      react: 18.3.1
 
   react-dom@18.3.1(react@18.3.1):
     dependencies:
