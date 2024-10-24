@@ -5,7 +5,9 @@ use ntex::web::{
 };
 use uuid::Uuid;
 
-use crate::quiz_api::{CreateQuiz, Quiz, QuizAPI, QuizCompletion, QuizCorrectCount, QuizIndex};
+use crate::quiz_api::{
+    CreateQuiz, Quiz, QuizAPI, QuizCompletion, QuizCorrectCount, QuizIndex, RenameQuiz,
+};
 
 pub fn service<S: QuizAPI>(cfg: &mut ServiceConfig) {
     cfg.service(
@@ -25,7 +27,8 @@ pub fn service<S: QuizAPI>(cfg: &mut ServiceConfig) {
             .route(
                 "/id/{quiz_id}/correct",
                 web::patch().to(set_correct_count::<S>),
-            ),
+            )
+            .route("/rename/{course_code}", web::post().to(rename_quiz::<S>)),
     );
 }
 
@@ -115,6 +118,18 @@ async fn set_correct_count<S: QuizAPI>(
     stack: State<S>,
 ) -> HttpResponse {
     match stack.set_correct_count(&quiz_id, &quiz_correct).await {
+        Ok(quiz) => HttpResponse::Ok().json(&quiz),
+        Err(e) => HttpResponse::NotFound().body(format!("Internal server error: {:?}", e)),
+    }
+}
+
+/// POST /v1/quiz/rename/{course_code}
+async fn rename_quiz<S: QuizAPI>(
+    course_code: Path<String>,
+    rename_quiz: Json<RenameQuiz>,
+    stack: State<S>,
+) -> HttpResponse {
+    match stack.rename_quiz(&course_code, &rename_quiz).await {
         Ok(quiz) => HttpResponse::Ok().json(&quiz),
         Err(e) => HttpResponse::NotFound().body(format!("Internal server error: {:?}", e)),
     }

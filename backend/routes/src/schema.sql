@@ -83,3 +83,22 @@ LEFT JOIN
     cards f ON q.course_code = f.course_code AND q.category = f.category
 GROUP BY
     q.id, q.course_code, q.category, q.current_index, q.is_completed, q.correct_count, q.started_at, q.completed_at;
+
+CREATE OR REPLACE FUNCTION update_category(
+    p_course_code TEXT,
+    p_old_category TEXT,
+    p_new_category TEXT
+)
+RETURNS void AS $$
+BEGIN
+    UPDATE cards
+    SET category = p_new_category
+    WHERE course_code = p_course_code
+    AND category = p_old_category;
+
+    UPDATE quizzes
+    SET category = p_new_category
+    WHERE course_code = p_course_code
+    AND category = p_old_category;
+END;
+$$ LANGUAGE plpgsql;
