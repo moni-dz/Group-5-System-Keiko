@@ -5,6 +5,7 @@ import localFont from "next/font/local";
 import React from "react";
 import "./globals.css";
 import Providers from "./providers";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const gauPopMagic: NextFontWithVariable = localFont({
   src: "../public/GAU_pop_magic.woff2",
@@ -26,7 +27,10 @@ export default function RootLayout({ children }: Readonly<RootProps>) {
     <html lang="en" className={gauPopMagic.variable}>
       <body className="antialiased">
         <main>
-          <Providers>{children}</Providers>
+          <Providers>
+            {children}
+            <SpeedInsights />
+          </Providers>
         </main>
         <Toaster />
       </body>
