@@ -223,7 +223,7 @@ export default function MainPage() {
               </div>
 
               <button
-                onClick={() => (window.location.href = '/')}
+                onClick={() => (window.location.href = "/")}
                 className="p-2 rounded-full hover:bg-red-50 text-red-500 transition-colors"
                 aria-label="Go to home"
               >
@@ -285,7 +285,7 @@ export default function MainPage() {
                     </Button>
                   </Link>
 
-                  <Link href={`/review/${selectedCourse}`}>
+                  <Link href={`/review/${selectedQuiz}`}>
                     <Button className="bg-white text-red-500 border-red-500 border hover:bg-red-500 hover:text-white flex items-center space-x-2">
                       <BookOpen width="20" height="20" />
                       <span>Start Review</span>

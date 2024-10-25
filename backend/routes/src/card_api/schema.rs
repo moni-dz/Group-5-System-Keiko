@@ -1,4 +1,4 @@
-use super::{Card, CardAPI, CreateCard};
+use super::{Card, CardAPI, CreateCard, UpdateCard};
 use crate::{KeikoDatabase, KeikoResult};
 use uuid::Uuid;
 
@@ -40,7 +40,7 @@ impl CardAPI for KeikoDatabase {
     }
 
     /// PUT /v1/cards
-    async fn update_card(&self, card: &Card) -> KeikoResult<Card> {
+    async fn update_card(&self, update_card: &UpdateCard) -> KeikoResult<Card> {
         sqlx::query_as::<_, Card>(
             r#"
       UPDATE cards
@@ -49,11 +49,11 @@ impl CardAPI for KeikoDatabase {
       RETURNING *
       "#,
         )
-        .bind(&card.id)
-        .bind(&card.question)
-        .bind(&card.answer)
-        .bind(&card.course_code)
-        .bind(&card.category)
+        .bind(&update_card.id)
+        .bind(&update_card.question)
+        .bind(&update_card.answer)
+        .bind(&update_card.course_code)
+        .bind(&update_card.category)
         .fetch_one(&self.pool)
         .await
         .map_err(|e| e.to_string())

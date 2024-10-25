@@ -12,8 +12,8 @@ export function cardMaxWidth(length: number): string {
   return `${cardsPerRow * cardWidth + (cardsPerRow - 1) * cardGap}px`;
 }
 
-export function Flashcard(props: Omit<CardData, "id" | "created_at" | "updated_at">) {
-  const { question, answer, course_code } = props;
+export function Flashcard(props: Pick<CardData, "question" | "answer">) {
+  const { question, answer } = props;
 
   return (
     <div className="flashcard min-w-fit w-96 max-w-full h-64 cursor-pointer [perspective:1000px]">
@@ -37,10 +37,7 @@ export function Flashcard(props: Omit<CardData, "id" | "created_at" | "updated_a
         {/* Back of the card */}
         <Card className="flashcard-back absolute w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)]">
           <CardHeader>
-            <CardTitle className="flex justify-between items-center">
-              <p>Answer</p>
-              <p>{course_code}</p>
-            </CardTitle>
+            <CardTitle className="flex justify-between items-center">Answer</CardTitle>
           </CardHeader>
           <CardContent className="flex items-center justify-center h-[200px] text-2xl">{answer}</CardContent>
         </Card>

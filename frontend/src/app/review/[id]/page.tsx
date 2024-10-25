@@ -1,6 +1,6 @@
 import { SkeletonCard, cardMaxWidth } from "@/components/cards";
 import { Button } from "@/components/ui/button";
-import { CardData, getCardsByCourseCode } from "@/lib/api";
+import { CardData, getCardsByQuizId } from "@/lib/api";
 import dynamic from "next/dynamic";
 
 const Flashcard = dynamic(() => import("@/components/cards").then((mod) => mod.Flashcard), {
@@ -9,13 +9,13 @@ const Flashcard = dynamic(() => import("@/components/cards").then((mod) => mod.F
 
 interface ReviewPageProps {
   params: Promise<{
-    course_code: string;
+    id: string;
   }>;
 }
 
 export default async function ReviewPage(props: ReviewPageProps) {
-  const { course_code } = await props.params;
-  const cards = await getCardsByCourseCode(course_code);
+  const { id } = await props.params;
+  const cards = await getCardsByQuizId(id);
 
   return (
     <>

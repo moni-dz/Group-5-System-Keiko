@@ -1,4 +1,4 @@
-use crate::card_api::{Card, CardAPI, CreateCard};
+use crate::card_api::{CardAPI, CreateCard, UpdateCard};
 use ntex::web::{
     self,
     types::{Json, Path, State},
@@ -55,7 +55,7 @@ async fn add_card<S: CardAPI>(create_card: Json<CreateCard>, stack: State<S>) ->
 }
 
 /// PUT /v1/cards
-async fn update_card<S: CardAPI>(card: Json<Card>, stack: State<S>) -> HttpResponse {
+async fn update_card<S: CardAPI>(card: Json<UpdateCard>, stack: State<S>) -> HttpResponse {
     match stack.update_card(&card).await {
         Ok(card) => HttpResponse::Ok().json(&card),
         Err(e) => HttpResponse::NotFound().body(format!("Internal server error: {:?}", e)),
