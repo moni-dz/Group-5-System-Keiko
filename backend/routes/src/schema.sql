@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS courses
 (
     id uuid DEFAULT uuid_generate_v1() NOT NULL CONSTRAINT courses_pkey PRIMARY KEY,
     name text NOT NULL,
-    course_code text NOT NULL,
+    course_code text NOT NULL CONSTRAINT courses_course_code_key UNIQUE,
     description text NOT NULL,
     created_at timestamp with time zone default CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp with time zone
