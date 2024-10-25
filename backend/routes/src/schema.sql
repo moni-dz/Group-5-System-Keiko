@@ -40,7 +40,8 @@ SELECT
     CASE
         WHEN COALESCE(f.questions, 0) = 0 THEN 0
         ELSE ROUND((COALESCE(q.total_current_index, 0)::float / f.questions) * 100)::integer
-    END AS progress
+    END AS progress,
+    COALESCE(cat.categories, ARRAY[]::text[]) AS categories
 FROM
     courses c
 LEFT JOIN (
@@ -60,7 +61,16 @@ LEFT JOIN (
         quizzes
     GROUP BY
         course_code
-) q ON c.course_code = q.course_code;
+) q ON c.course_code = q.course_code
+LEFT JOIN (
+    SELECT
+        course_code,
+        ARRAY_AGG(DISTINCT category) AS categories
+    FROM
+        quizzes
+    GROUP BY
+        course_code
+) cat ON c.course_code = cat.course_code;
 
 CREATE OR REPLACE VIEW quizzes_view AS
 SELECT

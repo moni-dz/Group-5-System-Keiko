@@ -18,6 +18,7 @@ pub struct CourseView {
     pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
     pub questions: i64,
     pub progress: i32,
+    pub categories: Vec<String>,
 }
 
 #[derive(
