@@ -2,10 +2,11 @@ import { Toaster } from "@/components/ui/toaster";
 import type { Metadata } from "next";
 import { NextFontWithVariable } from "next/dist/compiled/@next/font";
 import localFont from "next/font/local";
-import React from "react";
+import React, { Suspense } from "react";
 import "./globals.css";
 import Providers from "./providers";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { LoadingSkeleton } from "@/components/status";
 
 const gauPopMagic: NextFontWithVariable = localFont({
   src: "../public/GAU_pop_magic.woff2",
@@ -28,7 +29,7 @@ export default function RootLayout({ children }: Readonly<RootProps>) {
       <body className="antialiased">
         <main>
           <Providers>
-            {children}
+            <Suspense fallback={<LoadingSkeleton />}>{children}</Suspense>
             <SpeedInsights />
           </Providers>
         </main>
