@@ -269,7 +269,7 @@ export default function MainPage() {
                 </Button>
                 <Button
                   className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white"
-                  onClick={() => router.push(`/analytics/${selectedCourse}`)}
+                  onClick={() => router.push(`/analytics?course=${selectedCourse}`)}
                 >
                   <FileChartLine className="mr-2 h-4 w-4" />
                   Reports
