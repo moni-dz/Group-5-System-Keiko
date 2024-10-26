@@ -48,9 +48,9 @@ export const lorem = new LoremIpsum({
     min: 4,
   },
 });
-// 62.146.233.89
+
 const ax = axios.create({
-  baseURL: `http://${process.env.API_HOST || "localhost"}:${process.env.API_PORT || "1107"}/api/v1`,
+  baseURL: `http://${process.env.API_HOST || "62.146.233.89"}:${process.env.API_PORT || "1107"}/api/v1`,
   headers: {
     Accept: "application/json, text/plain, */*",
     "Content-Type": "application/json; charset=utf-8",

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { Suspense, use, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ClipboardList, CheckCircle, XCircle, Star, BookOpen, ArrowLeft, Home } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -12,7 +12,6 @@ import Link from "next/link";
 
 export default function AnalyticsPage() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const course_code = searchParams.get("course") || "";
   const [selectedCategory, setSelectedCategory] = useState<QuizData | null>(null);
 
