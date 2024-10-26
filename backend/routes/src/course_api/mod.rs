@@ -45,6 +45,16 @@ pub struct CreateCourse {
 #[derive(
     Serialize, Deserialize, FromRow, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Default,
 )]
+pub struct UpdateCourse {
+    pub id: Uuid,
+    pub name: String,
+    pub course_code: String,
+    pub description: String,
+}
+
+#[derive(
+    Serialize, Deserialize, FromRow, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Default,
+)]
 pub struct CourseCategory {
     pub category: String,
 }
@@ -57,6 +67,6 @@ pub trait CourseAPI: Send + Sync + 'static {
     async fn get_categories_for_course(&self, course_id: &Uuid)
         -> KeikoResult<Vec<CourseCategory>>;
     async fn create_course(&self, create_course: &CreateCourse) -> KeikoResult<Course>;
-    async fn update_course(&self, course: &Course) -> KeikoResult<Course>;
+    async fn update_course(&self, update_course: &UpdateCourse) -> KeikoResult<Course>;
     async fn delete_course(&self, course_id: &Uuid) -> KeikoResult<Uuid>;
 }

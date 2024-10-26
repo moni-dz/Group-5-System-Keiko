@@ -10,9 +10,29 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Lightbulb } from "lucide-react";
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
+import { TimerState, useTimerStore } from "@/store/time";
 
 interface QuizPageProps {
   params: Promise<{ quiz_id: string }>;
+}
+
+function useTimer(): Omit<TimerState, "setTimeLeft"> {
+  const { timeLeft, isRunning, initialTime, setTimeLeft, startTimer, pauseTimer, resetTimer, setInitialTime } =
+    useTimerStore();
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+
+    if (isRunning && timeLeft > 0) {
+      interval = setInterval(() => {
+        setTimeLeft(timeLeft - 1);
+      }, 1000);
+    }
+
+    return () => clearInterval(interval);
+  }, [isRunning, timeLeft, setTimeLeft]);
+
+  return { timeLeft, isRunning, initialTime, startTimer, pauseTimer, resetTimer, setInitialTime };
 }
 
 export default function QuizPage({ params }: QuizPageProps) {
