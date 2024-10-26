@@ -5,7 +5,7 @@ import { LoadingSkeleton, ErrorSkeleton } from "@/components/status";
 import { Button } from "@/components/ui/button";
 import { QuizCard } from "@/components/cards";
 import { useToast } from "@/hooks/use-toast";
-import { CardData, getCardsByQuizId, getQuiz, setQuizCurrentIndex } from "@/lib/api";
+import { CardData, getCardsByQuizId, getQuiz, setQuizCompletion, setQuizCurrentIndex } from "@/lib/api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Lightbulb } from "lucide-react";
 import { use, useEffect, useState } from "react";
@@ -22,17 +22,27 @@ export default function QuizPage({ params }: QuizPageProps) {
   const [answerOptions, setAnswerOptions] = useState<string[]>([]);
   const [message, setMessage] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isFinished, setIsFinished] = useState(false);
   const { toast } = useToast();
 
-  const quizQuery = useQuery({
+  const {
+    data: quiz,
+    isError: isQuizError,
+    isFetching: isQuizFetching,
+    error: quizError,
+  } = useQuery({
     queryKey: [`quiz_${quiz_id}`],
     queryFn: () => getQuiz(quiz_id),
   });
 
-  const cardsQuery = useQuery({
+  const {
+    data: cards,
+    isError: isCardsError,
+    isFetching: isCardsFetching,
+    error: cardsError,
+  } = useQuery({
     queryKey: [`cards_${quiz_id}`],
     queryFn: () => getCardsByQuizId(quiz_id),
+    initialData: [],
   });
 
   const setCurrentIndexMutation = useMutation({
@@ -44,34 +54,36 @@ export default function QuizPage({ params }: QuizPageProps) {
     },
   }).mutate;
 
-  useEffect(() => {
-    const data = cardsQuery.data || [];
-    if (data.length > 0 && quizQuery.data) generateAnswerOptions(data, quizQuery.data.current_index); // temporary
-  }, [cardsQuery.data, quizQuery.data]);
+  const setFinishedMutation = useMutation({
+    mutationFn: (is_completed: boolean) => setQuizCompletion(quiz_id, is_completed),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [`quiz_${quiz_id}`],
+      });
+    },
+  }).mutate;
 
-  if (quizQuery.isError || cardsQuery.isError) {
+  useEffect(() => {
+    if (cards.length > 0 && quiz) generateAnswerOptions(cards, quiz.current_index); // temporary
+  }, [cards, quiz]);
+
+  if (isQuizError || isCardsError) {
     toast({ description: "Failed to fetch cards" });
 
-    const message = quizQuery.isError
-      ? quizQuery.error.message
-      : cardsQuery.isError
-        ? cardsQuery.error.message
-        : "Failed to fetch cards.";
+    const message = isQuizError ? quizError.message : isCardsError ? cardsError.message : "Failed to load quiz.";
 
     return <ErrorSkeleton message={message} />;
   }
 
-  if (quizQuery.isPending) {
+  if (isQuizFetching) {
     return <LoadingSkeleton />;
   }
 
-  if (cardsQuery.isPending) {
+  if (isCardsFetching) {
     return <SkeletonCard />;
   }
 
-  const quiz = quizQuery.data;
-  const cards = cardsQuery.data;
-  const currentCardIndex = quizQuery.data.current_index;
+  const currentCardIndex = quiz?.current_index ?? 0;
 
   const generateAnswerOptions = (cards: CardData[], idx: number) => {
     const correctAnswer = cards[idx].answer;
@@ -95,7 +107,7 @@ export default function QuizPage({ params }: QuizPageProps) {
 
   function handleNext() {
     if (currentCardIndex == cards.length - 1) {
-      setIsFinished(true);
+      setFinishedMutation(true);
     } else {
       setCurrentIndexMutation(currentCardIndex + 1);
       setSelectedAnswer("");
@@ -112,7 +124,7 @@ export default function QuizPage({ params }: QuizPageProps) {
         <h1 className="text-2xl font-bold font-gau-pop-magic">
           <span className="text-red-500">QUIZ: </span>
           <span className="text-zinc-500">
-            {quiz.course_code} - {quiz.category}
+            {quiz?.course_code} - {quiz?.category}
           </span>
         </h1>
         <div className="flex items-center">
@@ -129,7 +141,7 @@ export default function QuizPage({ params }: QuizPageProps) {
       <main className="container mx-auto px-4 py-8">
         {!cards || cards.length === 0 ? (
           <div className="text-center py-8">No cards available for this course.</div>
-        ) : isFinished ? (
+        ) : quiz?.is_completed ? (
           <div className="text-center py-8">
             <h2 className="text-2xl font-bold font-gau-pop-magic text-red-500 mb-4">Quiz Completed!</h2>
             <Link href="/dashboard?view=ongoing">
