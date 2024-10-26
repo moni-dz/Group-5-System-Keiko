@@ -1,4 +1,4 @@
-use crate::course_api::{Course, CourseAPI, CreateCourse};
+use crate::course_api::{CourseAPI, CreateCourse, UpdateCourse};
 use ntex::web::{
     self,
     types::{Json, Path, State},
@@ -77,8 +77,11 @@ async fn create_course<S: CourseAPI>(
 }
 
 /// PUT /v1/courses
-async fn update_course<S: CourseAPI>(course: Json<Course>, stack: State<S>) -> HttpResponse {
-    match stack.update_course(&course).await {
+async fn update_course<S: CourseAPI>(
+    update_course: Json<UpdateCourse>,
+    stack: State<S>,
+) -> HttpResponse {
+    match stack.update_course(&update_course).await {
         Ok(course) => HttpResponse::Ok().json(&course),
         Err(e) => {
             HttpResponse::InternalServerError().body(format!("Internal server error: {:?}", e))

@@ -36,7 +36,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import logo from "../../public/logo.png";
+import logo from "@/public/logo.png";
 import { CourseDetails, CourseList, QuizDetails, QuizList } from "./components";
 import { LoadingSkeleton } from "@/components/status";
 

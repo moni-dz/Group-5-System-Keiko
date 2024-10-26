@@ -34,10 +34,20 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { LoadingSkeleton } from "@/components/status";
 import Link from "next/link";
+import { Textarea } from "@/components/ui/textarea";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
 interface ManagePageProps {
   params: Promise<{ course_code: string }>;
 }
+
+const formSchema = z.object({
+  question: z.string().min(1, "Question is required."),
+  answer: z.string().min(1, "Answer is required."),
+});
 
 export default function ManagePage(props: ManagePageProps) {
   const { course_code } = use(props.params);
@@ -61,7 +71,27 @@ export default function ManagePage(props: ManagePageProps) {
 
   const [showQuestionForm, setShowQuestionForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<Pick<CardData, "question" | "answer">>({ question: "", answer: "" });
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: { question: "", answer: "" },
+  });
+
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    if (editingId) {
+      updateCardMutation({
+        id: editingId,
+        question: values.question,
+        answer: values.answer,
+        course_code: currentQuiz.course_code,
+        category: currentQuiz.category,
+      });
+
+      setEditingId(null);
+    } else {
+      addCardMutation({ ...currentQuiz, ...values });
+    }
+  }
 
   const { data: quizzes, isPending: isQuizzesPending } = useQuery({
     queryKey: ["quizzes"],
@@ -118,20 +148,10 @@ export default function ManagePage(props: ManagePageProps) {
     onError: (e: Error) => toast({ description: e.message }),
   }).mutate;
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (editingId) {
-      updateCardMutation({ id: editingId, ...currentQuiz, ...formData });
-      setEditingId(null);
-    } else {
-      addCardMutation({ ...currentQuiz, ...formData });
-    }
-    setFormData({ question: "", answer: "" });
-  }
-
   function handleEdit(card: CardData) {
     setEditingId(card.id);
-    setFormData({ question: card.question, answer: card.answer });
+    form.setValue("question", card.question);
+    form.setValue("answer", card.answer);
   }
 
   if (isQuizzesPending) {
@@ -345,46 +365,54 @@ export default function ManagePage(props: ManagePageProps) {
               </Popover>
             </div>
 
-            <form onSubmit={handleSubmit} className="mb-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="question" className="text-zinc-500">
-                    Question
-                  </Label>
-                  <textarea
-                    id="question"
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
                     name="question"
-                    value={formData.question}
-                    onChange={(e) => setFormData({ ...formData, question: e.target.value })}
-                    className="bg-white text-zinc-500 resize-none w-full p-2 border border-zinc-500 rounded"
-                    required
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-zinc-500">Question</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            className="bg-white text-zinc-500 resize-none w-full p-2 border border-zinc-500 rounded"
+                          />
+                        </FormControl>
+                        <FormMessage>{form.formState.errors.question?.message}</FormMessage>
+                      </FormItem>
+                    )}
                   />
-                </div>
-                <div>
-                  <Label htmlFor="answer" className="text-zinc-500">
-                    Answer
-                  </Label>
-                  <textarea
-                    id="answer"
+                  <FormField
+                    control={form.control}
                     name="answer"
-                    value={formData.answer}
-                    onChange={(e) => setFormData({ ...formData, answer: e.target.value })}
-                    className="bg-white text-zinc-500 resize-none w-full p-2 border border-zinc-500 rounded"
-                    required
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-zinc-500">Answer</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            className="bg-white text-zinc-500 resize-none w-full p-2 border border-zinc-500 rounded"
+                          />
+                        </FormControl>
+                        <FormMessage>{form.formState.errors.answer?.message}</FormMessage>
+                      </FormItem>
+                    )}
                   />
                 </div>
-              </div>
-              <div className="flex justify-end gap-2 mt-4">
-                <Button type="submit" className="bg-red-500 text-white hover:bg-zinc-500">
-                  {editingId ? "Update" : "Add"} Item
-                </Button>
-                <Link href="/courses">
-                  <Button type="button" className="bg-red-500 hover:bg-zinc-500 text-white">
-                    Back
+                <div className="flex justify-end gap-2 mt-4">
+                  <Button type="submit" className="bg-red-500 text-white hover:bg-zinc-500">
+                    {editingId ? "Update" : "Add"} Item
                   </Button>
-                </Link>
-              </div>
-            </form>
+                  <Link href="/courses">
+                    <Button type="button" className="bg-red-500 hover:bg-zinc-500 text-white">
+                      Back
+                    </Button>
+                  </Link>
+                </div>
+              </form>
+            </Form>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {isCardsPending || isCardsLoading || isCardsFetching
