@@ -36,9 +36,7 @@ import { LoadingSkeleton } from "@/components/status";
 import Link from "next/link";
 
 interface ManagePageProps {
-  params: Promise<{
-    course_code: string;
-  }>;
+  params: Promise<{ course_code: string }>;
 }
 
 export default function ManagePage(props: ManagePageProps) {

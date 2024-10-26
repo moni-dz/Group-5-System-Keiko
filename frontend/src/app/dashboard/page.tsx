@@ -1,4 +1,5 @@
 "use client";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -34,7 +35,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { useState } from "react";
 import logo from "../../public/logo.png";
 import { CourseDetails, CourseList, QuizDetails, QuizList } from "./components";
 import { LoadingSkeleton } from "@/components/status";
@@ -269,7 +270,7 @@ export default function MainPage() {
                 </Button>
                 <Button
                   className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white"
-                  onClick={() => router.push(`/analytics?course=${selectedCourse}`)}
+                  onClick={() => router.push(`/reports?course=${selectedCourse}`)}
                 >
                   <FileChartLine className="mr-2 h-4 w-4" />
                   Reports

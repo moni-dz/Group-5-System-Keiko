@@ -2,15 +2,14 @@ import { SkeletonCard, cardMaxWidth } from "@/components/cards";
 import { Button } from "@/components/ui/button";
 import { CardData, getCardsByQuizId } from "@/lib/api";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 
 const Flashcard = dynamic(() => import("@/components/cards").then((mod) => mod.Flashcard), {
   loading: () => <SkeletonCard />,
 });
 
 interface ReviewPageProps {
-  params: Promise<{
-    quiz_id: string;
-  }>;
+  params: Promise<{ quiz_id: string }>;
 }
 
 export default async function ReviewPage(props: ReviewPageProps) {
@@ -24,9 +23,9 @@ export default async function ReviewPage(props: ReviewPageProps) {
           <h1 className="text-3xl font-bold mb-8 mt-10">Flashcards</h1>
           <div className="space-y-4">
             <div className="grid grid-rows-2 gap-5">
-              <Button asChild>
-                <a href="/dashboard">Go Back</a>
-              </Button>
+              <Link href="/dashboard">
+                <Button asChild>Go Back</Button>
+              </Link>
             </div>
           </div>
         </div>
