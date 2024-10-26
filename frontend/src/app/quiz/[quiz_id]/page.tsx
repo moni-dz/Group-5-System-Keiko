@@ -9,6 +9,7 @@ import { CardData, getCardsByQuizId, getQuiz, setQuizCurrentIndex } from "@/lib/
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Lightbulb } from "lucide-react";
 import { use, useEffect, useState } from "react";
+import Link from "next/link";
 
 interface QuizPageProps {
   params: Promise<{ quiz_id: string }>;
@@ -21,6 +22,7 @@ export default function QuizPage({ params }: QuizPageProps) {
   const [answerOptions, setAnswerOptions] = useState<string[]>([]);
   const [message, setMessage] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isFinished, setIsFinished] = useState(false);
   const { toast } = useToast();
 
   const quizQuery = useQuery({
@@ -92,11 +94,14 @@ export default function QuizPage({ params }: QuizPageProps) {
   }
 
   function handleNext() {
-    const nextIndex = (currentCardIndex + 1) % cards.length;
-    setCurrentIndexMutation(nextIndex);
-    setSelectedAnswer("");
-    setMessage("");
-    setIsSubmitted(false);
+    if (currentCardIndex == cards.length - 1) {
+      setIsFinished(true);
+    } else {
+      setCurrentIndexMutation(currentCardIndex + 1);
+      setSelectedAnswer("");
+      setMessage("");
+      setIsSubmitted(false);
+    }
   }
 
   const currentCard = cards[currentCardIndex];
@@ -124,6 +129,15 @@ export default function QuizPage({ params }: QuizPageProps) {
       <main className="container mx-auto px-4 py-8">
         {!cards || cards.length === 0 ? (
           <div className="text-center py-8">No cards available for this course.</div>
+        ) : isFinished ? (
+          <div className="text-center py-8">
+            <h2 className="text-2xl font-bold font-gau-pop-magic text-red-500 mb-4">Quiz Completed!</h2>
+            <Link href="/dashboard?view=ongoing">
+              <Button className="bg-white-100 hover:bg-zinc-500 text-red-500 hover:text-white" variant="outline">
+                Return to Dashboard
+              </Button>
+            </Link>
+          </div>
         ) : (
           <QuizCard
             question={currentCard.question}
