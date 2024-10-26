@@ -12,6 +12,10 @@ pub fn service<S: CourseAPI>(cfg: &mut ServiceConfig) {
             .route("", web::get().to(get_courses::<S>))
             .route("/id/{course_id}", web::get().to(get_course::<S>))
             .route(
+                "/code/{course_code}",
+                web::get().to(get_course_from_course_code::<S>),
+            )
+            .route(
                 "/id/{course_id}/categories",
                 web::get().to(get_categories_for_course::<S>),
             )
@@ -21,7 +25,7 @@ pub fn service<S: CourseAPI>(cfg: &mut ServiceConfig) {
     );
 }
 
-// GET /v1/courses
+/// GET /v1/courses
 async fn get_courses<S: CourseAPI>(stack: State<S>) -> HttpResponse {
     match stack.get_courses().await {
         Ok(courses) => HttpResponse::Ok().json(&courses),
@@ -29,7 +33,7 @@ async fn get_courses<S: CourseAPI>(stack: State<S>) -> HttpResponse {
     }
 }
 
-// GET /v1/courses/id/{course_id}
+/// GET /v1/courses/id/{course_id}
 async fn get_course<S: CourseAPI>(course_id: Path<Uuid>, stack: State<S>) -> HttpResponse {
     match stack.get_course(&course_id).await {
         Ok(course) => HttpResponse::Ok().json(&course),
@@ -37,7 +41,18 @@ async fn get_course<S: CourseAPI>(course_id: Path<Uuid>, stack: State<S>) -> Htt
     }
 }
 
-// GET /v1/courses/id/{course_id}/categories
+/// GET /v1/courses/code/{course_code}
+async fn get_course_from_course_code<S: CourseAPI>(
+    course_code: Path<String>,
+    stack: State<S>,
+) -> HttpResponse {
+    match stack.get_course_from_course_code(&course_code).await {
+        Ok(course) => HttpResponse::Ok().json(&course),
+        Err(e) => HttpResponse::NotFound().body(format!("Course not found: {:?}", e)),
+    }
+}
+
+/// GET /v1/courses/id/{course_id}/categories
 async fn get_categories_for_course<S: CourseAPI>(
     course_id: Path<Uuid>,
     stack: State<S>,
@@ -48,7 +63,7 @@ async fn get_categories_for_course<S: CourseAPI>(
     }
 }
 
-// POST /v1/courses
+/// POST /v1/courses
 async fn create_course<S: CourseAPI>(
     create_course: Json<CreateCourse>,
     stack: State<S>,
@@ -61,7 +76,7 @@ async fn create_course<S: CourseAPI>(
     }
 }
 
-// PUT /v1/courses
+/// PUT /v1/courses
 async fn update_course<S: CourseAPI>(course: Json<Course>, stack: State<S>) -> HttpResponse {
     match stack.update_course(&course).await {
         Ok(course) => HttpResponse::Ok().json(&course),
@@ -71,7 +86,7 @@ async fn update_course<S: CourseAPI>(course: Json<Course>, stack: State<S>) -> H
     }
 }
 
-// DELETE /v1/courses/id/{course_id}
+/// DELETE /v1/courses/id/{course_id}
 async fn delete_course<S: CourseAPI>(course_id: Path<Uuid>, stack: State<S>) -> HttpResponse {
     match stack.delete_course(&course_id).await {
         Ok(_) => HttpResponse::Ok().finish(),

@@ -21,6 +21,7 @@ export interface CourseData {
   updated_at: string;
   questions: number;
   progress: number;
+  categories: string[];
 }
 
 export interface QuizData {
@@ -47,9 +48,9 @@ export const lorem = new LoremIpsum({
     min: 4,
   },
 });
-
+// 62.146.233.89
 const ax = axios.create({
-  baseURL: `http://${process.env.API_HOST || "62.146.233.89"}:${process.env.API_PORT || "1107"}/api/v1`,
+  baseURL: `http://${process.env.API_HOST || "localhost"}:${process.env.API_PORT || "1107"}/api/v1`,
   headers: {
     Accept: "application/json, text/plain, */*",
     "Content-Type": "application/json; charset=utf-8",
@@ -86,6 +87,10 @@ export async function getAllCourses(): Promise<CourseData[]> {
 
 export async function getCourse(id: string): Promise<CourseData> {
   return ax.get<CourseData>(`/courses/id/${id}`).then((r): CourseData => r.data);
+}
+
+export async function getCourseByCode(course_code: string): Promise<CourseData> {
+  return ax.get<CourseData>(`/courses/code/${course_code}`).then((r): CourseData => r.data);
 }
 
 export async function addCourse(course: Pick<CourseData, "name" | "course_code" | "description">): Promise<CourseData> {
@@ -146,4 +151,8 @@ export async function setQuizCorrectCount(id: string, count: number): Promise<Qu
 
 export async function renameQuiz(course_code: string, old_name: string, new_name: string) {
   return ax.post<void>(`/quiz/rename/${course_code}`, { old: old_name, new: new_name }).then((_) => {});
+}
+
+export function ratingFor(quiz: QuizData) {
+  return Math.round((5 * quiz.correct_count) / quiz.card_count);
 }

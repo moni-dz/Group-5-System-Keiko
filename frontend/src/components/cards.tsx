@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CardData, CourseData } from "@/lib/api";
 import { Trash2 } from "lucide-react";
@@ -188,5 +190,101 @@ export function SkeletonEditableCourse() {
         <Skeleton className="h-9 w-16" />
       </div>
     </Card>
+  );
+}
+
+interface QuizCardProps {
+  question: string;
+  answerOptions: string[];
+  selectedAnswer: string;
+  setSelectedAnswer: (answer: string) => void;
+  isSubmitted: boolean;
+  correctAnswer: string;
+  message: string;
+  onSubmit: () => void;
+  onNext: () => void;
+}
+
+export function QuizCard({
+  question,
+  answerOptions,
+  selectedAnswer,
+  setSelectedAnswer,
+  isSubmitted,
+  correctAnswer,
+  message,
+  onSubmit,
+  onNext,
+}: QuizCardProps) {
+  return (
+    <div className="w-full [perspective:1000px]">
+      <div
+        className={`relative w-full transition-transform duration-500 [transform-style:preserve-3d] ${
+          isSubmitted ? "[transform:rotateY(180deg)]" : ""
+        }`}
+      >
+        {/* Front of the card */}
+        <div className="absolute w-full [backface-visibility:hidden] flex items-center justify-center">
+          <div className="w-full max-w-md mx-auto flex flex-col items-center justify-start border border-zinc-200 rounded-lg p-6 bg-white shadow-md">
+            <CardTitle className="text-2xl text-center text-zinc-500 mb-6">
+              <div className="max-h-[60vh] overflow-y-auto">{question}</div>
+            </CardTitle>
+            <RadioGroup
+              value={selectedAnswer}
+              onValueChange={setSelectedAnswer}
+              disabled={isSubmitted}
+              className="space-y-4 w-full mb-8 max-h-[40vh] overflow-y-auto"
+            >
+              {answerOptions.map((option, index) => (
+                <div
+                  key={index}
+                  className={`flex items-center space-x-3 p-3 ${
+                    selectedAnswer === option ? "bg-red-100 text-zinc-500 rounded-lg" : "text-zinc-500"
+                  }`}
+                >
+                  <RadioGroupItem
+                    value={option}
+                    id={`option-${index}`}
+                    className={`${selectedAnswer === option ? "border-zinc-500" : ""}`}
+                  />
+                  <Label
+                    htmlFor={`option-${index}`}
+                    className={`${selectedAnswer === option ? "text-zinc-700" : "text-zinc-600"}`}
+                  >
+                    {option}
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+            <Button
+              onClick={onSubmit}
+              disabled={isSubmitted || !selectedAnswer}
+              className="bg-zinc-600 text-white hover:bg-red-500 transition-colors font-gau-pop-magic mt-auto"
+            >
+              SUBMIT ANSWER
+            </Button>
+          </div>
+        </div>
+
+        {/* Back of the card */}
+        <div className="absolute w-full [backface-visibility:hidden] [transform:rotateY(180deg)] flex items-center justify-center">
+          <div className="w-full max-w-md mx-auto flex flex-col items-center justify-between border border-zinc-200 rounded-lg p-6 bg-white shadow-md">
+            <p
+              className={`text-xl font-gau-pop-magic font-bold mb-4 ${
+                message === "Correct!" ? "text-red-500" : "text-zinc-500"
+              }`}
+            >
+              {message}
+            </p>
+            <CardTitle className="text-1xl text-center text-zinc-500 mb-8 max-h-[60vh] overflow-y-auto">
+              Answer: {correctAnswer}
+            </CardTitle>
+            <Button onClick={onNext} className="bg-zinc-500 text-white hover:bg-red-500 mt-auto">
+              Next Card
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

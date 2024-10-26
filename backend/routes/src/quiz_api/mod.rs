@@ -16,6 +16,7 @@ pub struct QuizView {
     pub is_completed: bool,
     pub started_at: chrono::DateTime<chrono::Utc>,
     pub completed_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub correct_count: i32,
     pub card_count: i64,
     pub progress: i32,
 }
