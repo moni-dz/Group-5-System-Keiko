@@ -3,14 +3,14 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ClipboardList, CheckCircle, XCircle, Star, BookOpen, Home } from "lucide-react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getAllQuizzes, getCourseByCode, QuizData, ratingFor } from "@/lib/api";
 import { ErrorSkeleton, LoadingSkeleton } from "@/components/status";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-export default function AnalyticsPage() {
+export default function ReportsPage() {
   const searchParams = useSearchParams();
   const course_code = searchParams.get("course") || "";
   const [selectedCategory, setSelectedCategory] = useState<QuizData | null>(null);
@@ -73,7 +73,7 @@ export default function AnalyticsPage() {
           <div className="flex justify-between items-start">
             <h1 className="text-3xl font-bold font-gau-pop-magic text-red-500 ml-4">REPORTS</h1>
             <div className="absolute top-4 right-4">
-              <Link href="/dashboard">
+              <Link href="/dashboard?view=courses">
                 <Button className="p-2 rounded-full bg-inherit shadow-none hover:bg-red-50 text-red-500 transition-colors">
                   <Home className="w-6 h-6" />
                 </Button>
