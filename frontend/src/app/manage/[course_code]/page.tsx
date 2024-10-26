@@ -33,6 +33,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { LoadingSkeleton } from "@/components/status";
+import Link from "next/link";
 
 interface ManagePageProps {
   params: Promise<{
@@ -62,7 +63,7 @@ export default function ManagePage(props: ManagePageProps) {
 
   const [showQuestionForm, setShowQuestionForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState({ question: "", answer: "" });
+  const [formData, setFormData] = useState<Pick<CardData, "question" | "answer">>({ question: "", answer: "" });
 
   const { data: quizzes, isPending: isQuizzesPending } = useQuery({
     queryKey: ["quizzes"],
@@ -96,34 +97,30 @@ export default function ManagePage(props: ManagePageProps) {
     onError: (e: Error) => toast({ description: e.message }),
   }).mutate;
 
+  function cardMutationSuccess() {
+    queryClient.invalidateQueries({ queryKey: ["cards"] });
+    toast({ description: "Card added successfully" });
+  }
+
   const addCardMutation = useMutation({
     mutationFn: (card: Omit<CardData, "id" | "created_at" | "updated_at">) => addCard(card),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["cards"] });
-      toast({ description: "Card added successfully" });
-    },
+    onSuccess: cardMutationSuccess,
     onError: (e: Error) => toast({ description: e.message }),
   }).mutate;
 
   const updateCardMutation = useMutation({
     mutationFn: (card: Omit<CardData, "created_at" | "updated_at">) => updateCard(card),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["cards"] });
-      toast({ description: "Card updated successfully" });
-    },
+    onSuccess: cardMutationSuccess,
     onError: (e: Error) => toast({ description: e.message }),
   }).mutate;
 
   const deleteCardMutation = useMutation({
     mutationFn: deleteCard,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["cards"] });
-      toast({ description: "Card deleted successfully" });
-    },
+    onSuccess: cardMutationSuccess,
     onError: (e: Error) => toast({ description: e.message }),
   }).mutate;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (editingId) {
       updateCardMutation({ id: editingId, ...currentQuiz, ...formData });
@@ -132,12 +129,12 @@ export default function ManagePage(props: ManagePageProps) {
       addCardMutation({ ...currentQuiz, ...formData });
     }
     setFormData({ question: "", answer: "" });
-  };
+  }
 
-  const handleEdit = (card: CardData) => {
+  function handleEdit(card: CardData) {
     setEditingId(card.id);
     setFormData({ question: card.question, answer: card.answer });
-  };
+  }
 
   if (isQuizzesPending) {
     return <LoadingSkeleton />;
@@ -145,13 +142,11 @@ export default function ManagePage(props: ManagePageProps) {
 
   return (
     <div className="bg-gray-50 min-h-screen relative">
-      <Button
-        className="absolute top-0 right-0 m-4 p-2 rounded-full hover:bg-red-50"
-        variant="ghost"
-        onClick={() => router.push("/")}
-      >
-        <Home className="w-6 h-6 text-red-500  rounded-sm" />
-      </Button>
+      <Link href="/dashboard?view=courses">
+        <Button className="absolute top-0 right-0 m-4 p-2 rounded-full hover:bg-red-50" variant="ghost">
+          <Home className="w-6 h-6 text-red-500 rounded-sm" />
+        </Button>
+      </Link>
       <div className="container mx-auto p-4">
         {/* first dialog */}
         {showFirstDialog && (
@@ -261,10 +256,7 @@ export default function ManagePage(props: ManagePageProps) {
                 onValueChange={(value) => {
                   const quiz = quizzes.find((q) => q.category === value);
                   if (quiz) {
-                    setCurrentQuiz({
-                      course_code: quiz.course_code,
-                      category: quiz.category,
-                    });
+                    setCurrentQuiz(quiz);
                   }
                 }}
               >
@@ -388,13 +380,11 @@ export default function ManagePage(props: ManagePageProps) {
                 <Button type="submit" className="bg-red-500 text-white hover:bg-zinc-500">
                   {editingId ? "Update" : "Add"} Item
                 </Button>
-                <Button
-                  type="button"
-                  onClick={() => router.push("/courses")}
-                  className="bg-red-500 hover:bg-zinc-500 text-white"
-                >
-                  Back
-                </Button>
+                <Link href="/courses">
+                  <Button type="button" className="bg-red-500 hover:bg-zinc-500 text-white">
+                    Back
+                  </Button>
+                </Link>
               </div>
             </form>
 
