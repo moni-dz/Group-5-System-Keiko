@@ -9,13 +9,13 @@ const Flashcard = dynamic(() => import("@/components/cards").then((mod) => mod.F
 
 interface ReviewPageProps {
   params: Promise<{
-    id: string;
+    quiz_id: string;
   }>;
 }
 
 export default async function ReviewPage(props: ReviewPageProps) {
-  const { id } = await props.params;
-  const cards = await getCardsByQuizId(id);
+  const { quiz_id } = await props.params;
+  const cards = await getCardsByQuizId(quiz_id);
 
   return (
     <>

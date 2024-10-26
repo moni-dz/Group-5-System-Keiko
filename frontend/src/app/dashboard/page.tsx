@@ -33,7 +33,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import logo from "../../public/logo.png";
 import { CourseDetails, CourseList, QuizDetails, QuizList } from "./components";
@@ -41,6 +41,7 @@ import Loading from "./loading";
 
 export default function MainPage() {
   const queryClient = useQueryClient();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
   const activeView = searchParams.get("view") || "";
@@ -50,14 +51,30 @@ export default function MainPage() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const toggleSidebar = () => setIsSidebarCollapsed(!isSidebarCollapsed);
 
-  const courseQuery = useQuery({
+  const {
+    data: courses,
+    isPending: isCoursePending,
+    isFetching: isCourseFetching,
+    isLoading: isCourseLoading,
+    isError: isCourseError,
+    error: courseError,
+  } = useQuery({
     queryKey: ["courses"],
     queryFn: getAllCourses,
+    initialData: [],
   });
 
-  const quizQuery = useQuery({
+  const {
+    data: quizzes,
+    isPending: isQuizPending,
+    isFetching: isQuizFetching,
+    isLoading: isQuizLoading,
+    isError: isQuizError,
+    error: quizError,
+  } = useQuery({
     queryKey: ["quizzes"],
     queryFn: getAllQuizzes,
+    initialData: [],
   });
 
   const markCompletionMutation = useMutation({
@@ -71,25 +88,23 @@ export default function MainPage() {
     onError: (e) => toast({ description: e.message }),
   }).mutate;
 
-  if (courseQuery.isPending || quizQuery.isPending) {
+  if (isCourseLoading || isCoursePending || isCourseFetching || isQuizLoading || isQuizPending || isQuizFetching) {
     return <Loading />;
   }
 
-  if (courseQuery.isError || quizQuery.isError) {
-    if (courseQuery.isError) {
-      toast({ description: courseQuery.error.message });
-    } else if (quizQuery.isError) {
-      toast({ description: quizQuery.error.message });
-    }
+  if (isCourseError || isQuizError) {
+    toast({ description: isCourseError ? courseError.message : isQuizError ? quizError.message : "" });
 
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-        {courseQuery.isError ? courseQuery.error.message : quizQuery.isError ? quizQuery.error.message : ""}
+        {isCourseError ? courseError.message : isQuizError ? quizError.message : ""}
       </div>
     );
   }
 
   function filterCourses(courses: CourseData[], query: string) {
+    if (!courses) return [];
+
     return courses.filter(
       (course) =>
         course.course_code.toLowerCase().includes(query.toLowerCase()) ||
@@ -105,15 +120,15 @@ export default function MainPage() {
     );
   }
 
-  const filteredCourses = filterCourses(courseQuery.data, searchQuery);
+  const filteredCourses = filterCourses(courses, searchQuery);
 
   const filteredOngoing = filterQuizzes(
-    quizQuery.data.filter((quiz: QuizData) => !quiz.is_completed),
+    quizzes.filter((quiz: QuizData) => !quiz.is_completed),
     searchQuery,
   );
 
   const filteredCompleted = filterQuizzes(
-    quizQuery.data.filter((quiz: QuizData) => quiz.is_completed),
+    quizzes.filter((quiz: QuizData) => quiz.is_completed),
     searchQuery,
   );
 
@@ -222,13 +237,14 @@ export default function MainPage() {
                 />
               </div>
 
-              <button
-                onClick={() => (window.location.href = "/")}
-                className="p-2 rounded-full hover:bg-red-50 text-red-500 transition-colors"
-                aria-label="Go to home"
-              >
-                <Home className="w-6 h-6" />
-              </button>
+              <Link href="/">
+                <Button
+                  className="p-2 rounded-full bg-inherit shadow-none hover:bg-red-50 text-red-500 transition-colors"
+                  aria-label="Go to home"
+                >
+                  <Home className="w-6 h-6" />
+                </Button>
+              </Link>
             </div>
 
             {activeView === "courses" ? (
@@ -254,7 +270,10 @@ export default function MainPage() {
                       <CircleX className="mr-2 h-4 w-4" />
                       Delete
                     </Button>
-                    <Button className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white">
+                    <Button
+                      className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white"
+                      onClick={() => router.push(`/analytics?course=${selectedCourse}`)}
+                    >
                       <FileChartLine className="mr-2 h-4 w-4" />
                       Reports
                     </Button>
