@@ -1,8 +1,8 @@
 "use client";
 
-import React, { Suspense, use, useState } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ClipboardList, CheckCircle, XCircle, Star, BookOpen, ArrowLeft, Home } from "lucide-react";
+import { ClipboardList, CheckCircle, XCircle, Star, BookOpen, Home } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAllQuizzes, getCourseByCode, QuizData, ratingFor } from "@/lib/api";
 import { ErrorSkeleton, LoadingSkeleton } from "@/components/status";
