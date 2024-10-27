@@ -38,8 +38,8 @@ SELECT
     c.*,
     COALESCE(f.questions, 0) AS questions,
     CASE
-        WHEN COALESCE(f.questions, 0) = 0 THEN 0
-        ELSE ROUND((COALESCE(q.total_current_index, 0)::float / f.questions) * 100)::integer
+        WHEN COALESCE(q.total_quizzes, 0) = 0 THEN 0
+        ELSE ROUND((COALESCE(q.completed_quizzes, 0)::float / q.total_quizzes) * 100)::integer
     END AS progress,
     COALESCE(cat.categories, ARRAY[]::text[]) AS categories
 FROM
@@ -56,7 +56,8 @@ LEFT JOIN (
 LEFT JOIN (
     SELECT
         course_code,
-        SUM(current_index) AS total_current_index
+        COUNT(*) AS total_quizzes,
+        COUNT(CASE WHEN is_completed THEN 1 END) AS completed_quizzes
     FROM
         quizzes
     GROUP BY
@@ -74,16 +75,10 @@ LEFT JOIN (
 
 CREATE OR REPLACE VIEW quizzes_view AS
 SELECT
-    q.id,
-    q.course_code,
-    q.category,
-    q.current_index,
-    q.is_completed,
-    q.correct_count,
-    q.started_at,
-    q.completed_at,
+    q.*,
     COALESCE(COUNT(f.id), 0) AS card_count,
     CASE
+        WHEN q.is_completed THEN 100
         WHEN COUNT(f.id) = 0 THEN 0
         ELSE ROUND((q.current_index::float / COUNT(f.id)) * 100)::integer
     END AS progress

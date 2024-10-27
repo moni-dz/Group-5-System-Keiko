@@ -12,7 +12,7 @@ import Link from "next/link";
 
 export default function ReportsPage() {
   const searchParams = useSearchParams();
-  const course_code = searchParams.get("course") || "";
+  const course_code = decodeURI(searchParams.get("course") || "");
   const [selectedCategory, setSelectedCategory] = useState<QuizData | null>(null);
 
   const {
