@@ -2,6 +2,13 @@ import { Progress } from "@/components/ui/progress";
 import { CourseData, QuizData } from "@/lib/api";
 import dayjs from "dayjs";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { Sidebar, SidebarHeader, SidebarContent, SidebarFooter } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { BookCheck, ChevronsLeft, ClipboardList, Clock, Menu } from "lucide-react";
+import Image from "next/image";
+import logo from "@/public/logo.png";
 
 interface CourseListProps {
   courses: CourseData[];
@@ -136,6 +143,82 @@ export function QuizDetails(props: QuizDetailsProps) {
       {quiz.is_completed && (
         <p className="text-zinc-500 italic mt-2">Completed on: {dayjs(quiz.completed_at).format("MM-DD-YYYY")}</p>
       )}
+    </div>
+  );
+}
+
+interface DashboardSidebarProps {
+  collapsed: boolean;
+  setCollapsed: (collapsed: boolean) => void;
+}
+
+export function DashboardSidebar(props: DashboardSidebarProps) {
+  const { collapsed, setCollapsed } = props;
+
+  const items = [
+    {
+      href: "?view=courses",
+      icon: ClipboardList,
+      label: "Courses",
+    },
+    {
+      href: "?view=ongoing",
+      icon: Clock,
+      label: "On-Going",
+    },
+    {
+      href: "?view=completed",
+      icon: BookCheck,
+      label: "Completed",
+    },
+  ];
+
+  return (
+    <div className={cn("h-full transition-all duration-300 flex-shrink-0", collapsed ? "w-16" : "w-64")}>
+      <Sidebar className={cn("border-r border-border bg-white", collapsed ? "w-16" : "w-64")}>
+        <SidebarHeader className="p-4">
+          <Link href="/">
+            <div className="flex justify-center items-center">
+              {collapsed ? (
+                <Image src={logo} alt="logo" className="w-8 h-8" />
+              ) : (
+                <h1 className="text-3xl font-bold font-gau-pop-magic text-red-500 text-center">Keiko!</h1>
+              )}
+            </div>
+          </Link>
+        </SidebarHeader>
+
+        <SidebarContent>
+          <ScrollArea className="h-full px-2">
+            <nav className="flex flex-col gap-2">
+              {items.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link href={item.href} key={item.href}>
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        "w-full flex items-center text-zinc-500",
+                        collapsed ? "justify-center px-2" : "justify-start",
+                        "hover:bg-red-500 hover:text-white transition-colors",
+                      )}
+                    >
+                      <Icon className={cn("h-5 w-5", !collapsed && "mr-2")} />
+                      {!collapsed && item.label}
+                    </Button>
+                  </Link>
+                );
+              })}
+            </nav>
+          </ScrollArea>
+        </SidebarContent>
+
+        <SidebarFooter className="p-4">
+          <Button variant="ghost" size="icon" onClick={() => setCollapsed(!collapsed)} className="w-full">
+            {collapsed ? <Menu className="h-5 w-5 text-zinc-500" /> : <ChevronsLeft className="h-5 w-5 text-red-500" />}
+          </Button>
+        </SidebarFooter>
+      </Sidebar>
     </div>
   );
 }

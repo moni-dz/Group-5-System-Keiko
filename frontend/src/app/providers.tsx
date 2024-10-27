@@ -1,5 +1,6 @@
 "use client";
 
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 
 interface ProvidersProps {

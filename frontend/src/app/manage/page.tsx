@@ -31,8 +31,8 @@ import {
   QuizData,
 } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
-import { LoadingSkeleton } from "@/components/status";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ErrorSkeleton, LoadingSkeleton } from "@/components/status";
 import Link from "next/link";
 import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
@@ -40,23 +40,21 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
-interface ManagePageProps {
-  params: Promise<{ course_code: string }>;
-}
-
 const formSchema = z.object({
   question: z.string().min(1, "Question is required."),
   answer: z.string().min(1, "Answer is required."),
 });
 
-export default function ManagePage(props: ManagePageProps) {
-  const { course_code } = use(props.params);
+export default function ManagePage() {
   const router = useRouter();
+  const searchParams = new URLSearchParams(useSearchParams());
+  const course_code = decodeURI(searchParams.get("course") || "");
+  const category = decodeURI(searchParams.get("quiz") || "");
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   // dialog control
-  const [showFirstDialog, setShowFirstDialog] = useState(true);
+  const [showFirstDialog, setShowFirstDialog] = useState(category.length === 0);
   const [showNewDialog, setShowNewDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
 
@@ -66,10 +64,10 @@ export default function ManagePage(props: ManagePageProps) {
 
   const [currentQuiz, setCurrentQuiz] = useState<Pick<QuizData, "course_code" | "category">>({
     course_code,
-    category: "",
+    category,
   });
 
-  const [showQuestionForm, setShowQuestionForm] = useState(false);
+  const [showQuestionForm, setShowQuestionForm] = useState(category.length > 0);
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -93,25 +91,35 @@ export default function ManagePage(props: ManagePageProps) {
     }
   }
 
-  const { data: quizzes, isPending: isQuizzesPending } = useQuery({
+  const { data: quizzes, isFetching: isQuizzesFetching } = useQuery({
     queryKey: ["quizzes"],
     queryFn: getAllQuizzes,
     initialData: [],
   });
 
-  const {
-    data: cards,
-    isPending: isCardsPending,
-    isLoading: isCardsLoading,
-    isFetching: isCardsFetching,
-  } = useQuery({
+  const { data: cards, isFetching: isCardsFetching } = useQuery({
     queryKey: ["cards"],
     queryFn: getAllCards,
     initialData: [],
   });
 
+  const addQuizMutation = useMutation({
+    mutationFn: (quiz: Pick<QuizData, "course_code" | "category">) => {
+      searchParams.set("quiz", encodeURI(quiz.category));
+      router.push(`?${searchParams.toString()}`);
+      return addQuiz(quiz);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["quizzes"] });
+      toast({ description: "Quiz created successfully" });
+    },
+    onError: (e: Error) => toast({ description: e.message }),
+  }).mutate;
+
   const renameQuizMutation = useMutation({
     mutationFn: ({ old_name, new_name }: { old_name: string; new_name: string }) => {
+      searchParams.set("quiz", new_name);
+      router.push(`?${searchParams.toString()}`);
       setCurrentQuiz({ ...currentQuiz, category: new_name });
       return renameQuiz(course_code, old_name, new_name);
     },
@@ -154,8 +162,12 @@ export default function ManagePage(props: ManagePageProps) {
     form.setValue("answer", card.answer);
   }
 
-  if (isQuizzesPending) {
+  if (isQuizzesFetching) {
     return <LoadingSkeleton />;
+  }
+
+  if (!quizzes.find((quiz) => quiz.category == category) || quizzes.length === 0) {
+    return <ErrorSkeleton message="Quiz not found." />;
   }
 
   return (
@@ -179,12 +191,11 @@ export default function ManagePage(props: ManagePageProps) {
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter className="flex flex-col sm:flex-row gap-4 sm:justify-between">
-                <AlertDialogAction
-                  onClick={() => router.push(`/course/${course_code}`)}
-                  className="w-full sm:w-auto text-zinc-500 bg-white border hover:border-red-500 border-zinc-500 hover:bg-red-500 hover:text-white"
-                >
-                  Back
-                </AlertDialogAction>
+                <Link href="/courses">
+                  <AlertDialogAction className="w-full sm:w-auto text-zinc-500 bg-white border hover:border-red-500 border-zinc-500 hover:bg-red-500 hover:text-white">
+                    Back
+                  </AlertDialogAction>
+                </Link>
                 <div className="flex flex-col sm:flex-row gap-4 sm:gap-2 w-full sm:w-auto">
                   <AlertDialogAction
                     onClick={() => {
@@ -242,7 +253,7 @@ export default function ManagePage(props: ManagePageProps) {
                 <AlertDialogAction
                   onClick={() => {
                     if (currentQuiz.category) {
-                      addQuiz(currentQuiz);
+                      addQuizMutation(currentQuiz);
                       setShowNewDialog(false);
                       setShowQuestionForm(true);
                     }
@@ -275,6 +286,8 @@ export default function ManagePage(props: ManagePageProps) {
                   const quiz = quizzes.find((q) => q.category === value);
                   if (quiz) {
                     setCurrentQuiz(quiz);
+                    searchParams.set("quiz", encodeURI(quiz.category));
+                    router.push(`?${searchParams.toString()}`);
                   }
                 }}
               >
@@ -307,6 +320,7 @@ export default function ManagePage(props: ManagePageProps) {
                     if (currentQuiz.category) {
                       setShowEditDialog(false);
                       setShowQuestionForm(true);
+                      searchParams.set("quiz", encodeURI(currentQuiz.category));
                     }
                   }}
                   className="hover:text-white border hover:border-red-500 hover:bg-red-500 text-zinc-500 bg-white border-zinc-500"
@@ -415,7 +429,7 @@ export default function ManagePage(props: ManagePageProps) {
             </Form>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {isCardsPending || isCardsLoading || isCardsFetching
+              {isCardsFetching
                 ? Array.from({ length: 6 }).map((_, i) => <SkeletonEditableCard key={i} />)
                 : cards
                     .filter(
