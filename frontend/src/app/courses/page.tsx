@@ -8,7 +8,6 @@ import { useToast } from "@/hooks/use-toast";
 import { SkeletonEditableCourse } from "@/components/cards";
 import { addCourse, CourseData, deleteCourse, getAllCourses, updateCourse } from "@/lib/api";
 import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
 import { Home } from "lucide-react";
 import Link from "next/link";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,6 +15,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useTransitionRouter } from "next-view-transitions";
 
 const EditableCourse = dynamic(() => import("@/components/cards").then((mod) => mod.EditableCourse), {
   loading: () => <SkeletonEditableCourse />,
@@ -28,7 +28,7 @@ const formSchema = z.object({
 });
 
 export default function CoursesPage() {
-  const router = useRouter();
+  const router = useTransitionRouter();
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [editingId, setEditingId] = useState<string | null>(null);

@@ -30,7 +30,7 @@ import {
   QuizData,
 } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { ErrorSkeleton, LoadingSkeleton } from "@/components/status";
 import Link from "next/link";
 import { Textarea } from "@/components/ui/textarea";
@@ -38,6 +38,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useTransitionRouter } from "next-view-transitions";
 
 const formSchema = z.object({
   question: z.string().min(1, "Question is required."),
@@ -45,7 +46,7 @@ const formSchema = z.object({
 });
 
 export default function ManagePage() {
-  const router = useRouter();
+  const router = useTransitionRouter();
   const searchParams = new URLSearchParams(useSearchParams());
   const course_code = decodeURI(searchParams.get("course") || "");
   const category = decodeURI(searchParams.get("quiz") || "");

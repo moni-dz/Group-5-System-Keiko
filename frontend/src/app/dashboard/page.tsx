@@ -18,7 +18,8 @@ import { CourseData, QuizData, getAllCourses, getAllQuizzes, setQuizCompletion }
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Edit, FileChartLine, FolderClock, Home, Pen, Search, BookOpen } from "lucide-react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useTransitionRouter } from "next-view-transitions";
 import { useState } from "react";
 import { CourseDetails, CourseList, DashboardSidebar, QuizDetails, QuizList } from "./components";
 import { LoadingSkeleton } from "@/components/status";
@@ -26,7 +27,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function MainPage() {
   const queryClient = useQueryClient();
-  const router = useRouter();
+  const router = useTransitionRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
   const activeView = searchParams.get("view") || "";

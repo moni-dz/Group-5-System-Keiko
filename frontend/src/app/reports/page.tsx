@@ -8,7 +8,7 @@ import { getAllQuizzes, getCourseByCode, QuizData, ratingFor } from "@/lib/api";
 import { ErrorSkeleton, LoadingSkeleton } from "@/components/status";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { Link } from "next-view-transitions";
 
 export default function ReportsPage() {
   const searchParams = useSearchParams();
