@@ -19,6 +19,7 @@ export default function ReportsPage() {
     data: course,
     isPending: isCoursePending,
     isError: isCourseError,
+    error: courseError,
   } = useQuery({
     queryKey: ["courses"],
     queryFn: () => getCourseByCode(course_code),
@@ -28,6 +29,7 @@ export default function ReportsPage() {
     data: quizzes,
     isPending: isQuizzesPending,
     isError: isQuizzesError,
+    error: quizzesError,
   } = useQuery({
     queryKey: ["quizzes"],
     queryFn: getAllQuizzes,
@@ -57,14 +59,10 @@ export default function ReportsPage() {
 
   const analysis = findStrengthsAndWeaknesses();
 
-  if (isCourseError || isQuizzesError) {
-    const message = isCourseError ? "Failed to fetch course data." : "Failed to fetch quizzes data.";
-    return <ErrorSkeleton message={message} />;
-  }
+  if (isCourseError || isQuizzesError)
+    return <ErrorSkeleton error={isCourseError ? courseError : isQuizzesError ? quizzesError : undefined} />;
 
-  if (isCoursePending || isQuizzesPending) {
-    return <LoadingSkeleton />;
-  }
+  if (isCoursePending || isQuizzesPending) return <LoadingSkeleton />;
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">
@@ -137,7 +135,6 @@ export default function ReportsPage() {
                 </Card>
               )}
             </div>
-
             {/* Quiz Categories or Summary */}
             <div className="relative">
               {!selectedCategory ? (

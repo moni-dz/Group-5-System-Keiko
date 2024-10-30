@@ -9,13 +9,13 @@ export function LoadingSkeleton() {
 }
 
 interface ErrorSkeletonProps {
-  message: string;
+  error?: Error;
 }
 
 export function ErrorSkeleton(props: ErrorSkeletonProps) {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-      {props.message}
+      {props.error ? props.error.message : "An error occurred."}
     </div>
   );
 }

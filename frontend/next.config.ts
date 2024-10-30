@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
       static: 180,
     },
     reactCompiler: true,
+    ppr: true,
   },
 };
 

@@ -88,20 +88,12 @@ export default function QuizPage({ params }: QuizPageProps) {
   }, [cards, quiz]);
 
   if (isQuizError || isCardsError) {
-    toast({ description: "Failed to fetch cards" });
-
-    const message = isQuizError ? quizError.message : isCardsError ? cardsError.message : "Failed to load quiz.";
-
-    return <ErrorSkeleton message={message} />;
+    toast({ description: "Failed to fetch cards." });
+    return <ErrorSkeleton error={(quizError || cardsError) as Error} />;
   }
 
-  if (isQuizFetching) {
-    return <LoadingSkeleton />;
-  }
-
-  if (isCardsFetching) {
-    return <SkeletonCard />;
-  }
+  if (isQuizFetching) return <LoadingSkeleton />;
+  if (isCardsFetching) return <SkeletonCard />;
 
   const currentCardIndex = quiz?.current_index ?? 0;
 
@@ -160,7 +152,9 @@ export default function QuizPage({ params }: QuizPageProps) {
       </header>
       <main className="container mx-auto px-4 py-8">
         {!cards || cards.length === 0 ? (
-          <div className="text-center py-8 font-gau-pop-magic text-red-500 font-bold">NO CARDS AVAILABLE FOR THIS COURSE.</div>
+          <div className="text-center py-8 font-gau-pop-magic text-red-500 font-bold">
+            NO CARDS AVAILABLE FOR THIS COURSE.
+          </div>
         ) : quiz?.is_completed ? (
           <div className="text-center py-8">
             <h2 className="text-2xl font-bold font-gau-pop-magic text-red-500 mb-4">Quiz Completed!</h2>
