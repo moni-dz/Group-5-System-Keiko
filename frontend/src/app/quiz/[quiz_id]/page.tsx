@@ -9,7 +9,7 @@ import { CardData, getCardsByQuizId, getQuiz, setQuizCompletion, setQuizCurrentI
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Lightbulb } from "lucide-react";
 import { use, useEffect, useState } from "react";
-import Link from "next/link";
+import { Link } from "next-view-transitions";
 import { TimerState, useTimerStore } from "@/store/time";
 
 interface QuizPageProps {

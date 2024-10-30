@@ -5,7 +5,7 @@ import { SkeletonCard } from "@/components/cards";
 import { Button } from "@/components/ui/button";
 import { getCardsByQuizId, getQuiz } from "@/lib/api";
 import dynamic from "next/dynamic";
-import Link from "next/link";
+import { Link } from "next-view-transitions";
 import { Home, ArrowLeft, ArrowRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { ErrorSkeleton } from "@/components/status";
