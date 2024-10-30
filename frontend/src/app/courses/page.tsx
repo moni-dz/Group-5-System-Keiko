@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,30 +47,75 @@ export default function CoursesPage() {
     queryFn: getAllCourses,
   });
 
-  const onError = (e: Error) => {
-    toast({ description: e.message });
-  };
-
-  const onSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ["courses"] });
-  };
-
   const addCourseMutation = useMutation({
     mutationFn: (course: Pick<CourseData, "name" | "course_code" | "description">) => addCourse(course),
-    onSuccess,
-    onError,
+
+    onMutate: async (course) => {
+      await queryClient.cancelQueries({ queryKey: ["courses"] });
+
+      const previousCourses = queryClient.getQueryData<CourseData[]>(["courses"]) || [];
+
+      queryClient.setQueryData<CourseData[]>(["courses"], (old) => [
+        ...(old || []),
+        { ...course, id: "temp-id" } as CourseData,
+      ]);
+
+      return { previousCourses };
+    },
+
+    onError: (e, _, context) => {
+      toast({ description: e.message });
+      queryClient.setQueryData<CourseData[]>(["courses"], context?.previousCourses);
+    },
+
+    onSuccess: () => toast({ description: "Course added successfully." }),
+    onSettled: async () => await queryClient.invalidateQueries({ queryKey: ["courses"] }),
   }).mutate;
 
   const updateCourseMutation = useMutation({
     mutationFn: (course: Pick<CourseData, "id" | "name" | "course_code" | "description">) => updateCourse(course),
-    onSuccess,
-    onError,
+
+    onMutate: async (course) => {
+      await queryClient.cancelQueries({ queryKey: ["courses"] });
+
+      const previousCourses = queryClient.getQueryData<CourseData[]>(["courses"]) || [];
+
+      queryClient.setQueryData<CourseData[]>(["courses"], (old) =>
+        old?.map((c) => (c.id === course.id ? { ...c, ...course } : c)),
+      );
+
+      return { previousCourses };
+    },
+
+    onError: (e, _, context) => {
+      toast({ description: e.message });
+      queryClient.setQueryData<CourseData[]>(["courses"], context?.previousCourses);
+    },
+
+    onSuccess: () => toast({ description: "Course updated successfully." }),
+    onSettled: async () => await queryClient.invalidateQueries({ queryKey: ["courses"] }),
   }).mutate;
 
   const deleteCourseMutation = useMutation({
     mutationFn: (id: string) => deleteCourse(id),
-    onSuccess,
-    onError,
+
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ["courses"] });
+
+      const previousCourses = queryClient.getQueryData<CourseData[]>(["courses"]) || [];
+
+      queryClient.setQueryData<CourseData[]>(["courses"], (old) => old?.filter((c) => c.id !== id));
+
+      return { previousCourses };
+    },
+
+    onError: (e, _, context) => {
+      toast({ description: e.message });
+      queryClient.setQueryData<CourseData[]>(["courses"], context?.previousCourses);
+    },
+
+    onSuccess: () => toast({ description: "Course deleted successfully." }),
+    onSettled: async () => await queryClient.invalidateQueries({ queryKey: ["courses"] }),
   }).mutate;
 
   function onSubmit(values: z.infer<typeof formSchema>) {

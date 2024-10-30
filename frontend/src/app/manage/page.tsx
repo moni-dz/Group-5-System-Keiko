@@ -132,36 +132,80 @@ export default function ManagePage() {
     onError: (e: Error) => toast({ description: e.message }),
   }).mutate;
 
-  function cardMutationSuccess() {
-    queryClient.invalidateQueries({ queryKey: ["cards"] });
-    toast({ description: "Card added successfully" });
-  }
-
   const addCardMutation = useMutation({
     mutationFn: (card: Omit<CardData, "id" | "created_at" | "updated_at">) => addCard(card),
-    onSuccess: cardMutationSuccess,
-    onError: (e: Error) => toast({ description: e.message }),
+    onMutate: async (card) => {
+      await queryClient.cancelQueries({ queryKey: ["cards"] });
+      const previousCards = queryClient.getQueryData<CardData[]>(["cards"]) || [];
+
+      queryClient.setQueryData<CardData[]>(
+        ["cards"],
+        [...previousCards, { ...card, id: "optimistic", created_at: "", updated_at: "" }],
+      );
+
+      return { previousCards };
+    },
+
+    onError: (e, _, context) => {
+      toast({ description: e.message });
+      queryClient.setQueryData<CardData[]>(["cards"], context?.previousCards);
+    },
+
+    onSuccess: () => toast({ description: "Card added successfully." }),
+    onSettled: async () => await queryClient.invalidateQueries({ queryKey: ["cards"] }),
   }).mutate;
 
   const updateCardMutation = useMutation({
     mutationFn: (card: Omit<CardData, "created_at" | "updated_at">) => updateCard(card),
-    onSuccess: cardMutationSuccess,
-    onError: (e: Error) => toast({ description: e.message }),
+
+    onMutate: async (card) => {
+      await queryClient.cancelQueries({ queryKey: ["cards"] });
+      const previousCards = queryClient.getQueryData<CardData[]>(["cards"]) || [];
+
+      queryClient.setQueryData<CardData[]>(
+        ["cards"],
+        previousCards.map((c) => (c.id === card.id ? { ...c, ...card } : c)),
+      );
+
+      return { previousCards };
+    },
+
+    onError: (e, _, context) => {
+      toast({ description: e.message });
+      queryClient.setQueryData<CardData[]>(["cards"], context?.previousCards);
+    },
+
+    onSuccess: () => toast({ description: "Card updated successfully." }),
+    onSettled: async () => await queryClient.invalidateQueries({ queryKey: ["cards"] }),
   }).mutate;
 
   const deleteCardMutation = useMutation({
     mutationFn: deleteCard,
-    onSuccess: cardMutationSuccess,
-    onError: (e: Error) => toast({ description: e.message }),
+
+    onMutate: async (id: string) => {
+      await queryClient.cancelQueries({ queryKey: ["cards", id] });
+      const previousCards = queryClient.getQueryData<CardData[]>(["cards", id]) || [];
+
+      queryClient.setQueryData<CardData[]>(
+        ["cards"],
+        previousCards.filter((card) => card.id !== id),
+      );
+
+      return { previousCards };
+    },
+
+    onError: (e) => toast({ description: e.message }),
+    onSuccess: () => toast({ description: "Card deleted successfully." }),
+    onSettled: async () => await queryClient.invalidateQueries({ queryKey: ["cards"] }),
   }).mutate;
 
-  function handleEdit(card: CardData) {
+  function handleEdit(card: Omit<CardData, "created_at" | "updated_at">) {
     setEditingId(card.id);
     form.setValue("question", card.question);
     form.setValue("answer", card.answer);
   }
 
-  if (isQuizzesFetching) {
+  if (isQuizzesFetching || isCardsFetching) {
     return <LoadingSkeleton />;
   }
 
@@ -424,20 +468,16 @@ export default function ManagePage() {
             </Form>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {isCardsFetching
-                ? Array.from({ length: 6 }).map((_, i) => <SkeletonEditableCard key={i} />)
-                : cards
-                    .filter(
-                      (card) => currentQuiz.category == card.category && currentQuiz.course_code == card.course_code,
-                    )
-                    .map((card) => (
-                      <EditableCard
-                        key={card.id}
-                        card={card}
-                        handleEdit={handleEdit}
-                        handleDelete={(id) => deleteCardMutation(id)}
-                      />
-                    ))}
+              {cards
+                .filter((card) => currentQuiz.category == card.category && currentQuiz.course_code == card.course_code)
+                .map((card) => (
+                  <EditableCard
+                    key={card.id}
+                    card={card}
+                    handleEdit={handleEdit}
+                    handleDelete={(id) => deleteCardMutation(id)}
+                  />
+                ))}
             </div>
           </>
         )}
