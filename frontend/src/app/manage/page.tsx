@@ -241,7 +241,7 @@ export default function ManagePage() {
                     setShowFirstDialog(true);
                   }}
                   variant="outline"
-                  className="w-full sm:w-auto"
+                  className="w-full sm:w-auto text-zinc-500 border border-zinc-500 hover:bg-red-500 hover:text-white hover:border-red-500"
                 >
                   Back
                 </Button>
@@ -306,7 +306,7 @@ export default function ManagePage() {
                     setShowFirstDialog(true);
                   }}
                   variant="outline"
-                  className="w-full sm:w-auto"
+                  className="w-full sm:w-auto text-zinc-500 border border-zinc-500 hover:bg-red-500 hover:text-white hover:border-red-500"
                 >
                   Back
                 </Button>
