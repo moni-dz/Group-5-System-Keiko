@@ -1,6 +1,5 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -17,23 +16,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { CourseData, QuizData, getAllCourses, getAllQuizzes, setQuizCompletion } from "@/lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  BookCheck,
-  ChevronsLeft,
-  CircleX,
-  ClipboardList,
-  Clock,
-  Edit,
-  FileChartLine,
-  FolderClock,
-  Home,
-  Menu,
-  Pen,
-  Plus,
-  Search,
-  BookOpen,
-} from "lucide-react";
-import Image from "next/image";
+import { Edit, FileChartLine, FolderClock, Home, Pen, Search, BookOpen } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -177,7 +160,8 @@ export default function MainPage() {
               </Button>
             </Link>
           </div>
-          {activeView === "courses" ? (
+
+          {activeView === "courses" && (
             <div>
               <h2 className="text-2xl font-bold mb-4 font-gau-pop-magic text-red-500">COURSES</h2>
               <div className="grid grid-cols-2 gap-4">
@@ -192,6 +176,7 @@ export default function MainPage() {
                 <div className="space-x-2">
                   <Button
                     className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white"
+                    disabled={selectedCourse === ""}
                     onClick={() => router.push(`/reports?course=${encodeURI(selectedCourse)}`)}
                   >
                     <FileChartLine className="mr-2 h-4 w-4" />
@@ -206,7 +191,9 @@ export default function MainPage() {
                 </Link>
               </div>
             </div>
-          ) : activeView === "ongoing" ? (
+          )}
+
+          {activeView === "ongoing" && (
             <div className="space-y-4">
               <h2 className="text-xl font-bold font-gau-pop-magic text-red-500 mb-4">ON-GOING QUIZZES</h2>
               <div className="grid grid-cols-2 gap-4">
@@ -219,22 +206,28 @@ export default function MainPage() {
               </div>
 
               <div className="mt-4 flex space-x-4">
-                <Link href={`/quiz/${selectedQuiz}`}>
-                  <Button className="bg-red-500 text-white hover:bg-zinc-500 flex items-center space-x-2">
-                    <Pen width="20" height="20" />
-                    <span>Start Quiz</span>
-                  </Button>
-                </Link>
+                <Button
+                  className="bg-red-500 text-white hover:bg-zinc-500 flex items-center space-x-2"
+                  disabled={selectedQuiz === ""}
+                  onClick={() => router.push(`/quiz/${selectedQuiz}`)}
+                >
+                  <Pen width="20" height="20" />
+                  <span>Start Quiz</span>
+                </Button>
 
-                <Link href={`/review/${selectedQuiz}`}>
-                  <Button className="bg-white text-red-500 border-red-500 border hover:bg-red-500 hover:text-white flex items-center space-x-2">
-                    <BookOpen width="20" height="20" />
-                    <span>Start Review</span>
-                  </Button>
-                </Link>
+                <Button
+                  className="bg-white text-red-500 border-red-500 border hover:bg-red-500 hover:text-white flex items-center space-x-2"
+                  disabled={selectedQuiz === ""}
+                  onClick={() => router.push(`/review/${selectedQuiz}`)}
+                >
+                  <BookOpen width="20" height="20" />
+                  <span>Start Review</span>
+                </Button>
               </div>
             </div>
-          ) : activeView === "completed" ? (
+          )}
+
+          {activeView === "completed" && (
             <div>
               <h2 className="text-xl font-bold mb-4 font-gau-pop-magic text-red-500">COMPLETED QUIZZES</h2>
               <div className="grid grid-cols-2 gap-4">
@@ -249,7 +242,10 @@ export default function MainPage() {
                 <div className="space-x-2">
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white">
+                      <Button
+                        className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white"
+                        disabled={selectedQuiz === ""}
+                      >
                         <FolderClock className="mr-2 h-4 w-4" />
                         Mark as On-going
                       </Button>
@@ -277,8 +273,6 @@ export default function MainPage() {
                 </div>
               </div>
             </div>
-          ) : (
-            <></>
           )}
         </main>
       </div>

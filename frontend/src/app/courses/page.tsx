@@ -131,6 +131,10 @@ export default function CoursesPage() {
     } else {
       addCourseMutation(values);
     }
+
+    form.setValue("name", "");
+    form.setValue("course_code", "");
+    form.setValue("description", "");
   }
 
   function handleEdit(course: Pick<CourseData, "id" | "name" | "course_code" | "description">) {

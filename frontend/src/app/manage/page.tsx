@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
@@ -17,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
 import { Home, Pen } from "lucide-react";
-import { EditableCard, SkeletonEditableCard } from "@/components/cards";
+import { EditableCard } from "@/components/cards";
 import {
   addCard,
   addQuiz,
@@ -37,7 +37,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
 const formSchema = z.object({
   question: z.string().min(1, "Question is required."),
@@ -90,13 +90,23 @@ export default function ManagePage() {
     }
   }
 
-  const { data: quizzes, isFetching: isQuizzesFetching } = useQuery({
+  const {
+    data: quizzes,
+    isFetching: isQuizzesFetching,
+    isError: isQuizzesError,
+    error: quizzesError,
+  } = useQuery({
     queryKey: ["quizzes"],
     queryFn: getAllQuizzes,
     initialData: [],
   });
 
-  const { data: cards, isFetching: isCardsFetching } = useQuery({
+  const {
+    data: cards,
+    isFetching: isCardsFetching,
+    isError: isCardsError,
+    error: cardsError,
+  } = useQuery({
     queryKey: ["cards"],
     queryFn: getAllCards,
     initialData: [],
@@ -205,9 +215,8 @@ export default function ManagePage() {
     form.setValue("answer", card.answer);
   }
 
-  if (isQuizzesFetching || isCardsFetching) {
-    return <LoadingSkeleton />;
-  }
+  if (isQuizzesFetching || isCardsFetching) return <LoadingSkeleton />;
+  if (isQuizzesError || isCardsError) return <ErrorSkeleton error={(quizzesError || cardsError) as Error} />;
 
   return (
     <div className="bg-gray-50 min-h-screen relative">
