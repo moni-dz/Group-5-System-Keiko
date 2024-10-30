@@ -153,14 +153,14 @@ export default function QuizPage({ params }: QuizPageProps) {
           </Button>
           <Button asChild variant="outline">
             <a href="/dashboard?view=ongoing" className="bg-white-100 hover:bg-zinc-500 text-red-500 hover:text-white">
-              Back
+              Exit
             </a>
           </Button>
         </div>
       </header>
       <main className="container mx-auto px-4 py-8">
         {!cards || cards.length === 0 ? (
-          <div className="text-center py-8">No cards available for this course.</div>
+          <div className="text-center py-8 font-gau-pop-magic text-red-500 font-bold">NO CARDS AVAILABLE FOR THIS COURSE.</div>
         ) : quiz?.is_completed ? (
           <div className="text-center py-8">
             <h2 className="text-2xl font-bold font-gau-pop-magic text-red-500 mb-4">Quiz Completed!</h2>
