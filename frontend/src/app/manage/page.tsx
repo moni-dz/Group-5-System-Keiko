@@ -2,7 +2,6 @@
 
 import { use, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import {
@@ -54,7 +53,7 @@ export default function ManagePage() {
   const { toast } = useToast();
 
   // dialog control
-  const [showFirstDialog, setShowFirstDialog] = useState(category.length === 0);
+  const [showFirstDialog, setShowFirstDialog] = useState(category.length == 0);
   const [showNewDialog, setShowNewDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
 
@@ -164,10 +163,6 @@ export default function ManagePage() {
 
   if (isQuizzesFetching) {
     return <LoadingSkeleton />;
-  }
-
-  if (!quizzes.find((quiz) => quiz.category == category) || quizzes.length === 0) {
-    return <ErrorSkeleton message="Quiz not found." />;
   }
 
   return (
