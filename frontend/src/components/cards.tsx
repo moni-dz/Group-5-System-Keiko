@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CardData, CourseData } from "@/lib/api";
 import { Trash2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const cardGap = 16;
 const cardWidth = 500;
@@ -67,8 +68,8 @@ export function SkeletonCard() {
 }
 
 interface EditableCardProps {
-  card: CardData;
-  handleEdit: (card: CardData) => void;
+  card: Omit<CardData, "created_at" | "updated_at">;
+  handleEdit: (card: Omit<CardData, "created_at" | "updated_at">) => void;
   handleDelete: (id: string) => void;
 }
 
@@ -76,7 +77,10 @@ export function EditableCard(props: EditableCardProps) {
   const { card, handleEdit, handleDelete } = props;
 
   return (
-    <Card key={card.id} className="flex flex-col min-h-[200px] overflow-hidden">
+    <Card
+      key={card.id}
+      className={cn("flex flex-col h-[250px] overflow-hidden", card.id === "optimistic" && "animate-pulse")}
+    >
       <CardHeader className="flex-shrink-0">
         <CardTitle className="text-lg font-semibold text-zinc-600">{card.question}</CardTitle>
       </CardHeader>
