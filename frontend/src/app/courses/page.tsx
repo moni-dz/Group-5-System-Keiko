@@ -95,10 +95,7 @@ export default function CoursesPage() {
     form.setValue("description", course.description);
   }
 
-  const handleManageCourses = useCallback(
-    (course_code: string) => router.push(`/manage?course=${encodeURI(course_code)}`),
-    [router],
-  );
+  const handleManageCourses = (course_code: string) => router.push(`/manage?course=${encodeURI(course_code)}`);
 
   if (isError) {
     toast({ description: error.message });
