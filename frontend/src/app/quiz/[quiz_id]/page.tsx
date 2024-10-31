@@ -37,6 +37,7 @@ export default function QuizPage({ params }: QuizPageProps) {
   const queryClient = useQueryClient();
   const router = useTransitionRouter();
   const [selectedAnswer, setSelectedAnswer] = useState("");
+  const [isHintUsed, setIsHintUsed] = useState(false);
   const [answerOptions, setAnswerOptions] = useState<string[]>([]);
   const [message, setMessage] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -127,10 +128,39 @@ export default function QuizPage({ params }: QuizPageProps) {
     } else {
       setCurrentCardIndex(currentCardIndex + 1);
       setCurrentIndexMutation(currentCardIndex);
-      console.log(currentCardIndex);
       setSelectedAnswer("");
       setMessage("");
       setIsSubmitted(false);
+      setIsHintUsed(false);
+      generateAnswerOptions(cards, currentCardIndex + 1);
+    }
+  }
+
+  function handleHint() {
+    if (isHintUsed) {
+      toast({
+        description: "Hint already used for this question!",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const correctAnswer = cards[currentCardIndex].answer;
+    const incorrectAnswers = answerOptions.filter((answer) => answer !== correctAnswer);
+
+    if (incorrectAnswers.length > 0) {
+      // Randomly select one incorrect answer to remove
+      const randomIndex = Math.floor(Math.random() * incorrectAnswers.length);
+      const answerToRemove = incorrectAnswers[randomIndex];
+
+      // Create new array without the removed answer
+      const newOptions = answerOptions.filter((answer) => answer !== answerToRemove);
+      setAnswerOptions(newOptions);
+      setIsHintUsed(true);
+
+      toast({
+        description: "One incorrect answer has been removed!",
+      });
     }
   }
 
@@ -150,7 +180,14 @@ export default function QuizPage({ params }: QuizPageProps) {
           </span>
         </h1>
         <div className="flex items-center">
-          <Button variant="outline" className="mr-2 text-white bg-red-500 hover:bg-zinc-500 hover:text-white">
+          <Button
+            variant="outline"
+            className={`mr-2 text-white ${
+              isHintUsed ? "bg-zinc-400" : "bg-red-500 hover:bg-zinc-500"
+            } hover:text-white`}
+            onClick={handleHint}
+            disabled={isHintUsed || isSubmitted}
+          >
             <Lightbulb className="h-5 w-5" />
           </Button>
           <Button onClick={handleExit} variant="outline">
