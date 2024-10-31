@@ -80,7 +80,7 @@ SELECT
     CASE
         WHEN q.is_completed THEN 100
         WHEN COUNT(f.id) = 0 THEN 0
-        ELSE ROUND((q.current_index::float / COUNT(f.id)) * 100)::integer
+        ELSE ROUND((q.current_index::float / GREATEST(COUNT(f.id) - 1, 1)) * 100)::integer
     END AS progress
 FROM
     quizzes q
