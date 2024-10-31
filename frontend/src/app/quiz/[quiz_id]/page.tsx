@@ -11,6 +11,16 @@ import { Lightbulb } from "lucide-react";
 import { use, useEffect, useState } from "react";
 import { Link } from "next-view-transitions";
 import { TimerState, useTimerStore } from "@/store/time";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface QuizPageProps {
   params: Promise<{ quiz_id: string }>;
@@ -42,6 +52,8 @@ export default function QuizPage({ params }: QuizPageProps) {
   const [answerOptions, setAnswerOptions] = useState<string[]>([]);
   const [message, setMessage] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showCompletionDialog, setShowCompletionDialog] = useState(false);
+  const [showExitDialog, setShowExitDialog] = useState(false);
   const { toast } = useToast();
 
   const {
@@ -80,11 +92,12 @@ export default function QuizPage({ params }: QuizPageProps) {
       queryClient.invalidateQueries({
         queryKey: [`quiz_${quiz_id}`],
       });
+      setShowCompletionDialog(false);
     },
   }).mutate;
 
   useEffect(() => {
-    if (cards.length > 0 && quiz) generateAnswerOptions(cards, quiz.current_index); // temporary
+    if (cards.length > 0 && quiz) generateAnswerOptions(cards, quiz.current_index);
   }, [cards, quiz]);
 
   if (isQuizError || isCardsError) {
@@ -112,20 +125,24 @@ export default function QuizPage({ params }: QuizPageProps) {
     if (selectedAnswer === cards[currentCardIndex].answer) {
       setMessage("Correct!");
     } else {
-      setMessage("Incorrect. Try again!");
+      setMessage("Incorrect answer!");
     }
     setIsSubmitted(true);
   }
 
   function handleNext() {
     if (currentCardIndex == cards.length - 1) {
-      setFinishedMutation(true);
+      setShowCompletionDialog(true);
     } else {
       setCurrentIndexMutation(currentCardIndex + 1);
       setSelectedAnswer("");
       setMessage("");
       setIsSubmitted(false);
     }
+  }
+
+  function handleExit() {
+    setShowExitDialog(true);
   }
 
   const currentCard = cards[currentCardIndex];
@@ -143,10 +160,10 @@ export default function QuizPage({ params }: QuizPageProps) {
           <Button variant="outline" className="mr-2 text-white bg-red-500 hover:bg-zinc-500 hover:text-white">
             <Lightbulb className="h-5 w-5" />
           </Button>
-          <Button asChild variant="outline">
-            <a href="/dashboard?view=ongoing" className="bg-white-100 hover:bg-zinc-500 text-red-500 hover:text-white">
+          <Button onClick={handleExit} variant="outline">
+            <span className="bg-white-100 text-red-500">
               Exit
-            </a>
+            </span>
           </Button>
         </div>
       </header>
@@ -178,6 +195,47 @@ export default function QuizPage({ params }: QuizPageProps) {
           />
         )}
       </main>
+
+      {/* Completion Alert Dialog */}
+      <AlertDialog open={showCompletionDialog} onOpenChange={setShowCompletionDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-gau-pop-magic text-red-500">QUIZ COMPLETE!</AlertDialogTitle>
+            <AlertDialogDescription className="text-zinc-500">
+              You've reached the end of the quiz. Click mark as complete to exit!
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction 
+              onClick={() => setFinishedMutation(true)}
+              className="bg-red-500 text-white hover:bg-red-600"
+            >
+              Mark as Complete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Exit Alert Dialog */}
+      <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-gau-pop-magic text-red-500">SAVE PROGRESS?</AlertDialogTitle>
+            <AlertDialogDescription className="text-zinc-500">
+              Would you like to save your progress before exiting?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="hover:bg-red-500 hover:text-white border border-red-500 text-red-500 ">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              asChild
+              className="bg-white-500 text-red-500 hover:text-white border border-red-500 hover:bg-red-500"
+            >
+              <Link href="/dashboard?view=ongoing">Save & Exit</Link>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
