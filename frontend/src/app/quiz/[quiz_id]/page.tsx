@@ -1,7 +1,7 @@
 "use client";
 
 import { SkeletonCard } from "@/components/cards";
-import { LoadingSkeleton, ErrorSkeleton } from "@/components/status";
+import { ErrorSkeleton } from "@/components/status";
 import { Button } from "@/components/ui/button";
 import { QuizCard } from "@/components/cards";
 import { useToast } from "@/hooks/use-toast";
@@ -17,7 +17,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Lightbulb } from "lucide-react";
 import { use, useEffect, useState } from "react";
 import { Link, useTransitionRouter } from "next-view-transitions";
-import { TimerState, useTimerStore } from "@/store/time";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,25 +32,6 @@ interface QuizPageProps {
   params: Promise<{ quiz_id: string }>;
 }
 
-function useTimer(): Omit<TimerState, "setTimeLeft"> {
-  const { timeLeft, isRunning, initialTime, setTimeLeft, startTimer, pauseTimer, resetTimer, setInitialTime } =
-    useTimerStore();
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-
-    if (isRunning && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft(timeLeft - 1);
-      }, 1000);
-    }
-
-    return () => clearInterval(interval);
-  }, [isRunning, timeLeft, setTimeLeft]);
-
-  return { timeLeft, isRunning, initialTime, startTimer, pauseTimer, resetTimer, setInitialTime };
-}
-
 export default function QuizPage({ params }: QuizPageProps) {
   const { quiz_id } = use(params);
   const queryClient = useQueryClient();
@@ -62,12 +42,14 @@ export default function QuizPage({ params }: QuizPageProps) {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showCompletionDialog, setShowCompletionDialog] = useState(false);
   const [showExitDialog, setShowExitDialog] = useState(false);
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  const [correctCount, setCorrectCount] = useState(0);
   const { toast } = useToast();
 
   const {
     data: quiz,
     isError: isQuizError,
-    isPending: isQuizPending,
+    isFetching: isQuizFetching,
     error: quizError,
   } = useQuery({
     queryKey: [`quiz_${quiz_id}`],
@@ -76,7 +58,7 @@ export default function QuizPage({ params }: QuizPageProps) {
 
   const {
     data: cards,
-    isPending: isCardsPending,
+    isFetching: isCardsFetching,
     isError: isCardsError,
     error: cardsError,
   } = useQuery({
@@ -85,48 +67,39 @@ export default function QuizPage({ params }: QuizPageProps) {
     initialData: [],
   });
 
+  useEffect(() => {
+    setCurrentCardIndex(quiz?.current_index ?? 0);
+    setCorrectCount(quiz?.correct_count ?? 0);
+    if (cards.length > 0 && quiz) generateAnswerOptions(cards, quiz.current_index);
+
+    return () => {
+      queryClient.invalidateQueries({ queryKey: [`quiz_${quiz_id}`, `cards_${quiz_id}`] });
+    };
+  }, [cards, quiz, queryClient, quiz_id]);
+
   const setCurrentIndexMutation = useMutation({
     mutationFn: (index: number) => setQuizCurrentIndex(quiz_id, index),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [`quiz_${quiz_id}`],
-      });
-    },
   }).mutate;
 
   const setCorrectCountMutation = useMutation({
     mutationFn: (correct_count: number) => setQuizCorrectCount(quiz_id, correct_count),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [`quiz_${quiz_id}`],
-      });
-    },
   }).mutate;
 
   const setFinishedMutation = useMutation({
     mutationFn: (is_completed: boolean) => setQuizCompletion(quiz_id, is_completed),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`quiz_${quiz_id}`] });
       setShowCompletionDialog(false);
     },
   }).mutate;
-
-  useEffect(() => {
-    if (cards.length > 0 && quiz) generateAnswerOptions(cards, quiz.current_index);
-  }, [cards, quiz]);
 
   if (isQuizError || isCardsError) {
     toast({ description: "Failed to fetch cards." });
     return <ErrorSkeleton error={(quizError || cardsError) as Error} />;
   }
 
-  if (isQuizPending) return <LoadingSkeleton />;
-  if (isCardsPending) return <SkeletonCard />;
+  if (isCardsFetching || isQuizFetching) return <SkeletonCard />;
 
-  const currentCardIndex = quiz?.current_index ?? 0;
-  const correctCount = quiz?.correct_count ?? 0;
-
-  const generateAnswerOptions = (cards: CardData[], idx: number) => {
+  function generateAnswerOptions(cards: CardData[], idx: number) {
     const correctAnswer = cards[idx].answer;
     let options = cards.map((card) => card.answer);
     options = Array.from(new Set(options));
@@ -135,12 +108,13 @@ export default function QuizPage({ params }: QuizPageProps) {
     }
     options = options.sort(() => 0.5 - Math.random());
     setAnswerOptions(options);
-  };
+  }
 
   function handleSubmit() {
     if (selectedAnswer === cards[currentCardIndex].answer) {
       setMessage("Correct!");
-      setCorrectCountMutation(correctCount + 1);
+      setCorrectCount(correctCount + 1);
+      setCorrectCountMutation(correctCount);
     } else {
       setMessage("Incorrect answer!");
     }
@@ -151,7 +125,9 @@ export default function QuizPage({ params }: QuizPageProps) {
     if (currentCardIndex == cards.length - 1) {
       setShowCompletionDialog(true);
     } else {
-      setCurrentIndexMutation(currentCardIndex + 1);
+      setCurrentCardIndex(currentCardIndex + 1);
+      setCurrentIndexMutation(currentCardIndex);
+      console.log(currentCardIndex);
       setSelectedAnswer("");
       setMessage("");
       setIsSubmitted(false);
@@ -205,7 +181,7 @@ export default function QuizPage({ params }: QuizPageProps) {
       </main>
 
       {/* Completion Alert Dialog */}
-      <AlertDialog open={showCompletionDialog} onOpenChange={setShowCompletionDialog}>
+      <AlertDialog open={showCompletionDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="font-gau-pop-magic text-red-500">QUIZ COMPLETE!</AlertDialogTitle>
@@ -229,7 +205,7 @@ export default function QuizPage({ params }: QuizPageProps) {
       </AlertDialog>
 
       {/* Exit Alert Dialog */}
-      <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
+      <AlertDialog open={showExitDialog} onOpenChange={() => setShowExitDialog(false)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="font-gau-pop-magic text-red-500">SAVE PROGRESS?</AlertDialogTitle>
