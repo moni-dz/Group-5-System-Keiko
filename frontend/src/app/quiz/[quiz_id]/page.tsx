@@ -239,6 +239,7 @@ export default function QuizPage({ params }: QuizPageProps) {
               onClick={() => {
                 setFinishedMutation(true);
                 setCurrentIndexMutation(0);
+                queryClient.invalidateQueries({ queryKey: ["quizzes"] });
                 router.push("/dashboard?view=ongoing");
               }}
               className="bg-red-500 text-white hover:bg-red-600"
