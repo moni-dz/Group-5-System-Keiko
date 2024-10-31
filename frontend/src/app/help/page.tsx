@@ -20,7 +20,7 @@ export default function HelpPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <Card className="border border-red-500 rounded-lg">
           <CardHeader className="border-b border-red-500 pb-2">
-            <CardTitle className="text-2xl font-extrabold text-zinc-500 font-gau-pop-magic">Analytics</CardTitle>
+            <CardTitle className="text-2xl font-extrabold text-zinc-500 font-gau-pop-magic">ANALYTICS</CardTitle>
           </CardHeader>
           <CardContent className="text-zinc-500 p-4 text-justify">
             <p>
@@ -31,7 +31,7 @@ export default function HelpPage() {
 
         <Card className="border border-red-500 rounded-lg">
           <CardHeader className="border-b border-red-500 pb-2">
-            <CardTitle className="text-2xl font-extrabold text-zinc-500 font-gau-pop-magic">Hint System</CardTitle>
+            <CardTitle className="text-2xl font-extrabold text-zinc-500 font-gau-pop-magic">HINT SYSTEM</CardTitle>
           </CardHeader>
           <CardContent className="text-zinc-500 p-4 text-justify">
             <p>
