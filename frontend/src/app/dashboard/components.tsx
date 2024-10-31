@@ -61,11 +61,6 @@ export function CourseDetails(props: CourseDetailsProps) {
         <span className="font-bold">Description:</span> {course.description || "No description available."}
       </p>
 
-      <p className="text-zinc-500 font-semibold">
-        <span className="font-bold">Number of Questions:</span>{" "}
-        {course.questions != 0 ? `${course.questions} questions` : "N/A"}
-      </p>
-
       {course.progress !== undefined && (
         <div className="mt-2">
           <p className="text-zinc-500">Progress: {course.progress}%</p>
