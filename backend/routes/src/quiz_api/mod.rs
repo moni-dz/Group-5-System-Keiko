@@ -32,6 +32,7 @@ pub struct Quiz {
     pub current_index: i32,
     pub correct_count: i32,
     pub is_completed: bool,
+    pub hint_used: bool,
     pub started_at: chrono::DateTime<chrono::Utc>,
     pub completed_at: Option<chrono::DateTime<chrono::Utc>>,
 }
