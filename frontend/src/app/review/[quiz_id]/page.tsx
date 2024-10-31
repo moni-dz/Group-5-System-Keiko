@@ -51,6 +51,10 @@ export default function ReviewPage({ params }: ReviewPageProps) {
     if (currentCardIndex < cards.length - 1) setCurrentCardIndex(currentCardIndex + 1);
   };
 
+  const handleExit = () => {
+    // Logic for handling exit
+  };
+
   if (isQuizFetching || isCardsFetching) return <SkeletonCard />;
 
   if (isQuizError || isCardsError)
@@ -65,11 +69,13 @@ export default function ReviewPage({ params }: ReviewPageProps) {
             {quiz?.course_code} - {quiz?.category}
           </span>
         </div>
-        <Link href="/dashboard?view=courses">
-          <Button className="m-2 p-2 rounded-full hover:bg-red-50" variant="ghost">
-            <Home className="w-6 h-6 text-red-500 rounded-sm" />
+        <div className="">
+          <Link href="/dashboard?view=courses">
+          <Button onClick={handleExit} variant="outline" className="p-4">
+            <span className="text-red-500">Exit</span>
           </Button>
-        </Link>
+          </Link>
+        </div>
       </div>
 
       <div className="flex flex-col items-center justify-center mb-5">
