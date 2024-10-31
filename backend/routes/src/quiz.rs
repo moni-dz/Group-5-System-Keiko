@@ -6,7 +6,7 @@ use ntex::web::{
 use uuid::Uuid;
 
 use crate::quiz_api::{
-    CreateQuiz, Quiz, QuizAPI, QuizCompletion, QuizCorrectCount, QuizIndex, RenameQuiz,
+    CreateQuiz, Quiz, QuizAPI, QuizCompletion, QuizCorrectCount, QuizHint, QuizIndex, RenameQuiz,
 };
 
 pub fn service<S: QuizAPI>(cfg: &mut ServiceConfig) {
@@ -28,6 +28,7 @@ pub fn service<S: QuizAPI>(cfg: &mut ServiceConfig) {
                 "/id/{quiz_id}/correct",
                 web::patch().to(set_correct_count::<S>),
             )
+            .route("/id/{quiz_id}/hint", web::patch().to(set_hint_used::<S>))
             .route("/rename/{course_code}", web::post().to(rename_quiz::<S>)),
     );
 }
@@ -118,6 +119,18 @@ async fn set_correct_count<S: QuizAPI>(
     stack: State<S>,
 ) -> HttpResponse {
     match stack.set_correct_count(&quiz_id, &quiz_correct).await {
+        Ok(quiz) => HttpResponse::Ok().json(&quiz),
+        Err(e) => HttpResponse::NotFound().body(format!("Internal server error: {:?}", e)),
+    }
+}
+
+/// PATCH /v1/quiz/id/{quiz_id}/hint
+async fn set_hint_used<S: QuizAPI>(
+    quiz_id: Path<Uuid>,
+    quiz_hint: Json<QuizHint>,
+    stack: State<S>,
+) -> HttpResponse {
+    match stack.set_hint_used(&quiz_id, &quiz_hint).await {
         Ok(quiz) => HttpResponse::Ok().json(&quiz),
         Err(e) => HttpResponse::NotFound().body(format!("Internal server error: {:?}", e)),
     }

@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS quizzes
     current_index integer DEFAULT 0 NOT NULL,
     correct_count integer DEFAULT 0 NOT NULL,
     is_completed boolean DEFAULT false NOT NULL,
+    hint_used boolean DEFAULT false NOT NULL,
     started_at timestamp with time zone default CURRENT_TIMESTAMP NOT NULL,
     completed_at timestamp with time zone
 );
@@ -87,7 +88,8 @@ FROM
 LEFT JOIN
     cards f ON q.course_code = f.course_code AND q.category = f.category
 GROUP BY
-    q.id, q.course_code, q.category, q.current_index, q.is_completed, q.correct_count, q.started_at, q.completed_at;
+    q.id, q.course_code, q.category, q.current_index, q.is_completed,
+    q.correct_count, q.started_at, q.completed_at, q.hint_used;
 
 CREATE OR REPLACE FUNCTION update_category(
     p_course_code TEXT,

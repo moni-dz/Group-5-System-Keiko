@@ -14,6 +14,7 @@ pub struct QuizView {
     pub category: String,
     pub current_index: i32,
     pub is_completed: bool,
+    pub hint_used: bool,
     pub started_at: chrono::DateTime<chrono::Utc>,
     pub completed_at: Option<chrono::DateTime<chrono::Utc>>,
     pub correct_count: i32,
@@ -73,6 +74,13 @@ pub struct RenameQuiz {
     pub new: String,
 }
 
+#[derive(
+    Serialize, Deserialize, FromRow, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Default,
+)]
+pub struct QuizHint {
+    pub hint_used: bool,
+}
+
 #[async_trait::async_trait]
 pub trait QuizAPI: Send + Sync + 'static {
     async fn get_quizzes(&self) -> KeikoResult<Vec<QuizView>>;
@@ -89,5 +97,6 @@ pub trait QuizAPI: Send + Sync + 'static {
         quiz_id: &Uuid,
         quiz_count: &QuizCorrectCount,
     ) -> KeikoResult<Quiz>;
+    async fn set_hint_used(&self, quiz_id: &Uuid, quiz_hint: &QuizHint) -> KeikoResult<Quiz>;
     async fn rename_quiz(&self, course_code: &String, quiz_rename: &RenameQuiz) -> KeikoResult<()>;
 }
