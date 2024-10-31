@@ -93,20 +93,7 @@ impl QuizAPI for KeikoDatabase {
     /// PATCH /v1/quiz
     async fn set_quiz_completion(&self, quiz_completion: &QuizCompletion) -> KeikoResult<Quiz> {
         sqlx::query_as::<_, Quiz>(
-            format!(
-                r#"
-            UPDATE quizzes
-            SET is_completed = $2, completed_at = $3, current_index = 0\{}
-            WHERE id = $1
-            RETURNING *
-            "#,
-                if !quiz_completion.is_completed {
-                    ", correct_count = 0"
-                } else {
-                    ""
-                }
-            )
-            .as_str(),
+            "UPDATE quizzes SET is_completed = $2, completed_at = $3 WHERE id = $1 RETURNING *",
         )
         .bind(&quiz_completion.id)
         .bind(&quiz_completion.is_completed)

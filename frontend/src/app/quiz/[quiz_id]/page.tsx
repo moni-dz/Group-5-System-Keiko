@@ -5,11 +5,18 @@ import { LoadingSkeleton, ErrorSkeleton } from "@/components/status";
 import { Button } from "@/components/ui/button";
 import { QuizCard } from "@/components/cards";
 import { useToast } from "@/hooks/use-toast";
-import { CardData, getCardsByQuizId, getQuiz, setQuizCompletion, setQuizCurrentIndex } from "@/lib/api";
+import {
+  CardData,
+  getCardsByQuizId,
+  getQuiz,
+  setQuizCompletion,
+  setQuizCorrectCount,
+  setQuizCurrentIndex,
+} from "@/lib/api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Lightbulb } from "lucide-react";
 import { use, useEffect, useState } from "react";
-import { Link } from "next-view-transitions";
+import { Link, useTransitionRouter } from "next-view-transitions";
 import { TimerState, useTimerStore } from "@/store/time";
 import {
   AlertDialog,
@@ -48,6 +55,7 @@ function useTimer(): Omit<TimerState, "setTimeLeft"> {
 export default function QuizPage({ params }: QuizPageProps) {
   const { quiz_id } = use(params);
   const queryClient = useQueryClient();
+  const router = useTransitionRouter();
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const [answerOptions, setAnswerOptions] = useState<string[]>([]);
   const [message, setMessage] = useState("");
@@ -59,7 +67,7 @@ export default function QuizPage({ params }: QuizPageProps) {
   const {
     data: quiz,
     isError: isQuizError,
-    isFetching: isQuizFetching,
+    isPending: isQuizPending,
     error: quizError,
   } = useQuery({
     queryKey: [`quiz_${quiz_id}`],
@@ -68,8 +76,8 @@ export default function QuizPage({ params }: QuizPageProps) {
 
   const {
     data: cards,
+    isPending: isCardsPending,
     isError: isCardsError,
-    isFetching: isCardsFetching,
     error: cardsError,
   } = useQuery({
     queryKey: [`cards_${quiz_id}`],
@@ -86,12 +94,19 @@ export default function QuizPage({ params }: QuizPageProps) {
     },
   }).mutate;
 
-  const setFinishedMutation = useMutation({
-    mutationFn: (is_completed: boolean) => setQuizCompletion(quiz_id, is_completed),
+  const setCorrectCountMutation = useMutation({
+    mutationFn: (correct_count: number) => setQuizCorrectCount(quiz_id, correct_count),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [`quiz_${quiz_id}`],
       });
+    },
+  }).mutate;
+
+  const setFinishedMutation = useMutation({
+    mutationFn: (is_completed: boolean) => setQuizCompletion(quiz_id, is_completed),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`quiz_${quiz_id}`] });
       setShowCompletionDialog(false);
     },
   }).mutate;
@@ -105,10 +120,11 @@ export default function QuizPage({ params }: QuizPageProps) {
     return <ErrorSkeleton error={(quizError || cardsError) as Error} />;
   }
 
-  if (isQuizFetching) return <LoadingSkeleton />;
-  if (isCardsFetching) return <SkeletonCard />;
+  if (isQuizPending) return <LoadingSkeleton />;
+  if (isCardsPending) return <SkeletonCard />;
 
   const currentCardIndex = quiz?.current_index ?? 0;
+  const correctCount = quiz?.correct_count ?? 0;
 
   const generateAnswerOptions = (cards: CardData[], idx: number) => {
     const correctAnswer = cards[idx].answer;
@@ -124,6 +140,7 @@ export default function QuizPage({ params }: QuizPageProps) {
   function handleSubmit() {
     if (selectedAnswer === cards[currentCardIndex].answer) {
       setMessage("Correct!");
+      setCorrectCountMutation(correctCount + 1);
     } else {
       setMessage("Incorrect answer!");
     }
@@ -161,27 +178,18 @@ export default function QuizPage({ params }: QuizPageProps) {
             <Lightbulb className="h-5 w-5" />
           </Button>
           <Button onClick={handleExit} variant="outline">
-            <span className="bg-white-100 text-red-500">
-              Exit
-            </span>
+            <span className="bg-white-100 text-red-500">Exit</span>
           </Button>
         </div>
       </header>
       <main className="container mx-auto px-4 py-8">
-        {!cards || cards.length === 0 ? (
+        {(!cards || cards.length === 0) && (
           <div className="text-center py-8 font-gau-pop-magic text-red-500 font-bold">
             NO CARDS AVAILABLE FOR THIS COURSE.
           </div>
-        ) : quiz?.is_completed ? (
-          <div className="text-center py-8">
-            <h2 className="text-2xl font-bold font-gau-pop-magic text-red-500 mb-4">Quiz Completed!</h2>
-            <Link href="/dashboard?view=ongoing">
-              <Button className="bg-white-100 hover:bg-zinc-500 text-red-500 hover:text-white" variant="outline">
-                Return to Dashboard
-              </Button>
-            </Link>
-          </div>
-        ) : (
+        )}
+
+        {!quiz?.is_completed && (
           <QuizCard
             question={currentCard.question}
             answerOptions={answerOptions}
@@ -202,12 +210,16 @@ export default function QuizPage({ params }: QuizPageProps) {
           <AlertDialogHeader>
             <AlertDialogTitle className="font-gau-pop-magic text-red-500">QUIZ COMPLETE!</AlertDialogTitle>
             <AlertDialogDescription className="text-zinc-500">
-              You've reached the end of the quiz. Click mark as complete to exit!
+              You&apos;ve reached the end of the quiz. Click mark as complete to exit!
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction 
-              onClick={() => setFinishedMutation(true)}
+            <AlertDialogAction
+              onClick={() => {
+                setFinishedMutation(true);
+                setCurrentIndexMutation(0);
+                router.push("/dashboard?view=ongoing");
+              }}
               className="bg-red-500 text-white hover:bg-red-600"
             >
               Mark as Complete
@@ -226,7 +238,9 @@ export default function QuizPage({ params }: QuizPageProps) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="hover:bg-red-500 hover:text-white border border-red-500 text-red-500 ">Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="hover:bg-red-500 hover:text-white border border-red-500 text-red-500 ">
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               asChild
               className="bg-white-500 text-red-500 hover:text-white border border-red-500 hover:bg-red-500"
