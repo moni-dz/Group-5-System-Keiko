@@ -261,7 +261,9 @@ export default function MainPage() {
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel className="text-red-500 hover:bg-red-500 hover:text-white border border-red-500">Cancel</AlertDialogCancel>
+                        <AlertDialogCancel className="text-red-500 hover:bg-red-500 hover:text-white border border-red-500">
+                          Cancel
+                        </AlertDialogCancel>
                         <AlertDialogAction
                           onClick={() => markCompletionMutation({ quiz_id: selectedQuiz, is_completed: false })}
                           className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white"
