@@ -217,7 +217,7 @@ export default function MainPage() {
                 </Button>
 
                 <Button
-                  className="bg-white text-red-500 border-red-500 border hover:bg-red-500 hover:text-white flex items-center space-x-2"
+                  className="bg-white text-red-500 border-red-500 border hover:border-zinc-500 hover:bg-zinc-500 hover:text-white flex items-center space-x-2"
                   disabled={selectedQuiz === ""}
                   onClick={() => router.push(`/review/${selectedQuiz}`)}
                 >
@@ -261,7 +261,7 @@ export default function MainPage() {
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel className="text-red-500 hover:bg-red-500 hover:text-white border border-red-500">Cancel</AlertDialogCancel>
                         <AlertDialogAction
                           onClick={() => markCompletionMutation({ quiz_id: selectedQuiz, is_completed: false })}
                           className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white"
