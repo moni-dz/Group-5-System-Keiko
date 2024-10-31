@@ -135,7 +135,7 @@ impl QuizAPI for KeikoDatabase {
 
     /// PATCH /v1/quiz/id/{quiz_id}/hint
     async fn set_hint_used(&self, quiz_id: &Uuid, quiz_hint: &QuizHint) -> KeikoResult<Quiz> {
-        sqlx::query_as::<_, Quiz>("UPDATE quizzes SET hint_used = &2 WHERE id = $1 RETURNING *")
+        sqlx::query_as::<_, Quiz>("UPDATE quizzes SET hint_used = $2 WHERE id = $1 RETURNING *")
             .bind(&quiz_id)
             .bind(&quiz_hint.hint_used)
             .fetch_one(&self.pool)

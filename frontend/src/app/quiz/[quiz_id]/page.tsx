@@ -138,7 +138,7 @@ export default function QuizPage({ params }: QuizPageProps) {
       setMessage("");
       setIsSubmitted(false);
       setIsHintUsed(false);
-      setHintUsedMutation(isHintUsed);
+      setHintUsedMutation(false);
       generateAnswerOptions(cards, currentCardIndex + 1);
     }
   }
@@ -164,7 +164,7 @@ export default function QuizPage({ params }: QuizPageProps) {
       const newOptions = answerOptions.filter((answer) => answer !== answerToRemove);
       setAnswerOptions(newOptions);
       setIsHintUsed(true);
-      setHintUsedMutation(isHintUsed);
+      setHintUsedMutation(true);
 
       toast({
         description: "One incorrect answer has been removed!",
@@ -266,7 +266,7 @@ export default function QuizPage({ params }: QuizPageProps) {
               asChild
               className="bg-white-500 text-red-500 hover:text-white border border-red-500 hover:bg-red-500"
             >
-              <Link href="/dashboard?view=ongoing">Save & Exit</Link>
+              <Link href="/dashboard?view=ongoing">Save &amp; Exit</Link>
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
