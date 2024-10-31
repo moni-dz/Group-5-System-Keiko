@@ -12,6 +12,7 @@ import {
   setQuizCompletion,
   setQuizCorrectCount,
   setQuizCurrentIndex,
+  setQuizHintUsed,
 } from "@/lib/api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Lightbulb } from "lucide-react";
@@ -71,6 +72,7 @@ export default function QuizPage({ params }: QuizPageProps) {
   useEffect(() => {
     setCurrentCardIndex(quiz?.current_index ?? 0);
     setCorrectCount(quiz?.correct_count ?? 0);
+    setIsHintUsed(quiz?.hint_used ?? false);
     if (cards.length > 0 && quiz) generateAnswerOptions(cards, quiz.current_index);
 
     return () => {
@@ -84,6 +86,10 @@ export default function QuizPage({ params }: QuizPageProps) {
 
   const setCorrectCountMutation = useMutation({
     mutationFn: (correct_count: number) => setQuizCorrectCount(quiz_id, correct_count),
+  }).mutate;
+
+  const setHintUsedMutation = useMutation({
+    mutationFn: (hint_used: boolean) => setQuizHintUsed(quiz_id, hint_used),
   }).mutate;
 
   const setFinishedMutation = useMutation({
@@ -132,6 +138,7 @@ export default function QuizPage({ params }: QuizPageProps) {
       setMessage("");
       setIsSubmitted(false);
       setIsHintUsed(false);
+      setHintUsedMutation(isHintUsed);
       generateAnswerOptions(cards, currentCardIndex + 1);
     }
   }
@@ -157,6 +164,7 @@ export default function QuizPage({ params }: QuizPageProps) {
       const newOptions = answerOptions.filter((answer) => answer !== answerToRemove);
       setAnswerOptions(newOptions);
       setIsHintUsed(true);
+      setHintUsedMutation(isHintUsed);
 
       toast({
         description: "One incorrect answer has been removed!",

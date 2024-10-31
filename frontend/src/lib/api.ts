@@ -1,5 +1,4 @@
 import axios from "axios";
-import { LoremIpsum } from "lorem-ipsum";
 
 export interface CardData {
   id: string;
@@ -31,23 +30,12 @@ export interface QuizData {
   current_index: number;
   correct_count: number;
   is_completed: boolean;
+  hint_used: boolean;
   started_at: string;
   completed_at: string;
   card_count: number;
   progress: number;
 }
-
-// For development only
-export const lorem = new LoremIpsum({
-  sentencesPerParagraph: {
-    max: 8,
-    min: 4,
-  },
-  wordsPerSentence: {
-    max: 16,
-    min: 4,
-  },
-});
 
 const ax = axios.create({
   baseURL: `http://${process.env.API_HOST || "62.146.233.89"}:${process.env.API_PORT || "1107"}/api/v1`,
@@ -147,6 +135,10 @@ export async function setQuizCurrentIndex(id: string, index: number): Promise<Qu
 
 export async function setQuizCorrectCount(id: string, count: number): Promise<QuizData> {
   return ax.patch<QuizData>(`/quiz/id/${id}/correct`, { correct_count: count }).then((r): QuizData => r.data);
+}
+
+export async function setQuizHintUsed(id: string, hint_used: boolean): Promise<QuizData> {
+  return ax.patch<QuizData>(`/quiz/id/${id}/hint`, { hint_used }).then((r): QuizData => r.data);
 }
 
 export async function renameQuiz(course_code: string, old_name: string, new_name: string) {

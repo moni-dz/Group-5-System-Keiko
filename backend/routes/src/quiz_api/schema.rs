@@ -3,7 +3,8 @@ use uuid::Uuid;
 use crate::{KeikoDatabase, KeikoResult};
 
 use super::{
-    CreateQuiz, Quiz, QuizAPI, QuizCompletion, QuizCorrectCount, QuizIndex, QuizView, RenameQuiz,
+    CreateQuiz, Quiz, QuizAPI, QuizCompletion, QuizCorrectCount, QuizHint, QuizIndex, QuizView,
+    RenameQuiz,
 };
 
 #[async_trait::async_trait]
@@ -127,6 +128,16 @@ impl QuizAPI for KeikoDatabase {
         sqlx::query_as::<_, Quiz>("UPDATE quizzes SET correct_count = $2 WHERE id = $1 RETURNING *")
             .bind(&quiz_id)
             .bind(&quiz_count.correct_count)
+            .fetch_one(&self.pool)
+            .await
+            .map_err(|e| e.to_string())
+    }
+
+    /// PATCH /v1/quiz/id/{quiz_id}/hint
+    async fn set_hint_used(&self, quiz_id: &Uuid, quiz_hint: &QuizHint) -> KeikoResult<Quiz> {
+        sqlx::query_as::<_, Quiz>("UPDATE quizzes SET hint_used = &2 WHERE id = $1 RETURNING *")
+            .bind(&quiz_id)
+            .bind(&quiz_hint.hint_used)
             .fetch_one(&self.pool)
             .await
             .map_err(|e| e.to_string())
