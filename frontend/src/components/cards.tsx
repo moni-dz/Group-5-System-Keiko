@@ -285,8 +285,8 @@ export function QuizCard({
             <CardTitle className="text-lg text-center text-zinc-500 mb-4">
               Answer: {correctAnswer}
             </CardTitle>
-            <Button onClick={onNext} className="bg-zinc-500 text-white hover:bg-red-500">
-              Next Card
+            <Button onClick={onNext} className="bg-zinc-500 text-white hover:bg-red-500 font-gau-pop-magic">
+              NEXT CARD
             </Button>
           </div>
         </div>
