@@ -2,11 +2,8 @@ import { Toaster } from "@/components/ui/toaster";
 import type { Metadata } from "next";
 import { NextFontWithVariable } from "next/dist/compiled/@next/font";
 import localFont from "next/font/local";
-import React, { Suspense } from "react";
 import "./globals.css";
 import Providers from "./providers";
-import { SpeedInsights } from "@vercel/speed-insights/next";
-import { LoadingSkeleton } from "@/components/status";
 import { ViewTransitions } from "next-view-transitions";
 
 const gauPopMagic: NextFontWithVariable = localFont({
@@ -16,7 +13,7 @@ const gauPopMagic: NextFontWithVariable = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Keiko",
+  title: "Keiko!",
   description: "CS121 Flashcards App",
 };
 
@@ -30,10 +27,7 @@ export default function RootLayout({ children }: Readonly<RootProps>) {
       <html lang="en" className={gauPopMagic.variable}>
         <body className="antialiased">
           <main>
-            <Providers>
-              {children}
-              <SpeedInsights />
-            </Providers>
+            <Providers>{children}</Providers>
           </main>
           <Toaster />
         </body>

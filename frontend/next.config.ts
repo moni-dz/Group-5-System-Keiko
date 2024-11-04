@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
     },
     reactCompiler: true,
     ppr: true,
+    typedRoutes: true,
   },
 };
 
