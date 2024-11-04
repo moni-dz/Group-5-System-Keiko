@@ -24,6 +24,7 @@ import { useState } from "react";
 import { CourseDetails, CourseList, DashboardSidebar, QuizDetails, QuizList } from "./components";
 import { LoadingSkeleton } from "@/components/status";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
 
 export default function MainPage() {
   const queryClient = useQueryClient();
@@ -137,7 +138,7 @@ export default function MainPage() {
         <DashboardSidebar collapsed={collapsed} setCollapsed={setCollapsed} />
 
         {/* Main content */}
-        <main className="flex-1 p-8 overflow-hidden transition-all duration-300 ease-in-out">
+        <main className={cn("flex-1 p-8 overflow-hidden transition-all duration-300 ease-in-out")}>
           <div className="flex items-center gap-4 mb-8">
             <div className="relative flex-1">
               {" "}

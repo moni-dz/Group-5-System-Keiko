@@ -169,8 +169,12 @@ export function DashboardSidebar(props: DashboardSidebarProps) {
   ];
 
   return (
-    <div className={cn("h-full transition-all duration-300 flex-shrink-0", collapsed ? "w-16" : "w-64")}>
-      <Sidebar className={cn("border-r border-border bg-white", collapsed ? "w-16" : "w-64")}>
+    <div
+      className={cn("h-full transition-all duration-300 flex-shrink-0 overflow-hidden", collapsed ? "w-16" : "w-64")}
+    >
+      <Sidebar
+        className={cn("border-r border-border bg-white transition-all duration-300", collapsed ? "w-16" : "w-64")}
+      >
         <SidebarHeader className="p-4">
           <Link href="/">
             <div className="flex justify-center items-center">
