@@ -18,9 +18,8 @@ import { CourseData, QuizData, getAllCourses, getAllQuizzes, setQuizCompletion }
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Edit, FileChartLine, FolderClock, Home, Pen, Search, BookOpen } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { useTransitionRouter } from "next-view-transitions";
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import { useState } from "react";
 import { CourseDetails, CourseList, DashboardSidebar, QuizDetails, QuizList } from "./components";
 import { LoadingSkeleton } from "@/components/status";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -30,12 +29,11 @@ import { useQueryState } from "nuqs";
 export default function Dashboard() {
   const queryClient = useQueryClient();
   const router = useTransitionRouter();
-  const searchParams = new URLSearchParams(useSearchParams());
   const { toast } = useToast();
-  const activeView = searchParams.get("view") || "";
-  const selectedCourse = searchParams.get("course") || "";
-  const selectedQuiz = searchParams.get("quiz") || "";
+  const [activeView, setActiveView] = useQueryState("view");
   const [searchTerm, setSearchTerm] = useQueryState("q");
+  const [selectedCourse, setSelectedCourse] = useQueryState("course");
+  const [selectedQuiz, setSelectedQuiz] = useQueryState("quiz");
   const [collapsed, setCollapsed] = useState(false);
 
   const {
@@ -124,7 +122,7 @@ export default function Dashboard() {
       <SidebarTrigger />
       <div className="fixed inset-0 flex bg-gray-100 text-extrabold overflow-hidden">
         {/* Sidebar */}
-        <DashboardSidebar collapsed={collapsed} setCollapsed={setCollapsed} />
+        <DashboardSidebar collapsed={collapsed} setCollapsed={setCollapsed} setActiveView={setActiveView} />
 
         {/* Main content */}
         <main className={cn("flex-1 p-8 overflow-hidden transition-all duration-300 ease-in-out")}>
@@ -157,18 +155,22 @@ export default function Dashboard() {
               <h2 className="text-2xl font-bold mb-4 font-gau-pop-magic text-red-500">COURSES</h2>
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-white shadow-md rounded-lg p-4 h-[calc(100vh-280px)] overflow-y-auto">
-                  <CourseList courses={filteredCourses} activeView={activeView} course_code={selectedCourse} />
+                  <CourseList
+                    courses={filteredCourses}
+                    selectedCourse={selectedCourse ?? ""}
+                    setSelectedCourse={setSelectedCourse}
+                  />
                 </div>
                 <div className="bg-white shadow-md rounded-lg p-4 h-[calc(100vh-280px)] overflow-y-auto">
-                  <CourseDetails courses={filteredCourses} course_code={selectedCourse} />
+                  <CourseDetails courses={filteredCourses} course_code={selectedCourse ?? ""} />
                 </div>
               </div>
               <div className="mt-4 flex justify-between">
                 <div className="space-x-2">
                   <Button
                     className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white"
-                    disabled={selectedCourse === ""}
-                    onClick={() => router.push(`/reports?course=${encodeURI(selectedCourse)}`)}
+                    disabled={selectedCourse === null}
+                    onClick={() => router.push(`/reports?course=${encodeURI(selectedCourse!)}`)}
                   >
                     <FileChartLine className="mr-2 h-4 w-4" />
                     Reports
@@ -189,17 +191,21 @@ export default function Dashboard() {
               <h2 className="text-xl font-bold font-gau-pop-magic text-red-500 mb-4">ON-GOING QUIZZES</h2>
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-white shadow-md rounded-lg p-4 h-[calc(100vh-280px)] overflow-y-auto">
-                  <QuizList quizzes={filteredOngoing} activeView={activeView} quizId={selectedQuiz} />
+                  <QuizList
+                    quizzes={filteredOngoing}
+                    selectedQuiz={selectedQuiz ?? ""}
+                    setSelectedQuiz={setSelectedQuiz}
+                  />
                 </div>
                 <div className="bg-white shadow-md rounded-lg p-4 h-[calc(100vh-280px)] overflow-y-auto">
-                  <QuizDetails quizzes={filteredOngoing} quizId={selectedQuiz} />
+                  <QuizDetails quizzes={filteredOngoing} quizId={selectedQuiz ?? ""} />
                 </div>
               </div>
 
               <div className="mt-4 flex space-x-4">
                 <Button
                   className="bg-red-500 text-white hover:bg-zinc-500 flex items-center space-x-2"
-                  disabled={selectedQuiz === ""}
+                  disabled={selectedQuiz === null}
                   onClick={() => router.push(`/quiz/${selectedQuiz}`)}
                 >
                   <Pen width="20" height="20" />
@@ -208,7 +214,7 @@ export default function Dashboard() {
 
                 <Button
                   className="bg-white text-red-500 border-red-500 border hover:border-zinc-500 hover:bg-zinc-500 hover:text-white flex items-center space-x-2"
-                  disabled={selectedQuiz === ""}
+                  disabled={selectedQuiz === null}
                   onClick={() => router.push(`/review/${selectedQuiz}`)}
                 >
                   <BookOpen width="20" height="20" />
@@ -223,10 +229,14 @@ export default function Dashboard() {
               <h2 className="text-xl font-bold mb-4 font-gau-pop-magic text-red-500">COMPLETED QUIZZES</h2>
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-white shadow-md rounded-lg p-4 h-[calc(100vh-280px)] overflow-y-auto">
-                  <QuizList quizzes={filteredCompleted} activeView={activeView} quizId={selectedQuiz} />
+                  <QuizList
+                    quizzes={filteredCompleted}
+                    selectedQuiz={selectedQuiz ?? ""}
+                    setSelectedQuiz={setSelectedQuiz}
+                  />
                 </div>
                 <div className="bg-white shadow-md rounded-lg p-4 h-[calc(100vh-280px)] overflow-y-auto">
-                  <QuizDetails quizzes={filteredCompleted} quizId={selectedQuiz} />
+                  <QuizDetails quizzes={filteredCompleted} quizId={selectedQuiz ?? ""} />
                 </div>
               </div>
               <div className="mt-4 flex justify-between">
@@ -235,7 +245,7 @@ export default function Dashboard() {
                     <AlertDialogTrigger asChild>
                       <Button
                         className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white"
-                        disabled={selectedQuiz === ""}
+                        disabled={selectedQuiz === null}
                       >
                         <FolderClock className="mr-2 h-4 w-4" />
                         Mark as On-going
@@ -255,7 +265,7 @@ export default function Dashboard() {
                           Cancel
                         </AlertDialogCancel>
                         <AlertDialogAction
-                          onClick={() => markCompletionMutation({ quiz_id: selectedQuiz, is_completed: false })}
+                          onClick={() => markCompletionMutation({ quiz_id: selectedQuiz ?? "", is_completed: false })}
                           className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white"
                         >
                           Continue
