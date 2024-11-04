@@ -17,6 +17,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useTransitionRouter } from "next-view-transitions";
 
+// Import the logo
+import logo from "@/public/logo.png";
+
 const EditableCourse = dynamic(() => import("@/components/cards").then((mod) => mod.EditableCourse), {
   loading: () => <SkeletonEditableCourse />,
 });
@@ -158,7 +161,10 @@ export default function CoursesPage() {
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-semibold mb-4 font-gau-pop-magic text-red-500">MANAGE COURSES</h1>
+        <div className="flex items-center mb-4">
+          <img src={logo.src} alt="Logo" className="h-10 mr-4" /> {/* Add logo here */}
+          <h1 className="text-2xl font-semibold font-gau-pop-magic text-red-500">MANAGE COURSES</h1>
+        </div>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="mb-8">
