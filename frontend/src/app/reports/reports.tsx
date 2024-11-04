@@ -3,37 +3,27 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ClipboardList, CheckCircle, XCircle, Star, BookOpen, Home } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { getAllQuizzes, getCourseByCode, QuizData, ratingFor } from "@/lib/api";
-import { ErrorSkeleton, LoadingSkeleton } from "@/components/status";
-import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Link } from "next-view-transitions";
 
-export default function Reports() {
-  const searchParams = useSearchParams();
-  const course_code = decodeURI(searchParams.get("course") || "");
+interface ReportsProps {
+  course_code: string;
+}
+
+export default function Reports(props: ReportsProps) {
+  const { course_code } = props;
   const [selectedCategory, setSelectedCategory] = useState<QuizData | null>(null);
 
-  const {
-    data: course,
-    isPending: isCoursePending,
-    isError: isCourseError,
-    error: courseError,
-  } = useQuery({
+  const { data: course } = useSuspenseQuery({
     queryKey: ["course", course_code],
     queryFn: () => getCourseByCode(course_code),
   });
 
-  const {
-    data: quizzes,
-    isPending: isQuizzesPending,
-    isError: isQuizzesError,
-    error: quizzesError,
-  } = useQuery({
+  const { data: quizzes } = useSuspenseQuery({
     queryKey: ["quizzes"],
     queryFn: getAllQuizzes,
-    initialData: [],
   });
 
   const courseQuizzes = quizzes.filter((q) => q.course_code == course_code);
@@ -58,11 +48,6 @@ export default function Reports() {
   }
 
   const analysis = findStrengthsAndWeaknesses();
-
-  if (isCourseError || isQuizzesError)
-    return <ErrorSkeleton error={isCourseError ? courseError : isQuizzesError ? quizzesError : undefined} />;
-
-  if (isCoursePending || isQuizzesPending) return <LoadingSkeleton />;
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">

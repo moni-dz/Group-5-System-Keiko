@@ -14,7 +14,7 @@ import {
   setQuizCurrentIndex,
   setQuizHintUsed,
 } from "@/lib/api";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { Lightbulb } from "lucide-react";
 import { use, useEffect, useState } from "react";
 import { Link, useTransitionRouter } from "next-view-transitions";
@@ -48,25 +48,14 @@ export default function Quiz(props: QuizProps) {
   const [correctCount, setCorrectCount] = useState(0);
   const { toast } = useToast();
 
-  const {
-    data: quiz,
-    isError: isQuizError,
-    isFetching: isQuizFetching,
-    error: quizError,
-  } = useQuery({
+  const { data: quiz } = useSuspenseQuery({
     queryKey: ["quiz", quiz_id],
     queryFn: () => getQuiz(quiz_id),
   });
 
-  const {
-    data: cards,
-    isFetching: isCardsFetching,
-    isError: isCardsError,
-    error: cardsError,
-  } = useQuery({
+  const { data: cards } = useSuspenseQuery({
     queryKey: ["cards", quiz_id],
     queryFn: () => getCardsByQuizId(quiz_id),
-    initialData: [],
   });
 
   useEffect(() => {
@@ -98,13 +87,6 @@ export default function Quiz(props: QuizProps) {
       setShowCompletionDialog(false);
     },
   }).mutate;
-
-  if (isQuizError || isCardsError) {
-    toast({ description: "Failed to fetch cards." });
-    return <ErrorSkeleton error={(quizError || cardsError) as Error} />;
-  }
-
-  if (isCardsFetching || isQuizFetching) return <SkeletonCard />;
 
   function generateAnswerOptions(cards: CardData[], idx: number) {
     const correctAnswer = cards[idx].answer;

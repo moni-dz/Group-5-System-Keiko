@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -42,7 +42,7 @@ export default function Courses() {
     },
   });
 
-  const { data, isPending, isError, error } = useQuery({
+  const { data } = useSuspenseQuery({
     queryKey: ["courses"],
     queryFn: getAllCourses,
   });
@@ -146,15 +146,6 @@ export default function Courses() {
 
   const handleManageCourses = (course_code: string) => router.push(`/manage?course=${encodeURI(course_code)}`);
 
-  if (isError) {
-    toast({ description: error.message });
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-        {error.message}
-      </div>
-    );
-  }
-
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="container mx-auto p-4">
@@ -232,26 +223,18 @@ export default function Courses() {
           </form>
         </Form>
 
-        {isPending ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[...Array(6).keys()].map((i: number) => (
-              <SkeletonEditableCourse key={`skeleton-${i}`} />
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {data.map((course: CourseData) => (
-              <EditableCourse
-                key={course.id}
-                course={course}
-                handleEdit={handleEdit}
-                handleDelete={deleteCourseMutation}
-                handleManageCourses={handleManageCourses}
-                className="text-zinc-500 border-zinc-500"
-              />
-            ))}
-          </div>
-        )}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {data.map((course: CourseData) => (
+            <EditableCourse
+              key={course.id}
+              course={course}
+              handleEdit={handleEdit}
+              handleDelete={deleteCourseMutation}
+              handleManageCourses={handleManageCourses}
+              className="text-zinc-500 border-zinc-500"
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

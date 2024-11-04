@@ -1,14 +1,13 @@
 "use client";
 
-import { use, useState } from "react";
+import { useState } from "react";
 import { SkeletonCard } from "@/components/cards";
 import { Button } from "@/components/ui/button";
 import { getCardsByQuizId, getQuiz } from "@/lib/api";
 import dynamic from "next/dynamic";
 import { Link } from "next-view-transitions";
 import { Home, ArrowLeft, ArrowRight } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { ErrorSkeleton } from "@/components/status";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
 const Flashcard = dynamic(() => import("@/components/cards").then((mod) => mod.Flashcard), {
   loading: () => <SkeletonCard />,
@@ -22,25 +21,14 @@ export default function Review(props: ReviewProps) {
   const { quiz_id } = props;
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
 
-  const {
-    data: quiz,
-    isFetching: isQuizFetching,
-    isError: isQuizError,
-    error: quizError,
-  } = useQuery({
+  const { data: quiz } = useSuspenseQuery({
     queryKey: ["quiz", quiz_id],
     queryFn: () => getQuiz(quiz_id),
   });
 
-  const {
-    data: cards,
-    isFetching: isCardsFetching,
-    isError: isCardsError,
-    error: cardsError,
-  } = useQuery({
+  const { data: cards } = useSuspenseQuery({
     queryKey: ["cards", quiz_id],
     queryFn: () => getCardsByQuizId(quiz_id),
-    initialData: [],
   });
 
   const handlePrevCard = () => {
@@ -54,11 +42,6 @@ export default function Review(props: ReviewProps) {
   const handleExit = () => {
     // Logic for handling exit
   };
-
-  if (isQuizFetching || isCardsFetching) return <SkeletonCard />;
-
-  if (isQuizError || isCardsError)
-    return <ErrorSkeleton error={isQuizError ? quizError : isCardsError ? cardsError : undefined} />;
 
   return (
     <div className="bg-gray-50 min-h-screen relative">
@@ -92,7 +75,7 @@ export default function Review(props: ReviewProps) {
 
       <div className="flex items-center justify-center">
         <div className="flex flex-wrap justify-center gap-4">
-          {isCardsFetching ? <SkeletonCard /> : cards.length > 0 && <Flashcard {...cards[currentCardIndex]} />}
+          {cards.length > 0 && <Flashcard {...cards[currentCardIndex]} />}
         </div>
       </div>
 

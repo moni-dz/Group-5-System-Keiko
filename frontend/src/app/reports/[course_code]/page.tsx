@@ -1,6 +1,7 @@
-import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getCourseByCode, getAllQuizzes } from "@/lib/api";
-import Reports from "./reports";
+import Reports from "./../reports";
+import { getQueryClient } from "@/app/query-client";
 
 interface ReportsPageProps {
   params: Promise<{ course_code: string }>;
@@ -8,22 +9,21 @@ interface ReportsPageProps {
 
 export default async function ReportsPage(props: ReportsPageProps) {
   const { course_code } = await props.params;
-  const queryClient = new QueryClient();
+  const queryClient = getQueryClient();
 
-  await queryClient.prefetchQuery({
+  queryClient.prefetchQuery({
     queryKey: ["course", course_code],
     queryFn: () => getCourseByCode(course_code),
   });
 
-  await queryClient.prefetchQuery({
+  queryClient.prefetchQuery({
     queryKey: ["quizzes"],
     queryFn: getAllQuizzes,
-    initialData: [],
   });
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <Reports />
+      <Reports course_code={course_code} />
     </HydrationBoundary>
   );
 }

@@ -15,13 +15,12 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { CourseData, QuizData, getAllCourses, getAllQuizzes, setQuizCompletion } from "@/lib/api";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { Edit, FileChartLine, FolderClock, Home, Pen, Search, BookOpen } from "lucide-react";
 import Link from "next/link";
 import { useTransitionRouter } from "next-view-transitions";
 import { useState } from "react";
 import { CourseDetails, CourseList, DashboardSidebar, QuizDetails, QuizList } from "./components";
-import { LoadingSkeleton } from "@/components/status";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { useQueryState } from "nuqs";
@@ -36,30 +35,14 @@ export default function Dashboard() {
   const [selectedQuiz, setSelectedQuiz] = useQueryState("quiz");
   const [collapsed, setCollapsed] = useState(false);
 
-  const {
-    data: courses,
-    isPending: isCoursePending,
-    isFetching: isCourseFetching,
-    isLoading: isCourseLoading,
-    isError: isCourseError,
-    error: courseError,
-  } = useQuery({
+  const { data: courses } = useSuspenseQuery({
     queryKey: ["courses"],
     queryFn: getAllCourses,
-    initialData: [],
   });
 
-  const {
-    data: quizzes,
-    isPending: isQuizPending,
-    isFetching: isQuizFetching,
-    isLoading: isQuizLoading,
-    isError: isQuizError,
-    error: quizError,
-  } = useQuery({
+  const { data: quizzes } = useSuspenseQuery({
     queryKey: ["quizzes"],
     queryFn: getAllQuizzes,
-    initialData: [],
   });
 
   const markCompletionMutation = useMutation({
@@ -72,20 +55,6 @@ export default function Dashboard() {
     },
     onError: (e) => toast({ description: e.message }),
   }).mutate;
-
-  if (isCourseLoading || isCoursePending || isCourseFetching || isQuizLoading || isQuizPending || isQuizFetching) {
-    return <LoadingSkeleton />;
-  }
-
-  if (isCourseError || isQuizError) {
-    toast({ description: isCourseError ? courseError.message : isQuizError ? quizError.message : "" });
-
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-        {isCourseError ? courseError.message : isQuizError ? quizError.message : ""}
-      </div>
-    );
-  }
 
   function filterCourses(courses: CourseData[], query: string) {
     if (!courses) return [];
@@ -170,7 +139,7 @@ export default function Dashboard() {
                   <Button
                     className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white"
                     disabled={selectedCourse === null}
-                    onClick={() => router.push(`/reports?course=${encodeURI(selectedCourse!)}`)}
+                    onClick={() => router.push(`/reports/${encodeURI(selectedCourse!)}`)}
                   >
                     <FileChartLine className="mr-2 h-4 w-4" />
                     Reports
