@@ -31,7 +31,7 @@ export default function RootLayout({ children }: Readonly<RootProps>) {
         <body className="antialiased">
           <main>
             <Providers>
-              <Suspense fallback={<LoadingSkeleton />}>{children}</Suspense>
+              {children}
               <SpeedInsights />
             </Providers>
           </main>
