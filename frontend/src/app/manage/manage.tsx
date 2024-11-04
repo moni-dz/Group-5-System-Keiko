@@ -29,9 +29,7 @@ import {
   getAllQuizzes,
   QuizData,
 } from "@/lib/api";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouter, useSearchParams } from "next/navigation";
-import { ErrorSkeleton, LoadingSkeleton } from "@/components/status";
+import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
@@ -39,6 +37,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useTransitionRouter } from "next-view-transitions";
+import { useQueryState } from "nuqs";
 
 const formSchema = z.object({
   question: z.string().min(1, "Question is required."),
@@ -47,14 +46,14 @@ const formSchema = z.object({
 
 export default function Manage() {
   const router = useTransitionRouter();
-  const searchParams = new URLSearchParams(useSearchParams());
-  const course_code = decodeURI(searchParams.get("course") || "");
-  const category = decodeURI(searchParams.get("quiz") || "");
+  //const searchParams = new URLSearchParams(useSearchParams());
+  const [courseCode, setCourseCode] = useQueryState("course");
+  const [category, setCategory] = useQueryState("quiz");
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   // dialog control
-  const [showFirstDialog, setShowFirstDialog] = useState(category.length == 0);
+  const [showFirstDialog, setShowFirstDialog] = useState(category === null);
   const [showNewDialog, setShowNewDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
 
@@ -63,11 +62,11 @@ export default function Manage() {
   const [newQuizName, setNewQuizName] = useState("");
 
   const [currentQuiz, setCurrentQuiz] = useState<Pick<QuizData, "course_code" | "category">>({
-    course_code,
-    category,
+    course_code: courseCode ?? "",
+    category: category ?? "",
   });
 
-  const [showQuestionForm, setShowQuestionForm] = useState(category.length > 0);
+  const [showQuestionForm, setShowQuestionForm] = useState(category !== null);
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -91,32 +90,19 @@ export default function Manage() {
     }
   }
 
-  const {
-    data: quizzes,
-    isFetching: isQuizzesFetching,
-    isError: isQuizzesError,
-    error: quizzesError,
-  } = useQuery({
+  const { data: quizzes } = useSuspenseQuery({
     queryKey: ["quizzes"],
     queryFn: getAllQuizzes,
-    initialData: [],
   });
 
-  const {
-    data: cards,
-    isFetching: isCardsFetching,
-    isError: isCardsError,
-    error: cardsError,
-  } = useQuery({
+  const { data: cards } = useSuspenseQuery({
     queryKey: ["cards"],
     queryFn: getAllCards,
-    initialData: [],
   });
 
   const addQuizMutation = useMutation({
     mutationFn: (quiz: Pick<QuizData, "course_code" | "category">) => {
-      searchParams.set("quiz", encodeURI(quiz.category));
-      router.push(`?${searchParams.toString()}`);
+      setCategory(quiz.category);
       return addQuiz(quiz);
     },
     onSuccess: () => {
@@ -128,10 +114,9 @@ export default function Manage() {
 
   const renameQuizMutation = useMutation({
     mutationFn: ({ old_name, new_name }: { old_name: string; new_name: string }) => {
-      searchParams.set("quiz", new_name);
-      router.push(`?${searchParams.toString()}`);
+      setCategory(new_name);
       setCurrentQuiz({ ...currentQuiz, category: new_name });
-      return renameQuiz(course_code, old_name, new_name);
+      return renameQuiz(courseCode!, old_name, new_name);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["quizzes"] });
@@ -216,9 +201,6 @@ export default function Manage() {
     form.setValue("answer", card.answer);
   }
 
-  if (isQuizzesFetching || isCardsFetching) return <LoadingSkeleton />;
-  if (isQuizzesError || isCardsError) return <ErrorSkeleton error={(quizzesError || cardsError) as Error} />;
-
   return (
     <div className="bg-gray-50 min-h-screen relative">
       <Link href="/dashboard?view=courses">
@@ -252,9 +234,9 @@ export default function Manage() {
                       setShowEditDialog(true);
                     }}
                     className="w-full sm:w-auto text-zinc-500 bg-white border hover:border-red-500 border-zinc-500 hover:bg-red-500 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled={!quizzes.some((quiz) => quiz.course_code === course_code)}
+                    disabled={!quizzes.some((quiz) => quiz.course_code === courseCode)}
                   >
-                    {!quizzes.some((quiz) => quiz.course_code === course_code) ? "No quizzes to edit." : "Edit"}
+                    {!quizzes.some((quiz) => quiz.course_code === courseCode) ? "No quizzes to edit." : "Edit"}
                   </AlertDialogAction>
                   <AlertDialogAction
                     onClick={() => {
@@ -286,7 +268,7 @@ export default function Manage() {
               <Input
                 placeholder="Enter quiz name..."
                 className="w-full border border-zinc-500 p-2 rounded-sm"
-                onChange={(e) => setCurrentQuiz({ course_code, category: e.target.value })}
+                onChange={(e) => setCurrentQuiz({ course_code: courseCode!, category: e.target.value })}
               />
               <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
                 <Button
@@ -335,8 +317,7 @@ export default function Manage() {
                   const quiz = quizzes.find((q) => q.category === value);
                   if (quiz) {
                     setCurrentQuiz(quiz);
-                    searchParams.set("quiz", encodeURI(quiz.category));
-                    router.push(`?${searchParams.toString()}`);
+                    setCategory(quiz.category);
                   }
                 }}
               >
@@ -345,7 +326,7 @@ export default function Manage() {
                 </SelectTrigger>
                 <SelectContent>
                   {quizzes
-                    .filter((quiz) => quiz.course_code === course_code)
+                    .filter((quiz) => quiz.course_code === courseCode)
                     .map((quiz) => (
                       <SelectItem key={quiz.id} value={quiz.category} className="cursor-pointer">
                         {quiz.category}
@@ -369,7 +350,7 @@ export default function Manage() {
                     if (currentQuiz.category) {
                       setShowEditDialog(false);
                       setShowQuestionForm(true);
-                      searchParams.set("quiz", encodeURI(currentQuiz.category));
+                      setCategory(currentQuiz.category);
                     }
                   }}
                   className="hover:text-white border hover:border-red-500 hover:bg-red-500 text-zinc-500 bg-white border-zinc-500"

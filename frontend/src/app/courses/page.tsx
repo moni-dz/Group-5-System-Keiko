@@ -1,14 +1,14 @@
-import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getAllCourses } from "@/lib/api";
 import Courses from "./courses";
+import { getQueryClient } from "../query-client";
 
-export default async function DashboardPage() {
-  const queryClient = new QueryClient();
+export default async function CoursesPage() {
+  const queryClient = getQueryClient();
 
-  await queryClient.prefetchQuery({
+  queryClient.prefetchQuery({
     queryKey: ["courses"],
     queryFn: getAllCourses,
-    initialData: [],
   });
 
   return (

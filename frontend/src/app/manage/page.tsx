@@ -1,20 +1,19 @@
-import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getAllCards, getAllQuizzes } from "@/lib/api";
 import Manage from "./manage";
+import { getQueryClient } from "../query-client";
 
 export default async function ManagePage() {
-  const queryClient = new QueryClient();
+  const queryClient = getQueryClient();
 
-  await queryClient.prefetchQuery({
+  queryClient.prefetchQuery({
     queryKey: ["cards"],
     queryFn: getAllCards,
-    initialData: [],
   });
 
-  await queryClient.prefetchQuery({
+  queryClient.prefetchQuery({
     queryKey: ["quizzes"],
     queryFn: getAllQuizzes,
-    initialData: [],
   });
 
   return (

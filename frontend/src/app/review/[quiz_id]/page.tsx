@@ -1,6 +1,7 @@
-import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQuiz, getCardsByQuizId } from "@/lib/api";
 import Review from "./../review";
+import { getQueryClient } from "@/app/query-client";
 
 interface ReviewPageProps {
   params: Promise<{ quiz_id: string }>;
@@ -8,17 +9,16 @@ interface ReviewPageProps {
 
 export default async function ReviewPage(props: ReviewPageProps) {
   const { quiz_id } = await props.params;
-  const queryClient = new QueryClient();
+  const queryClient = getQueryClient();
 
-  await queryClient.prefetchQuery({
+  queryClient.prefetchQuery({
     queryKey: ["quiz", quiz_id],
     queryFn: () => getQuiz(quiz_id),
   });
 
-  await queryClient.prefetchQuery({
+  queryClient.prefetchQuery({
     queryKey: ["cards", quiz_id],
     queryFn: () => getCardsByQuizId(quiz_id),
-    initialData: [],
   });
 
   return (
