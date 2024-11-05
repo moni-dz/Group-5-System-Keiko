@@ -1,3 +1,4 @@
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -26,24 +27,27 @@ export function Flashcard(props: Pick<CardData, "question" | "answer">) {
         className="flashcard-inner relative w-full h-full transition-transform duration-700 [transform-style:preserve-3d] block"
       >
         {/* Front of the card */}
-        <Card
-          className="flashcard-front absolute w-full h-full [backface-visibility:hidden]"
-          style={{
-            flexBasis: `${cardWidth}px`,
-          }}
-        >
-          <CardHeader className="flex flex-col items-center justify-center h-full p-4">
-            <CardTitle className="text-2xl mb-4">{question}</CardTitle>
-          </CardHeader>
-        </Card>
+      <Card
+        className="flashcard-front absolute w-full h-full max-h-[800px] [backface-visibility:hidden] overflow-hidden"
+        style={{
+          flexBasis: `${cardWidth}px`,
+        }}
+      >
+        <CardHeader className="flex flex-col items-center justify-center h-full p-4">
+          <CardTitle className="text-2xl mb-4">{question}</CardTitle>
+        </CardHeader>
+      </Card>
 
-        {/* Back of the card */}
-        <Card className="flashcard-back absolute w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)]">
-          <CardHeader>
-            <CardTitle className="flex justify-between items-center">Answer</CardTitle>
-          </CardHeader>
-          <CardContent className="flex items-center justify-center h-[200px] text-2xl">{answer}</CardContent>
-        </Card>
+      {/* Back of the card */}
+      <Card className="flashcard-back absolute w-full h-full flex flex-col [backface-visibility:hidden] [transform:rotateY(180deg)] overflow-hidden">
+        <CardHeader className="flex justify-center items-start h-10">
+          <CardTitle>Answer</CardTitle>
+         </CardHeader>
+         <CardContent className="flex flex-grow items-center justify-center text-2xl text-center -mt-8">
+          {answer}
+        </CardContent>
+      </Card>
+
       </label>
     </div>
   );
@@ -54,7 +58,7 @@ export function SkeletonCard() {
     <div className="min-w-fit w-96 max-w-full h-64 cursor-pointer">
       <div className="relative w-full h-full">
         <Card className="absolute w-full h-full" style={{ flexBasis: `${cardWidth}px` }}>
-          <CardHeader className={`flex flex-col items-center justify-center h-full p-4`}>
+          <CardHeader className="flex flex-col items-center justify-center h-full p-4">
             <CardTitle>
               <Skeleton className="h-4 w-[250px] mb-5" />
               <Skeleton className="h-4 w-[200px] mb-2" />
@@ -111,7 +115,7 @@ interface EditableCourseProps {
   handleEdit: (course: CourseData) => void;
   handleDelete: (id: string) => void;
   handleManageCourses: (course_code: string) => void;
-  className?: string; // Accept className as a prop
+  className?: string;
 }
 
 export function EditableCourse(props: EditableCourseProps) {
@@ -142,7 +146,7 @@ export function EditableCourse(props: EditableCourseProps) {
           >
             Edit
           </Button>
-          <Button variant="destructive" className="hover:bg-zinc-500 " onClick={() => handleDelete(course.id)}>
+          <Button variant="destructive" className="hover:bg-zinc-500" onClick={() => handleDelete(course.id)}>
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
@@ -221,23 +225,21 @@ export function QuizCard({
   onNext,
 }: QuizCardProps) {
   return (
-    <div className="w-full max-w-md mx-auto h-[400px] [perspective:1000px]">
+    <div className="w-full max-w-md mx-auto [perspective:1000px]">
       <div
-        className={`relative w-full h-full transition-transform duration-500 [transform-style:preserve-3d] ${
+        className={`relative w-full transition-transform duration-500 [transform-style:preserve-3d] ${
           isSubmitted ? "[transform:rotateY(180deg)]" : ""
         }`}
       >
         {/* Front of the card */}
-        <div className="absolute w-full h-full [backface-visibility:hidden]">
-          <div className="w-full h-full flex flex-col border border-zinc-200 rounded-lg p-6 bg-white shadow-md">
-            <CardTitle className="text-xl text-center text-zinc-500 mb-4">
-              <div className="max-h-[100px] overflow-y-auto">{question}</div>
-            </CardTitle>
+        <div className="absolute w-full [backface-visibility:hidden]">
+          <div className="w-full flex flex-col border border-zinc-200 rounded-lg p-6 bg-white shadow-md">
+            <CardTitle className="text-xl text-center text-zinc-500 mb-4">{question}</CardTitle>
             <RadioGroup
               value={selectedAnswer}
               onValueChange={setSelectedAnswer}
               disabled={isSubmitted}
-              className="space-y-2 w-full mb-4 flex-1 overflow-y-auto"
+              className="space-y-2 w-full mb-4"
             >
               {answerOptions.map((option, index) => (
                 <div
@@ -263,7 +265,7 @@ export function QuizCard({
             <Button
               onClick={onSubmit}
               disabled={isSubmitted || !selectedAnswer}
-              className="bg-zinc-600 text-white hover:bg-red-500 transition-colors font-gau-pop-magic"
+              className="bg-zinc-600 text-white hover:bg-red-500 transition-colors"
             >
               SUBMIT ANSWER
             </Button>
@@ -271,16 +273,16 @@ export function QuizCard({
         </div>
 
         {/* Back of the card */}
-        <div className="absolute w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)]">
-          <div className="w-full h-full flex flex-col border border-zinc-200 rounded-lg p-6 bg-white shadow-md">
+        <div className="absolute w-full [backface-visibility:hidden] [transform:rotateY(180deg)]">
+          <div className="w-full flex flex-col border border-zinc-200 rounded-lg p-6 bg-white shadow-md">
             <p
-              className={`text-xl font-gau-pop-magic font-bold mb-4 ${
+              className={`text-xl font-bold mb-4 ${
                 message === "Correct!" ? "text-red-500" : "text-zinc-500"
               }`}
             >
               {message}
             </p>
-            <CardTitle className="text-lg text-center text-zinc-500 mb-4 flex-1 overflow-y-auto">
+            <CardTitle className="text-lg text-center text-zinc-500 mb-4">
               Answer: {correctAnswer}
             </CardTitle>
             <Button onClick={onNext} className="bg-zinc-500 text-white hover:bg-red-500">
@@ -292,3 +294,4 @@ export function QuizCard({
     </div>
   );
 }
+
