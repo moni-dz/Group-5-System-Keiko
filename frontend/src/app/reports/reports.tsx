@@ -3,51 +3,40 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ClipboardList, CheckCircle, XCircle, Star, BookOpen, Home } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { getAllQuizzes, getCourseByCode, QuizData, ratingFor } from "@/lib/api";
-import { ErrorSkeleton, LoadingSkeleton } from "@/components/status";
-import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Link } from "next-view-transitions";
-
-// Import the logo
+import Image from "next/image";
 import logo from "@/public/logo.png";
 
-export default function ReportsPage() {
-  const searchParams = useSearchParams();
-  const course_code = decodeURI(searchParams.get("course") || "");
+interface ReportsProps {
+  course_code: string;
+}
+
+export default function Reports(props: ReportsProps) {
+  const { course_code } = props;
   const [selectedCategory, setSelectedCategory] = useState<QuizData | null>(null);
 
-  const {
-    data: course,
-    isPending: isCoursePending,
-    isError: isCourseError,
-    error: courseError,
-  } = useQuery({
-    queryKey: ["courses"],
+  const { data: course } = useSuspenseQuery({
+    queryKey: ["course", course_code],
     queryFn: () => getCourseByCode(course_code),
   });
 
-  const {
-    data: quizzes,
-    isPending: isQuizzesPending,
-    isError: isQuizzesError,
-    error: quizzesError,
-  } = useQuery({
+  const { data: quizzes } = useSuspenseQuery({
     queryKey: ["quizzes"],
     queryFn: getAllQuizzes,
-    initialData: [],
   });
 
   const courseQuizzes = quizzes.filter((q) => q.course_code == course_code);
 
-  const renderStars = (rating: number) => {
+  function renderStars(rating: number) {
     return Array(5)
       .fill(0)
       .map((_, index) => (
         <Star key={index} className={`w-4 h-4 ${index < rating ? "fill-red-500 text-red-500" : "text-zinc-300"}`} />
       ));
-  };
+  }
 
   function findStrengthsAndWeaknesses() {
     if (courseQuizzes.length == 0) return null;
@@ -62,18 +51,12 @@ export default function ReportsPage() {
 
   const analysis = findStrengthsAndWeaknesses();
 
-  if (isCourseError || isQuizzesError)
-    return <ErrorSkeleton error={isCourseError ? courseError : isQuizzesError ? quizzesError : undefined} />;
-
-  if (isCoursePending || isQuizzesPending) return <LoadingSkeleton />;
-
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">
       <div className="p-8 max-w-6xl mx-auto flex-grow">
         <div className="flex justify-betwe  en items-start">
           <div className="flex items-center">
-            {/* Add logo here */}
-            <img src={logo.src} alt="Logo" className="h-10 mr-4" />
+            <Image src={logo.src} alt="Logo" className="h-10 mr-4" width={42.5} height={42.5} />
             <h1 className="text-3xl font-bold font-gau-pop-magic text-red-500">REPORTS</h1>
           </div>
           <div className="absolute top-4 right-4">
@@ -133,9 +116,7 @@ export default function ReportsPage() {
                       </div>
                     </div>
                   ) : (
-                    <div className="font-semibold text-center text-zinc-400">
-                      Add more quizzes to get your report.
-                    </div>
+                    <div className="font-semibold text-center text-zinc-400">Add more quizzes to get your report.</div>
                   )}
                 </CardContent>
               </Card>

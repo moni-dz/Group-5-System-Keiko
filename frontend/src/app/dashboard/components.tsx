@@ -9,28 +9,32 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { BookCheck, ChevronsLeft, ClipboardList, Clock, Menu } from "lucide-react";
 import Image from "next/image";
 import logo from "@/public/logo.png";
+import { Options } from "nuqs";
 
 interface CourseListProps {
   courses: CourseData[];
-  course_code: string;
-  activeView: string;
+  selectedCourse: string;
+  setSelectedCourse: (
+    value: string | ((old: string | null) => string | null) | null,
+    options?: Options,
+  ) => Promise<URLSearchParams>;
 }
 
 export function CourseList(props: CourseListProps) {
-  const { courses, course_code: selectedCourse, activeView } = props;
+  const { courses, selectedCourse, setSelectedCourse } = props;
 
   return (
     <ul>
       {courses.map((course) => (
-        <Link href={`?view=${activeView}&course=${course.course_code}`} key={course.id}>
-          <li
-            className={`mb-2 p-2 rounded cursor-pointer ${
-              selectedCourse === course.course_code ? "bg-red-100" : "hover:bg-red-100"
-            } font-semibold text-zinc-500`}
-          >
-            {course.course_code}
-          </li>
-        </Link>
+        <li
+          key={course.id}
+          onClick={() => setSelectedCourse(course.course_code)}
+          className={`mb-2 p-2 rounded cursor-pointer ${
+            selectedCourse === course.course_code ? "bg-red-100" : "hover:bg-red-100"
+          } font-semibold text-zinc-500`}
+        >
+          {course.course_code}
+        </li>
       ))}
     </ul>
   );
@@ -75,25 +79,28 @@ export function CourseDetails(props: CourseDetailsProps) {
 
 interface QuizListProps {
   quizzes: QuizData[];
-  quizId: string;
-  activeView: string;
+  selectedQuiz: string;
+  setSelectedQuiz: (
+    value: string | ((old: string | null) => string | null) | null,
+    options?: Options,
+  ) => Promise<URLSearchParams>;
 }
 
 export function QuizList(props: QuizListProps) {
-  const { quizzes, quizId, activeView } = props;
+  const { quizzes, selectedQuiz, setSelectedQuiz } = props;
 
   return (
     <ul>
       {quizzes.map((quiz) => (
-        <Link href={`?view=${activeView}&quiz=${quiz.id}`} key={quiz.id}>
-          <li
-            className={`mb-2 p-2 rounded cursor-pointer ${
-              quizId === quiz.id ? "bg-red-100" : "hover:bg-red-100"
-            } font-semibold text-zinc-500`}
-          >
-            {quiz.course_code} - {quiz.category}
-          </li>
-        </Link>
+        <li
+          key={quiz.id}
+          onClick={() => setSelectedQuiz(quiz.id)}
+          className={`mb-2 p-2 rounded cursor-pointer ${
+            selectedQuiz === quiz.id ? "bg-red-100" : "hover:bg-red-100"
+          } font-semibold text-zinc-500`}
+        >
+          {quiz.course_code} - {quiz.category}
+        </li>
       ))}
     </ul>
   );
@@ -145,24 +152,28 @@ export function QuizDetails(props: QuizDetailsProps) {
 interface DashboardSidebarProps {
   collapsed: boolean;
   setCollapsed: (collapsed: boolean) => void;
+  setActiveView: (
+    value: string | ((old: string | null) => string | null) | null,
+    options?: Options,
+  ) => Promise<URLSearchParams>;
 }
 
 export function DashboardSidebar(props: DashboardSidebarProps) {
-  const { collapsed, setCollapsed } = props;
+  const { collapsed, setCollapsed, setActiveView } = props;
 
   const items = [
     {
-      href: "?view=courses",
+      view: "courses",
       icon: ClipboardList,
       label: "Courses",
     },
     {
-      href: "?view=ongoing",
+      view: "ongoing",
       icon: Clock,
       label: "On-Going",
     },
     {
-      href: "?view=completed",
+      view: "completed",
       icon: BookCheck,
       label: "Completed",
     },
@@ -193,19 +204,19 @@ export function DashboardSidebar(props: DashboardSidebarProps) {
               {items.map((item) => {
                 const Icon = item.icon;
                 return (
-                  <Link href={item.href} key={item.href}>
-                    <Button
-                      variant="ghost"
-                      className={cn(
-                        "w-full flex items-center text-zinc-500",
-                        collapsed ? "justify-center px-2" : "justify-start",
-                        "hover:bg-red-500 hover:text-white transition-colors",
-                      )}
-                    >
-                      <Icon className={cn("h-5 w-5", !collapsed && "mr-2")} />
-                      {!collapsed && item.label}
-                    </Button>
-                  </Link>
+                  <Button
+                    key={item.view}
+                    onClick={() => setActiveView(item.view)}
+                    variant="ghost"
+                    className={cn(
+                      "w-full flex items-center text-zinc-500",
+                      collapsed ? "justify-center px-2" : "justify-start",
+                      "hover:bg-red-500 hover:text-white transition-colors",
+                    )}
+                  >
+                    <Icon className={cn("h-5 w-5", !collapsed && "mr-2")} />
+                    {!collapsed && item.label}
+                  </Button>
                 );
               })}
             </nav>

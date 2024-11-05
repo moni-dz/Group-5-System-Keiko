@@ -1,6 +1,6 @@
 import { Loader2 } from "lucide-react";
 
-export function LoadingSkeleton() {
+export async function LoadingSkeleton() {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm">
       <Loader2 className="h-8 w-8 animate-spin text-red-500" />
@@ -12,7 +12,7 @@ interface ErrorSkeletonProps {
   error?: Error;
 }
 
-export function ErrorSkeleton(props: ErrorSkeletonProps) {
+export async function ErrorSkeleton(props: ErrorSkeletonProps) {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm">
       {props.error ? props.error.message : "An error occurred."}

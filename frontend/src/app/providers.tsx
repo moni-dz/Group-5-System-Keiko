@@ -1,7 +1,11 @@
 "use client";
 
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryStreamedHydration } from "@tanstack/react-query-next-experimental";
+import { getQueryClient } from "./query-client";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -9,7 +13,17 @@ interface ProvidersProps {
 
 export default function Providers(props: ProvidersProps) {
   const { children } = props;
-  const queryClient = new QueryClient();
+  const queryClient = getQueryClient();
 
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+  return (
+    <NuqsAdapter>
+      <QueryClientProvider client={queryClient}>
+        <ReactQueryStreamedHydration>
+          {children}
+          <SpeedInsights />
+        </ReactQueryStreamedHydration>
+        <ReactQueryDevtools initialIsOpen />
+      </QueryClientProvider>
+    </NuqsAdapter>
+  );
 }
