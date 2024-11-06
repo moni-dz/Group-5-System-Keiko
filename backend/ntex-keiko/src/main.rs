@@ -11,9 +11,9 @@ use sqlx::Executor;
 #[cfg(not(debug_assertions))]
 #[derive(Parser)]
 struct Config {
-    #[arg(default_value = "moni")]
+    #[arg(default_value = "")]
     db_pass: String,
-    #[arg(default_value = "62.146.233.89")]
+    #[arg(default_value = "localhost")]
     addr: String,
 }
 
