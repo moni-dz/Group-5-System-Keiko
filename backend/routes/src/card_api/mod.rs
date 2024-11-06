@@ -1,5 +1,6 @@
 mod schema;
 
+use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use uuid::Uuid;
@@ -40,7 +41,7 @@ pub struct UpdateCard {
     pub category: String,
 }
 
-#[async_trait::async_trait]
+#[async_trait]
 pub trait CardAPI: Send + Sync + 'static {
     async fn get_cards(&self) -> KeikoResult<Vec<Card>>;
     async fn get_card(&self, card_id: &Uuid) -> KeikoResult<Card>;

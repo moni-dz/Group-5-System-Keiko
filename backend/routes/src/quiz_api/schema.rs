@@ -1,13 +1,14 @@
 use uuid::Uuid;
 
 use crate::{KeikoDatabase, KeikoResult};
+use async_trait::async_trait;
 
 use super::{
     CreateQuiz, Quiz, QuizAPI, QuizCompletion, QuizCorrectCount, QuizHint, QuizIndex, QuizView,
     RenameQuiz,
 };
 
-#[async_trait::async_trait]
+#[async_trait]
 impl QuizAPI for KeikoDatabase {
     /// GET /v1/quiz
     async fn get_quizzes(&self) -> KeikoResult<Vec<QuizView>> {
@@ -68,10 +69,10 @@ impl QuizAPI for KeikoDatabase {
             RETURNING *
             "#,
         )
-        .bind(&quiz.id)
-        .bind(&quiz.current_index)
-        .bind(&quiz.correct_count)
-        .bind(&quiz.is_completed)
+        .bind(quiz.id)
+        .bind(quiz.current_index)
+        .bind(quiz.correct_count)
+        .bind(quiz.is_completed)
         .bind(if quiz.is_completed {
             Some(chrono::Utc::now())
         } else {
@@ -96,8 +97,8 @@ impl QuizAPI for KeikoDatabase {
         sqlx::query_as::<_, Quiz>(
             "UPDATE quizzes SET is_completed = $2, completed_at = $3 WHERE id = $1 RETURNING *",
         )
-        .bind(&quiz_completion.id)
-        .bind(&quiz_completion.is_completed)
+        .bind(quiz_completion.id)
+        .bind(quiz_completion.is_completed)
         .bind(if quiz_completion.is_completed {
             Some(chrono::Utc::now())
         } else {
@@ -112,8 +113,8 @@ impl QuizAPI for KeikoDatabase {
     /// PATCH /v1/quiz/id/{quiz_id}/index
     async fn set_current_index(&self, quiz_id: &Uuid, quiz_index: &QuizIndex) -> KeikoResult<Quiz> {
         sqlx::query_as::<_, Quiz>("UPDATE quizzes SET current_index = $2 WHERE id = $1 RETURNING *")
-            .bind(&quiz_id)
-            .bind(&quiz_index.current_index)
+            .bind(quiz_id)
+            .bind(quiz_index.current_index)
             .fetch_one(&self.pool)
             .await
             .map_err(|e| e.to_string())
@@ -126,8 +127,8 @@ impl QuizAPI for KeikoDatabase {
         quiz_count: &QuizCorrectCount,
     ) -> KeikoResult<Quiz> {
         sqlx::query_as::<_, Quiz>("UPDATE quizzes SET correct_count = $2 WHERE id = $1 RETURNING *")
-            .bind(&quiz_id)
-            .bind(&quiz_count.correct_count)
+            .bind(quiz_id)
+            .bind(quiz_count.correct_count)
             .fetch_one(&self.pool)
             .await
             .map_err(|e| e.to_string())
@@ -136,17 +137,21 @@ impl QuizAPI for KeikoDatabase {
     /// PATCH /v1/quiz/id/{quiz_id}/hint
     async fn set_hint_used(&self, quiz_id: &Uuid, quiz_hint: &QuizHint) -> KeikoResult<Quiz> {
         sqlx::query_as::<_, Quiz>("UPDATE quizzes SET hint_used = $2 WHERE id = $1 RETURNING *")
-            .bind(&quiz_id)
-            .bind(&quiz_hint.hint_used)
+            .bind(quiz_id)
+            .bind(quiz_hint.hint_used)
             .fetch_one(&self.pool)
             .await
             .map_err(|e| e.to_string())
     }
 
     /// POST /v1/quiz/rename/{course_code}
-    async fn rename_quiz(&self, course_code: &String, quiz_rename: &RenameQuiz) -> KeikoResult<()> {
+    async fn rename_quiz<'a>(
+        &self,
+        course_code: &'a str,
+        quiz_rename: &RenameQuiz,
+    ) -> KeikoResult<()> {
         sqlx::query_scalar::<_, ()>("SELECT update_category($1, $2, $3)")
-            .bind(&course_code)
+            .bind(course_code)
             .bind(&quiz_rename.old)
             .bind(&quiz_rename.new)
             .fetch_one(&self.pool)

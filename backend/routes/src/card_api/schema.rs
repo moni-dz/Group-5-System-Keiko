@@ -1,8 +1,9 @@
 use super::{Card, CardAPI, CreateCard, UpdateCard};
 use crate::{KeikoDatabase, KeikoResult};
+use async_trait::async_trait;
 use uuid::Uuid;
 
-#[async_trait::async_trait]
+#[async_trait]
 impl CardAPI for KeikoDatabase {
     /// GET /v1/cards
     async fn get_cards(&self) -> KeikoResult<Vec<Card>> {
@@ -49,7 +50,7 @@ impl CardAPI for KeikoDatabase {
       RETURNING *
       "#,
         )
-        .bind(&update_card.id)
+        .bind(update_card.id)
         .bind(&update_card.question)
         .bind(&update_card.answer)
         .bind(&update_card.course_code)

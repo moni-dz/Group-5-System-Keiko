@@ -54,9 +54,12 @@ async fn main() -> std::io::Result<()> {
         args.db_pass, args.addr
     );
 
+    #[cfg(not(debug_assertions))]
+    let connection_string = connection_string.as_str();
+
     let pool = PgPoolOptions::new()
         .max_connections(5)
-        .connect(&connection_string)
+        .connect(connection_string)
         .await
         .unwrap_or_else(|e| {
             panic!("Failed to initialize database: {:?}", e);

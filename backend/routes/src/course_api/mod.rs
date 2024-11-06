@@ -1,5 +1,6 @@
 mod schema;
 
+use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use uuid::Uuid;
@@ -59,11 +60,14 @@ pub struct CourseCategory {
     pub category: String,
 }
 
-#[async_trait::async_trait]
+#[async_trait]
 pub trait CourseAPI: Send + Sync + 'static {
     async fn get_courses(&self) -> KeikoResult<Vec<CourseView>>;
     async fn get_course(&self, course_id: &Uuid) -> KeikoResult<CourseView>;
-    async fn get_course_from_course_code(&self, course_code: &String) -> KeikoResult<CourseView>;
+    async fn get_course_from_course_code<'a>(
+        &self,
+        course_code: &'a str,
+    ) -> KeikoResult<CourseView>;
     async fn get_categories_for_course(&self, course_id: &Uuid)
         -> KeikoResult<Vec<CourseCategory>>;
     async fn create_course(&self, create_course: &CreateCourse) -> KeikoResult<Course>;

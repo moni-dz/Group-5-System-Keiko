@@ -1,9 +1,9 @@
-use crate::{KeikoDatabase, KeikoResult};
-
 use super::{Course, CourseAPI, CourseCategory, CourseView, CreateCourse, UpdateCourse};
+use crate::{KeikoDatabase, KeikoResult};
+use async_trait::async_trait;
 use uuid::Uuid;
 
-#[async_trait::async_trait]
+#[async_trait]
 impl CourseAPI for KeikoDatabase {
     /// GET /v1/courses
     async fn get_courses(&self) -> KeikoResult<Vec<CourseView>> {
@@ -16,16 +16,19 @@ impl CourseAPI for KeikoDatabase {
     /// GET /v1/courses/id/{course_id}
     async fn get_course(&self, course_id: &Uuid) -> KeikoResult<CourseView> {
         sqlx::query_as::<_, CourseView>("SELECT * FROM courses_view WHERE id = $1")
-            .bind(&course_id)
+            .bind(course_id)
             .fetch_one(&self.pool)
             .await
             .map_err(|e| e.to_string())
     }
 
     /// GET /v1/courses/code/{course_code}
-    async fn get_course_from_course_code(&self, course_code: &String) -> KeikoResult<CourseView> {
+    async fn get_course_from_course_code<'a>(
+        &self,
+        course_code: &'a str,
+    ) -> KeikoResult<CourseView> {
         sqlx::query_as::<_, CourseView>("SELECT * FROM courses_view WHERE course_code = $1")
-            .bind(&course_code)
+            .bind(course_code)
             .fetch_one(&self.pool)
             .await
             .map_err(|e| e.to_string())
@@ -45,7 +48,7 @@ impl CourseAPI for KeikoDatabase {
             ORDER BY cards.category;
             "#,
         )
-        .bind(&course_id)
+        .bind(course_id)
         .fetch_all(&self.pool)
         .await
         .map_err(|e| e.to_string())
@@ -78,7 +81,7 @@ impl CourseAPI for KeikoDatabase {
             RETURNING *
             "#,
         )
-        .bind(&update_course.id)
+        .bind(update_course.id)
         .bind(&update_course.name)
         .bind(&update_course.course_code)
         .bind(&update_course.description)
@@ -90,7 +93,7 @@ impl CourseAPI for KeikoDatabase {
     /// DELETE /v1/courses/id/{course_id}
     async fn delete_course(&self, course_id: &Uuid) -> KeikoResult<Uuid> {
         sqlx::query_scalar::<_, Uuid>("DELETE FROM courses WHERE id = $1 RETURNING id")
-            .bind(&course_id)
+            .bind(course_id)
             .fetch_one(&self.pool)
             .await
             .map_err(|e| e.to_string())

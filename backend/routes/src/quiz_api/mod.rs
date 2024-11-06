@@ -1,4 +1,5 @@
 mod schema;
+use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use uuid::Uuid;
@@ -82,7 +83,7 @@ pub struct QuizHint {
     pub hint_used: bool,
 }
 
-#[async_trait::async_trait]
+#[async_trait]
 pub trait QuizAPI: Send + Sync + 'static {
     async fn get_quizzes(&self) -> KeikoResult<Vec<QuizView>>;
     async fn get_quiz(&self, quiz_id: &Uuid) -> KeikoResult<QuizView>;
@@ -99,5 +100,9 @@ pub trait QuizAPI: Send + Sync + 'static {
         quiz_count: &QuizCorrectCount,
     ) -> KeikoResult<Quiz>;
     async fn set_hint_used(&self, quiz_id: &Uuid, quiz_hint: &QuizHint) -> KeikoResult<Quiz>;
-    async fn rename_quiz(&self, course_code: &String, quiz_rename: &RenameQuiz) -> KeikoResult<()>;
+    async fn rename_quiz<'a>(
+        &self,
+        course_code: &'a str,
+        quiz_rename: &RenameQuiz,
+    ) -> KeikoResult<()>;
 }

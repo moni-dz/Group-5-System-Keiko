@@ -18,4 +18,4 @@ impl KeikoDatabase {
 
 pub type KeikoResult<T> = Result<T, String>;
 
-pub const SCHEMA: &'static str = include_str!("schema.sql");
+pub const SCHEMA: &str = include_str!("schema.sql");

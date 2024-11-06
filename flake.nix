@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/master";
     flake-parts.url = "github:hercules-ci/flake-parts";
     fenix.url = "github:nix-community/fenix";
     fenix.inputs.nixpkgs.follows = "nixpkgs";
@@ -14,12 +14,12 @@
 
       perSystem = { lib, pkgs, ... }: {
         devenv.shells.default = {
-          packages = lib.optionals pkgs.stdenv.isDarwin [ pkgs.darwin.apple_sdk_12_3.frameworks.SystemConfiguration ]
+          packages = lib.optionals pkgs.stdenv.isDarwin [ pkgs.apple-sdk_12 ]
             ++ lib.optionals pkgs.stdenv.isLinux [ pkgs.openssl ];
 
           languages.rust = {
             enable = true;
-            channel = "stable";
+            channel = "nightly";
           };
 
           languages.javascript = {

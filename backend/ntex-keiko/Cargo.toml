@@ -6,7 +6,6 @@ edition = "2021"
 [dependencies]
 routes = { path = "../routes" }
 clap = { version = "4.0", features = ["derive"] }
-tokio = "1.26.0"
 sqlx = { version = "0.8.2", default-features = false, features = [
     "runtime-tokio",
     "tls-native-tls",
