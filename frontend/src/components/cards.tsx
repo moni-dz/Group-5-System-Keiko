@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -27,27 +26,30 @@ export function Flashcard(props: Pick<CardData, "question" | "answer">) {
         className="flashcard-inner relative w-full h-full transition-transform duration-700 [transform-style:preserve-3d] block"
       >
         {/* Front of the card */}
-      <Card
-        className="flashcard-front absolute w-full h-full max-h-[800px] [backface-visibility:hidden] overflow-hidden"
-        style={{
-          flexBasis: `${cardWidth}px`,
-        }}
-      >
-        <CardHeader className="flex flex-col items-center justify-center h-full p-4">
-          <CardTitle className="text-2xl mb-4">{question}</CardTitle>
-        </CardHeader>
-      </Card>
+        <Card
+          className="flashcard-front absolute w-full h-full max-h-[800px] [backface-visibility:hidden]"
+          style={{
+            flexBasis: `${cardWidth}px`,
+          }}
+        >
+          <div className="h-full p-8">
+            <div className="h-full overflow-auto">
+              <CardTitle className="text-2xl text-center">{question}</CardTitle>
+            </div>
+          </div>
+        </Card>
 
-      {/* Back of the card */}
-      <Card className="flashcard-back absolute w-full h-full flex flex-col [backface-visibility:hidden] [transform:rotateY(180deg)] overflow-hidden">
-        <CardHeader className="flex justify-center items-start h-10">
-          <CardTitle>Answer</CardTitle>
-         </CardHeader>
-         <CardContent className="flex flex-grow items-center justify-center text-2xl text-center -mt-8">
-          {answer}
-        </CardContent>
-      </Card>
-
+        {/* Back of the card */}
+        <Card className="flashcard-back absolute w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)]">
+          <div className="h-full p-8">
+            <div className="flex flex-col h-full">
+              <CardTitle className="text-center mb-4">Answer</CardTitle>
+              <div className="flex-grow overflow-auto">
+                <p className="font-semibold text-2xl text-center text-zinc-500">{answer}</p>
+              </div>
+            </div>
+          </div>
+        </Card>
       </label>
     </div>
   );
@@ -86,7 +88,7 @@ export function EditableCard(props: EditableCardProps) {
       className={cn("flex flex-col h-[250px] overflow-hidden", card.id === "optimistic" && "animate-pulse")}
     >
       <CardHeader className="flex-shrink-0">
-        <CardTitle className="text-lg font-semibold text-zinc-600">{card.question}</CardTitle>
+        <CardTitle className="text-lg font-semibold text-zinc-500">{card.question}</CardTitle>
       </CardHeader>
       <CardContent className="flex-grow overflow-auto">
         <div className="mb-2">
@@ -265,7 +267,7 @@ export function QuizCard({
             <Button
               onClick={onSubmit}
               disabled={isSubmitted || !selectedAnswer}
-              className="bg-zinc-600 text-white hover:bg-red-500 transition-colors"
+              className="bg-zinc-500 text-white hover:bg-red-500 transition-colors font-gau-pop-magic"
             >
               SUBMIT ANSWER
             </Button>
@@ -277,7 +279,7 @@ export function QuizCard({
           <div className="w-full flex flex-col border border-zinc-200 rounded-lg p-6 bg-white shadow-md">
             <p
               className={`text-xl font-bold mb-4 ${
-                message === "Correct!" ? "text-red-500" : "text-zinc-500"
+                message === "Correct!" ? "text-red-500 text-center font-gau-pop-magic" : "text-red-500 font-gau-pop-magic text-center"
               }`}
             >
               {message}
