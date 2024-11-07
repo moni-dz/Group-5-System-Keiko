@@ -116,7 +116,7 @@ export function QuizDetails(props: QuizDetailsProps) {
   const quiz = quizzes.find((quiz) => quiz.id === quizId);
 
   if (quiz === undefined) {
-    return <p className="text-zinc-500 italic">✦ select a course to view details...</p>;
+    return <p className="text-zinc-500 italic">✦ select a quiz to view details...</p>;
   }
 
   return (
