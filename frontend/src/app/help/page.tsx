@@ -118,7 +118,7 @@ export default function HelpPage() {
         <Link href="/">
           <Button
             variant="outline"
-            className="bg-red-500 text-white hover:bg-zinc-500 hover:text-white font-gau-pop-magic"
+            className="bg-white text-red-500 hover:bg-zinc-500 border border-red-500 hover:border-zinc-500 hover:text-white font-gau-pop-magic"
           >
             Back
           </Button>
