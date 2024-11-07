@@ -100,9 +100,5 @@ pub trait QuizAPI: Send + Sync + 'static {
         quiz_count: &QuizCorrectCount,
     ) -> KeikoResult<Quiz>;
     async fn set_hint_used(&self, quiz_id: &Uuid, quiz_hint: &QuizHint) -> KeikoResult<Quiz>;
-    async fn rename_quiz<'a>(
-        &self,
-        course_code: &'a str,
-        quiz_rename: &RenameQuiz,
-    ) -> KeikoResult<()>;
+    async fn rename_quiz(&self, course_code: &str, quiz_rename: &RenameQuiz) -> KeikoResult<()>;
 }

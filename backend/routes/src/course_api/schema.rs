@@ -23,10 +23,7 @@ impl CourseAPI for KeikoDatabase {
     }
 
     /// GET /v1/courses/code/{course_code}
-    async fn get_course_from_course_code<'a>(
-        &self,
-        course_code: &'a str,
-    ) -> KeikoResult<CourseView> {
+    async fn get_course_from_course_code(&self, course_code: &str) -> KeikoResult<CourseView> {
         sqlx::query_as::<_, CourseView>("SELECT * FROM courses_view WHERE course_code = $1")
             .bind(course_code)
             .fetch_one(&self.pool)

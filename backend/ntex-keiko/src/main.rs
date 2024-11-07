@@ -1,6 +1,7 @@
 #[cfg(not(debug_assertions))]
 use clap::Parser;
 use fern::colors::ColoredLevelConfig;
+use log::error;
 use ntex::web::middleware::Logger;
 use ntex::web::{self, App, HttpServer, ServiceConfig};
 use ntex_cors::Cors;
@@ -66,7 +67,8 @@ async fn main() -> std::io::Result<()> {
         });
 
     pool.execute(routes::SCHEMA).await.unwrap_or_else(|e| {
-        panic!("Failed to initialize schema: {:?}", e);
+        error!("Failed to initialize schema: {:?}", e);
+        std::process::exit(1);
     });
 
     let config = move |cfg: &mut ServiceConfig| {

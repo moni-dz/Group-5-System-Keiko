@@ -145,11 +145,7 @@ impl QuizAPI for KeikoDatabase {
     }
 
     /// POST /v1/quiz/rename/{course_code}
-    async fn rename_quiz<'a>(
-        &self,
-        course_code: &'a str,
-        quiz_rename: &RenameQuiz,
-    ) -> KeikoResult<()> {
+    async fn rename_quiz(&self, course_code: &str, quiz_rename: &RenameQuiz) -> KeikoResult<()> {
         sqlx::query_scalar::<_, ()>("SELECT update_category($1, $2, $3)")
             .bind(course_code)
             .bind(&quiz_rename.old)
