@@ -1,6 +1,6 @@
 #[cfg(not(debug_assertions))]
 use clap::Parser;
-use fern::colors::ColoredLevelConfig;
+use fern::colors::{Color, ColoredLevelConfig};
 use log::error;
 use ntex::web::middleware::Logger;
 use ntex::web::{self, App, HttpServer, ServiceConfig};
@@ -24,11 +24,11 @@ async fn main() -> std::io::Result<()> {
     let args = Config::parse();
 
     let log_colors = ColoredLevelConfig::new()
-        .info(fern::colors::Color::Green)
-        .warn(fern::colors::Color::Yellow)
-        .error(fern::colors::Color::Red)
-        .trace(fern::colors::Color::Magenta)
-        .debug(fern::colors::Color::Cyan);
+        .info(Color::Green)
+        .warn(Color::Yellow)
+        .error(Color::Red)
+        .trace(Color::Magenta)
+        .debug(Color::Cyan);
 
     fern::Dispatch::new()
         .format(move |out, message, record| {
