@@ -15,26 +15,53 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { CourseData, QuizData, getAllCourses, getAllQuizzes, setQuizCompletion } from "@/lib/api";
-import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { Edit, FileChartLine, FolderClock, Home, Pen, Search, BookOpen } from "lucide-react";
 import Link from "next/link";
-import { useTransitionRouter } from "next-view-transitions";
-import { useState } from "react";
+import { useState, useMemo, useCallback, CSSProperties, MouseEvent } from "react";
 import { CourseDetails, CourseList, DashboardSidebar, QuizDetails, QuizList } from "./components";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { useQueryState } from "nuqs";
 
-
 export default function Dashboard() {
   const queryClient = useQueryClient();
-  const router = useTransitionRouter();
   const { toast } = useToast();
   const [activeView, setActiveView] = useQueryState("view");
   const [searchTerm, setSearchTerm] = useQueryState("q");
   const [selectedCourse, setSelectedCourse] = useQueryState("course");
   const [selectedQuiz, setSelectedQuiz] = useQueryState("quiz");
   const [collapsed, setCollapsed] = useState(false);
+
+  const disabledCourseStyle = useMemo<CSSProperties>(
+    () => (selectedCourse === null ? { pointerEvents: "none" } : {}),
+    [selectedCourse],
+  );
+
+  const disableCourseOnClick = useCallback(
+    (event: MouseEvent) => {
+      if (selectedCourse === null) {
+        event.preventDefault();
+        return false;
+      }
+    },
+    [selectedCourse],
+  );
+
+  const disabledQuizStyle = useMemo<CSSProperties>(
+    () => (selectedQuiz === null ? { pointerEvents: "none" } : {}),
+    [selectedQuiz],
+  );
+
+  const disabledQuizOnClick = useCallback(
+    (event: MouseEvent) => {
+      if (selectedQuiz === null) {
+        event.preventDefault();
+        return false;
+      }
+    },
+    [selectedQuiz],
+  );
 
   const { data: courses } = useSuspenseQuery({
     queryKey: ["courses"],
@@ -137,16 +164,22 @@ export default function Dashboard() {
               </div>
               <div className="mt-4 flex justify-between">
                 <div className="space-x-2">
-                  <Button
-                    className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white"
-                    disabled={selectedCourse === null}
-                    onClick={() => router.push(`/reports/${encodeURI(selectedCourse!)}`)}
+                  <Link
+                    prefetch={selectedCourse !== null}
+                    href={`/reports/${encodeURI(selectedCourse!)}`}
+                    style={disabledCourseStyle}
+                    onClick={disableCourseOnClick}
                   >
-                    <FileChartLine className="mr-2 h-4 w-4" />
-                    Reports
-                  </Button>
+                    <Button
+                      className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white"
+                      disabled={selectedCourse === null}
+                    >
+                      <FileChartLine className="mr-2 h-4 w-4" />
+                      Reports
+                    </Button>
+                  </Link>
                 </div>
-                <Link href="/courses">
+                <Link prefetch href="/courses">
                   <Button className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white">
                     <Edit className="mr-2 h-4 w-4" />
                     Edit Courses
@@ -173,23 +206,35 @@ export default function Dashboard() {
               </div>
 
               <div className="mt-4 flex space-x-4">
-                <Button
-                  className="bg-red-500 text-white hover:bg-zinc-500 flex items-center space-x-2"
-                  disabled={selectedQuiz === null}
-                  onClick={() => router.push(`/quiz/${selectedQuiz}`)}
+                <Link
+                  prefetch={selectedQuiz !== null}
+                  href={`/quiz/${selectedQuiz}`}
+                  style={disabledQuizStyle}
+                  onClick={disabledQuizOnClick}
                 >
-                  <Pen width="20" height="20" />
-                  <span>Start Quiz</span>
-                </Button>
+                  <Button
+                    className="bg-red-500 text-white hover:bg-zinc-500 flex items-center space-x-2"
+                    disabled={selectedQuiz === null}
+                  >
+                    <Pen width="20" height="20" />
+                    <span>Start Quiz</span>
+                  </Button>
+                </Link>
 
-                <Button
-                  className="bg-white text-red-500 border-red-500 border hover:border-zinc-500 hover:bg-zinc-500 hover:text-white flex items-center space-x-2"
-                  disabled={selectedQuiz === null}
-                  onClick={() => router.push(`/review/${selectedQuiz}`)}
+                <Link
+                  prefetch={selectedQuiz !== null}
+                  href={`/review/${selectedQuiz}`}
+                  style={disabledQuizStyle}
+                  onClick={disabledQuizOnClick}
                 >
-                  <BookOpen width="20" height="20" />
-                  <span>Start Review</span>
-                </Button>
+                  <Button
+                    className="bg-white text-red-500 border-red-500 border hover:border-zinc-500 hover:bg-zinc-500 hover:text-white flex items-center space-x-2"
+                    disabled={selectedQuiz === null}
+                  >
+                    <BookOpen width="20" height="20" />
+                    <span>Start Review</span>
+                  </Button>
+                </Link>
               </div>
             </div>
           )}
@@ -237,7 +282,11 @@ export default function Dashboard() {
                           Cancel
                         </AlertDialogCancel>
                         <AlertDialogAction
-                          onClick={() => markCompletionMutation({ quiz_id: selectedQuiz ?? "", is_completed: false })}
+                          onClick={() => {
+                            if (quizzes.find((q) => q.id === selectedQuiz)?.is_completed) {
+                              markCompletionMutation({ quiz_id: selectedQuiz ?? "", is_completed: false });
+                            }
+                          }}
                           className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white"
                         >
                           Continue
