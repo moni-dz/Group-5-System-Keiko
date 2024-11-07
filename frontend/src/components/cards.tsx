@@ -32,8 +32,8 @@ export function Flashcard(props: Pick<CardData, "question" | "answer">) {
             flexBasis: `${cardWidth}px`,
           }}
         >
-          <div className="h-full p-8">
-            <div className="h-full overflow-auto">
+          <div className="h-full p-8 flex items-center justify-center"> 
+            <div className="h-full overflow-auto flex items-center justify-center"> 
               <CardTitle className="text-2xl text-center">{question}</CardTitle>
             </div>
           </div>
@@ -41,10 +41,10 @@ export function Flashcard(props: Pick<CardData, "question" | "answer">) {
 
         {/* Back of the card */}
         <Card className="flashcard-back absolute w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)]">
-          <div className="h-full p-8">
+          <div className="h-full p-8 flex items-center justify-center">
             <div className="flex flex-col h-full">
               <CardTitle className="text-center mb-4">Answer</CardTitle>
-              <div className="flex-grow overflow-auto">
+              <div className="h-full overflow-auto flex items-center justify-center">
                 <p className="font-semibold text-2xl text-center text-zinc-500">{answer}</p>
               </div>
             </div>
