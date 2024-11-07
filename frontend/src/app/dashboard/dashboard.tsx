@@ -25,6 +25,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { useQueryState } from "nuqs";
 
+
 export default function Dashboard() {
   const queryClient = useQueryClient();
   const router = useTransitionRouter();
@@ -192,7 +193,6 @@ export default function Dashboard() {
               </div>
             </div>
           )}
-
           {activeView === "completed" && (
             <div>
               <h2 className="text-xl font-bold mb-4 font-gau-pop-magic text-red-500">COMPLETED QUIZZES</h2>
@@ -209,7 +209,7 @@ export default function Dashboard() {
                 </div>
               </div>
               <div className="mt-4 flex justify-between">
-                <div className="space-x-2">
+                <div className="space-x-2 relative">
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button
@@ -222,9 +222,12 @@ export default function Dashboard() {
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle className="font-gau-pop-magic text-red-500">
-                          CHANGE QUIZ STATUS
-                        </AlertDialogTitle>
+                        <div className="ping-container">
+                          <div className="ping"></div>
+                          <AlertDialogTitle className="font-gau-pop-magic text-red-500">
+                            CHANGE QUIZ STATUS
+                          </AlertDialogTitle>
+                        </div>
                         <AlertDialogDescription>
                           Are you sure you want to change the status of this quiz to ongoing?
                         </AlertDialogDescription>
