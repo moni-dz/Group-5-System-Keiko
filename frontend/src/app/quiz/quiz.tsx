@@ -16,7 +16,7 @@ import {
 } from "@/lib/api";
 import { useQuery, useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { Lightbulb } from "lucide-react";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useTransitionRouter } from "next-view-transitions";
 import {
   AlertDialog,
@@ -236,10 +236,13 @@ export default function Quiz(props: QuizProps) {
       <AlertDialog open={showExitDialog} onOpenChange={() => setShowExitDialog(false)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-gau-pop-magic text-red-500">SAVE PROGRESS?</AlertDialogTitle>
-            <AlertDialogDescription className="text-zinc-500">
-              Would you like to save your progress before exiting?
-            </AlertDialogDescription>
+            <div className="ping-container">
+              <div className="ping"></div>
+              <AlertDialogTitle className="font-gau-pop-magic text-red-500">SAVE PROGRESS?</AlertDialogTitle>
+              <AlertDialogDescription className="text-zinc-500">
+                Would you like to save your progress before exiting?
+              </AlertDialogDescription>
+            </div>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="hover:bg-red-500 hover:text-white border border-red-500 text-red-500 ">
