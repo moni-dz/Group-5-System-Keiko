@@ -231,8 +231,8 @@ export default function Manage() {
         </AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <div className="ping-container">
-              <div className="ping"></div>
+            <div className="">
+              <div className=""></div>
               <AlertDialogTitle className="font-gau-pop-magic text-red-500">DELETE QUIZ</AlertDialogTitle>
             </div>
             <AlertDialogDescription>Are you sure you want to delete this quiz?</AlertDialogDescription>
