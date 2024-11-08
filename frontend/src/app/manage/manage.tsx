@@ -12,11 +12,13 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
+  AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
-import { Home, Pen } from "lucide-react";
+import { Home, Pen, Trash } from "lucide-react";
 import { EditableCard } from "@/components/cards";
 import {
   addCard,
@@ -25,6 +27,7 @@ import {
   deleteCard,
   getAllCards,
   renameQuiz,
+  deleteQuiz,
   updateCard,
   getAllQuizzes,
   QuizData,
@@ -53,6 +56,7 @@ export default function Manage() {
   const [showFirstDialog, setShowFirstDialog] = useState(category === null);
   const [showNewDialog, setShowNewDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   // popover for renaming quiz
   const [openRename, setOpenRename] = useState(false);
@@ -62,6 +66,8 @@ export default function Manage() {
     course_code: courseCode ?? "",
     category: category ?? "",
   });
+
+  const [currentQuizId, setCurrentQuizId] = useState<string | null>(null);
 
   const [showQuestionForm, setShowQuestionForm] = useState(category !== null);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -98,13 +104,29 @@ export default function Manage() {
   });
 
   const addQuizMutation = useMutation({
-    mutationFn: (quiz: Pick<QuizData, "course_code" | "category">) => {
+    mutationFn: async (quiz: Pick<QuizData, "course_code" | "category">) => {
       setCategory(quiz.category);
-      return addQuiz(quiz);
+      return addQuiz(quiz).then((q) => {
+        setCurrentQuizId(q.id);
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["quizzes"] });
       toast({ description: "Quiz created successfully" });
+    },
+    onError: (e: Error) => toast({ description: e.message }),
+  }).mutate;
+
+  const deleteQuizMutation = useMutation({
+    mutationFn: (id: string) => {
+      setCategory(null);
+      setCurrentQuizId(null);
+      return deleteQuiz(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["quizzes"] });
+      queryClient.invalidateQueries({ queryKey: ["cards"] });
+      toast({ description: "Quiz deleted successfully" });
     },
     onError: (e: Error) => toast({ description: e.message }),
   }).mutate;
@@ -319,7 +341,7 @@ export default function Manage() {
                 }}
               >
                 <SelectTrigger className="w-full italic text-zinc-500">
-                  <SelectValue placeholder ="Select quiz..." className="italic"/>
+                  <SelectValue placeholder="Select quiz..." className="italic" />
                 </SelectTrigger>
                 <SelectContent>
                   {quizzes
@@ -360,6 +382,8 @@ export default function Manage() {
           </AlertDialog>
         )}
 
+        {showDeleteDialog && <AlertDialog></AlertDialog>}
+
         {showQuestionForm && (
           <>
             <div className="mb-4 flex items-center justify-center space-x-2">
@@ -367,7 +391,7 @@ export default function Manage() {
               <Popover open={openRename} onOpenChange={setOpenRename}>
                 <PopoverTrigger asChild>
                   <Button variant="ghost" size="icon" className="w-8 h-8 hover:bg-red-50">
-                    <Pen className="h-4 w-4 text-red-500" />
+                    <Pen className="h-4 w-4 text-red-500 -mt-0.5" />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-80 p-4" align="center">
@@ -404,6 +428,37 @@ export default function Manage() {
                   </div>
                 </PopoverContent>
               </Popover>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="ghost" size="icon" className="w-8 h-8 hover:bg-red-50">
+                    <Trash className="h-4 w-4 text-red-500 -mt-0.5" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <div className="ping-container">
+                      <div className="ping"></div>
+                      <AlertDialogTitle className="font-gau-pop-magic text-red-500">DELETE QUIZ</AlertDialogTitle>
+                    </div>
+                    <AlertDialogDescription>Are you sure you want to delete this quiz?</AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className="text-red-500 hover:bg-red-500 hover:text-white border border-red-500">
+                      Cancel
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => {
+                        deleteQuizMutation(currentQuizId!);
+                        setShowQuestionForm(false);
+                        setShowFirstDialog(true);
+                      }}
+                      className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white"
+                    >
+                      Continue
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
 
             <Form {...form}>

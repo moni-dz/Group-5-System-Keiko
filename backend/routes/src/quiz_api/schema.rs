@@ -85,6 +85,14 @@ impl QuizAPI for KeikoDatabase {
 
     /// DELETE /v1/quiz/id/{quiz_id}
     async fn delete_quiz(&self, quiz_id: &Uuid) -> KeikoResult<Uuid> {
+        let quiz_category = self.get_quiz(quiz_id).await.unwrap().category;
+
+        sqlx::query_scalar::<_, ()>("DELETE FROM cards WHERE category = $1")
+            .bind(quiz_category)
+            .fetch_one(&self.pool)
+            .await
+            .map_err(|e| e.to_string())?;
+
         sqlx::query_scalar::<_, Uuid>("DELETE FROM quizzes WHERE id = $1 RETURNING id")
             .bind(quiz_id)
             .fetch_one(&self.pool)
