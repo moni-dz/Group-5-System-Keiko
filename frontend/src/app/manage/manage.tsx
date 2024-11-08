@@ -42,8 +42,8 @@ import { Link } from "next-view-transitions";
 import { useQueryState } from "nuqs";
 
 const formSchema = z.object({
-  question: z.string().min(1, "Question is required."),
-  answer: z.string().min(1, "Answer is required."),
+  question: z.string().trim().min(1, "Question is required."),
+  answer: z.string().trim().min(1, "Answer is required."),
 });
 
 export default function Manage() {
