@@ -152,6 +152,7 @@ export function QuizDetails(props: QuizDetailsProps) {
 interface DashboardSidebarProps {
   collapsed: boolean;
   setCollapsed: (collapsed: boolean) => void;
+  activeView: string | null;
   setActiveView: (
     value: string | ((old: string | null) => string | null) | null,
     options?: Options,
@@ -159,7 +160,7 @@ interface DashboardSidebarProps {
 }
 
 export function DashboardSidebar(props: DashboardSidebarProps) {
-  const { collapsed, setCollapsed, setActiveView } = props;
+  const { collapsed, setCollapsed, activeView, setActiveView } = props;
 
   const items = [
     {
@@ -212,6 +213,7 @@ export function DashboardSidebar(props: DashboardSidebarProps) {
                       "w-full flex items-center text-zinc-500",
                       collapsed ? "justify-center px-2" : "justify-start",
                       "hover:bg-red-500 hover:text-white transition-colors",
+                      activeView === item.view && "bg-red-500 text-white",
                     )}
                   >
                     <Icon className={cn("h-5 w-5", !collapsed && "mr-2")} />

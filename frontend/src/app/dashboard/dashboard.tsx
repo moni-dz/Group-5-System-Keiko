@@ -119,7 +119,12 @@ export default function Dashboard() {
       <SidebarTrigger />
       <div className="fixed inset-0 flex bg-gray-100 text-extrabold overflow-hidden">
         {/* Sidebar */}
-        <DashboardSidebar collapsed={collapsed} setCollapsed={setCollapsed} setActiveView={setActiveView} />
+        <DashboardSidebar
+          collapsed={collapsed}
+          setCollapsed={setCollapsed}
+          activeView={activeView}
+          setActiveView={setActiveView}
+        />
 
         {/* Main content */}
         <main className={cn("flex-1 p-8 overflow-hidden transition-all duration-300 ease-in-out")}>
