@@ -27,6 +27,8 @@
             directory = "./frontend";
             pnpm.enable = true;
           };
+
+          languages.deno.enable = true;
         };
       };
     };
