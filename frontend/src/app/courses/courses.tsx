@@ -271,12 +271,15 @@ export default function Courses() {
             <AlertDialogHeader>
               <AlertDialogTitle className="font-gau-pop-magic text-red-500 font-bold">ARE YOU SURE?</AlertDialogTitle>
               <AlertDialogDescription>
-                You're deleting a course. This action is irreversible!
+                You&apos;re deleting a course. This action is irreversible!
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel className="text-red-500 hover:bg-zinc-500 hover:text-white">Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-500 text-white hover:bg-zinc-500 hover:text-white">
+              <AlertDialogAction
+                onClick={handleDeleteConfirm}
+                className="bg-red-500 text-white hover:bg-zinc-500 hover:text-white"
+              >
                 Delete
               </AlertDialogAction>
             </AlertDialogFooter>

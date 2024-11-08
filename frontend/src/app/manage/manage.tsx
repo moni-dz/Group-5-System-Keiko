@@ -220,7 +220,7 @@ export default function Manage() {
               </AlertDialogHeader>
               <AlertDialogFooter className="flex flex-col sm:flex-row gap-4 sm:justify-between">
                 <Link href="/courses">
-                  <AlertDialogAction className="w-full sm:w-auto text-zinc-500 bg-white border hover:border-red-500 border-zinc-500 hover:bg-red-500 hover:text-white">
+                  <AlertDialogAction className="w-full sm:w-auto text-zinc-500 bg-white border hover:border-red-500 hover:bg-red-500 hover:text-white">
                     Back
                   </AlertDialogAction>
                 </Link>
@@ -230,7 +230,7 @@ export default function Manage() {
                       setShowFirstDialog(false);
                       setShowEditDialog(true);
                     }}
-                    className="w-full sm:w-auto text-zinc-500 bg-white border hover:border-red-500 border-zinc-500 hover:bg-red-500 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full sm:w-auto text-zinc-500 bg-white border hover:border-red-500 hover:bg-red-500 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={!quizzes.some((quiz) => quiz.course_code === courseCode)}
                   >
                     {!quizzes.some((quiz) => quiz.course_code === courseCode) ? "No quizzes to edit." : "Edit"}
@@ -240,7 +240,7 @@ export default function Manage() {
                       setShowFirstDialog(false);
                       setShowNewDialog(true);
                     }}
-                    className="w-full sm:w-auto hover:text-white border hover:border-red-500 hover:bg-red-500 text-zinc-500 bg-white border-zinc-500"
+                    className="w-full sm:w-auto hover:text-white border hover:border-red-500 hover:bg-red-500 text-zinc-500 bg-white "
                   >
                     Create
                   </AlertDialogAction>
@@ -264,7 +264,7 @@ export default function Manage() {
               </AlertDialogHeader>
               <Input
                 placeholder="Enter quiz name..."
-                className="w-full border border-zinc-500 p-2 rounded-sm"
+                className="w-full border italic border-zinc-500 p-2 rounded-sm"
                 onChange={(e) => setCurrentQuiz({ course_code: courseCode!, category: e.target.value })}
               />
               <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
@@ -274,7 +274,7 @@ export default function Manage() {
                     setShowFirstDialog(true);
                   }}
                   variant="outline"
-                  className="w-full sm:w-auto text-zinc-500 border border-zinc-500 hover:bg-red-500 hover:text-white hover:border-red-500"
+                  className="w-full sm:w-auto text-zinc-500 border  hover:bg-red-500 hover:text-white hover:border-red-500"
                 >
                   Back
                 </Button>
@@ -286,7 +286,7 @@ export default function Manage() {
                       setShowQuestionForm(true);
                     }
                   }}
-                  className="hover:text-white border hover:border-red-500 hover:bg-red-500 text-zinc-500 bg-white border-zinc-500"
+                  className="hover:text-white border hover:border-red-500 hover:bg-red-500 text-zinc-500 bg-white"
                   disabled={!currentQuiz.category}
                 >
                   Create Quiz!
@@ -318,8 +318,8 @@ export default function Manage() {
                   }
                 }}
               >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select quiz..." />
+                <SelectTrigger className="w-full italic text-zinc-500">
+                  <SelectValue placeholder ="Select quiz..." className="italic"/>
                 </SelectTrigger>
                 <SelectContent>
                   {quizzes
@@ -338,7 +338,7 @@ export default function Manage() {
                     setShowFirstDialog(true);
                   }}
                   variant="outline"
-                  className="w-full sm:w-auto text-zinc-500 border border-zinc-500 hover:bg-red-500 hover:text-white hover:border-red-500"
+                  className="w-full sm:w-auto text-zinc-500 border  hover:bg-red-500 hover:text-white hover:border-red-500"
                 >
                   Back
                 </Button>
@@ -350,7 +350,7 @@ export default function Manage() {
                       setCategory(currentQuiz.category);
                     }
                   }}
-                  className="hover:text-white border hover:border-red-500 hover:bg-red-500 text-zinc-500 bg-white border-zinc-500"
+                  className="hover:text-white border hover:border-red-500 hover:bg-red-500 text-zinc-500 bg-white"
                   disabled={!currentQuiz.category}
                 >
                   Edit Quiz
