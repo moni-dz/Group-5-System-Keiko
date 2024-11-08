@@ -222,6 +222,17 @@ export default function Manage() {
 
   return (
     <div className="bg-gray-50 min-h-screen relative">
+      {/* Added the Trash button in the top left corner */}
+      <Button
+        className="absolute top-0 left-0 m-4 p-2 rounded-full hover:bg-red-50"
+        variant="ghost"
+        onClick={() => {
+          setShowDeleteDialog(true);
+        }}
+      >
+        <Trash className="w-6 h-6 text-red-500 rounded-sm" />
+      </Button>
+      
       <Link href="/dashboard?view=courses">
         <Button className="absolute top-0 right-0 m-4 p-2 rounded-full hover:bg-red-50" variant="ghost">
           <Home className="w-6 h-6 text-red-500 rounded-sm" />
@@ -420,46 +431,44 @@ export default function Manage() {
                           }}
                           disabled={!newQuizName || newQuizName === currentQuiz.category}
                           className="bg-red-500 hover:bg-zinc-500 text-white"
-                        >
-                          Save
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="ghost" size="icon" className="w-8 h-8 hover:bg-red-50">
-                    <Trash className="h-4 w-4 text-red-500 -mt-0.5" />
+                          >
+                    Save
                   </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <div className="ping-container">
-                      <div className="ping"></div>
-                      <AlertDialogTitle className="font-gau-pop-magic text-red-500">DELETE QUIZ</AlertDialogTitle>
-                    </div>
-                    <AlertDialogDescription>Are you sure you want to delete this quiz?</AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel className="text-red-500 hover:bg-red-500 hover:text-white border border-red-500">
-                      Cancel
-                    </AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() => {
-                        deleteQuizMutation(currentQuizId!);
-                        setShowQuestionForm(false);
-                        setShowFirstDialog(true);
-                      }}
-                      className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white"
-                    >
-                      Continue
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
+                  </div>
+                  </div>
+                  </div>
+                  </PopoverContent>
+                  </Popover>
+                  </div>
+                  {showDeleteDialog && (
+                    <AlertDialog open={showDeleteDialog}>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <div className="ping-container">
+                            <div className="ping"></div>
+                            <AlertDialogTitle className="font-gau-pop-magic text-red-500">DELETE QUIZ</AlertDialogTitle>
+                          </div>
+                          <AlertDialogDescription>Are you sure you want to delete this quiz?</AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel className="text-red-500 hover:bg-red-500 hover:text-white border border-red-500">
+                            Cancel
+                                </AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => {
+                                    deleteQuizMutation(currentQuizId!);
+                                    setShowQuestionForm(false);
+                                    setShowFirstDialog(true);
+                                    setShowDeleteDialog(false);
+                                  }}
+                                  className="bg-white text-red-500 border border-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white"
+                                >
+                                  Continue
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
 
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="mb-8">
