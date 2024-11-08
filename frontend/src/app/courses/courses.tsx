@@ -18,6 +18,16 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { useTransitionRouter } from "next-view-transitions";
 import Image from "next/image";
 import logo from "@/public/logo.png";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const EditableCourse = dynamic(() => import("@/components/cards").then((mod) => mod.EditableCourse), {
   loading: () => <SkeletonEditableCourse />,
@@ -34,6 +44,8 @@ export default function Courses() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [courseToDelete, setCourseToDelete] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -146,6 +158,19 @@ export default function Courses() {
     form.setValue("description", course.description);
   }
 
+  function handleDeleteClick(id: string) {
+    setCourseToDelete(id);
+    setIsDeleteDialogOpen(true);
+  }
+
+  function handleDeleteConfirm() {
+    if (courseToDelete) {
+      deleteCourseMutation(courseToDelete);
+      setIsDeleteDialogOpen(false);
+      setCourseToDelete(null);
+    }
+  }
+
   const handleManageCourses = (course_code: string) => router.push(`/manage?course=${encodeURI(course_code)}`);
 
   return (
@@ -234,12 +259,29 @@ export default function Courses() {
               key={course.id}
               course={course}
               handleEdit={handleEdit}
-              handleDelete={deleteCourseMutation}
+              handleDelete={handleDeleteClick}
               handleManageCourses={handleManageCourses}
               className="text-zinc-500 border-zinc-500"
             />
           ))}
         </div>
+
+        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="font-gau-pop-magic text-red-500 font-bold">ARE YOU SURE?</AlertDialogTitle>
+              <AlertDialogDescription>
+                You're deleting a course. This action is irreversible!
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="text-red-500 hover:bg-zinc-500 hover:text-white">Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-500 text-white hover:bg-zinc-500 hover:text-white">
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
