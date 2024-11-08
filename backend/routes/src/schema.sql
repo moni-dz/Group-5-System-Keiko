@@ -109,3 +109,26 @@ BEGIN
     AND category = p_old_category;
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION delete_quiz(p_quiz_id UUID)
+RETURNS UUID AS $$
+DECLARE
+    v_course_code TEXT;
+    v_category TEXT;
+BEGIN
+    SELECT course_code, category
+    INTO v_course_code, v_category
+    FROM quizzes
+    WHERE id = p_quiz_id;
+
+    DELETE FROM cards
+    WHERE course_code = v_course_code
+    AND category = v_category;
+
+    DELETE FROM quizzes
+    WHERE id = p_quiz_id
+    RETURNING id INTO p_quiz_id;
+
+    RETURN p_quiz_id;
+END;
+$$ LANGUAGE plpgsql;
