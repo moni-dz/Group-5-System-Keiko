@@ -56,7 +56,6 @@ export default function Manage() {
   const [showFirstDialog, setShowFirstDialog] = useState(category === null);
   const [showNewDialog, setShowNewDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   // popover for renaming quiz
   const [openRename, setOpenRename] = useState(false);
@@ -415,8 +414,6 @@ export default function Manage() {
             </AlertDialogContent>
           </AlertDialog>
         )}
-
-        {showDeleteDialog && <AlertDialog></AlertDialog>}
 
         {showQuestionForm && (
           <>

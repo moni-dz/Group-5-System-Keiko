@@ -34,13 +34,13 @@ const EditableCourse = dynamic(() => import("@/components/cards").then((mod) => 
 });
 
 const formSchema = z.object({
-  name: z.string().min(1, "Course name is required."),
+  name: z.string().trim().min(1, "Course name is required."),
   course_code: z
     .string()
     .trim()
     .min(1, "Course code is required.")
     .refine((s) => !s.includes(" "), { message: "Course code cannot contain spaces." }),
-  description: z.string().min(1, "Course description is required."),
+  description: z.string().trim().min(1, "Course description is required."),
 });
 
 export default function Courses() {
