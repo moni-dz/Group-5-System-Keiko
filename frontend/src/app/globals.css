@@ -92,37 +92,38 @@
         @apply bg-background text-foreground;
     }
 }
+
 @keyframes bounceIn {
-    0%, 100% {
-      transform: translateY(0); /* Starting and ending position */
+    0%,
+    100% {
+        transform: translateY(0); /* Starting and ending position */
     }
 
     50% {
-      transform: translateY(10px); /* Midway down */
-
+        transform: translateY(10px); /* Midway down */
     }
-  }
-  
-  .animate-bounceIn {
+}
+
+.animate-bounceIn {
     animation: bounceIn 1.5s ease-in-out infinite; /* Slightly shorter for smoother repetition */
-  }
-  
-  @keyframes ping {
+}
+
+@keyframes ping {
     0% {
-      transform: scale(0.2);
-      opacity: 1;
+        transform: scale(0.2);
+        opacity: 1;
     }
     100% {
-      transform: scale(1.2);
-      opacity: 0;
+        transform: scale(1.2);
+        opacity: 0;
     }
-  }
-  
-  .ping-container {
+}
+
+.ping-container {
     position: relative;
-  }
-  
-  .ping-container .ping {
+}
+
+.ping-container .ping {
     position: absolute;
     top: -30;
     left: -30;
@@ -131,4 +132,4 @@
     background-color: red;
     border-radius: 50%;
     animation: ping 1s ease-in-out infinite;
-  }
+}
