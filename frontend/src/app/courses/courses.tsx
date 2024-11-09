@@ -133,7 +133,10 @@ export default function Courses() {
     },
 
     onSuccess: () => toast({ description: "Course deleted successfully." }),
-    onSettled: async () => await queryClient.invalidateQueries({ queryKey: ["courses"] }),
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["courses"] });
+      await queryClient.invalidateQueries({ queryKey: ["quizzes"] });
+    },
   }).mutate;
 
   function onSubmit(values: z.infer<typeof formSchema>) {
