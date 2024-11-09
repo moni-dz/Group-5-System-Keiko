@@ -132,3 +132,27 @@ BEGIN
     RETURN p_quiz_id;
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION delete_course(p_course_id UUID)
+RETURNS UUID AS $$
+DECLARE
+    v_course_code TEXT;
+BEGIN
+    SELECT course_code
+    INTO v_course_code
+    FROM courses
+    WHERE id = p_course_id;
+
+    DELETE FROM quizzes
+    WHERE course_code = v_course_code;
+
+    DELETE FROM cards
+    WHERE course_code = v_course_code;
+
+    DELETE FROM courses
+    WHERE id = p_course_id
+    RETURNING id INTO p_course_id;
+
+    RETURN p_course_id;
+END;
+$$ LANGUAGE plpgsql;

@@ -89,7 +89,7 @@ impl CourseAPI for KeikoDatabase {
 
     /// DELETE /v1/courses/id/{course_id}
     async fn delete_course(&self, course_id: &Uuid) -> KeikoResult<Uuid> {
-        sqlx::query_scalar::<_, Uuid>("DELETE FROM courses WHERE id = $1 RETURNING id")
+        sqlx::query_scalar::<_, Uuid>("SELECT delete_course($1)")
             .bind(course_id)
             .fetch_one(&self.pool)
             .await
